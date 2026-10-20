@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase:** 5 → 6. Built, reviewed (five QA lenses) and fixed; `npm run build` and `npm run check` pass. **Before deploying:** the repo clean-up in QUESTIONS Q-A2 and moving the folder out of iCloud (Q-B10), then deploy with the user's OK.
+**Phase:** 6 → 7. **Live at https://alexandrosdellios.github.io** (deployed 2026-10-20). Next: answers to docs/QUESTIONS.md and the user's real media (MEDIA.md §3).
 
 ## Roadmap
 
@@ -11,7 +11,7 @@
 - [x] 3. Design direction: write docs/DESIGN.md (tokens, type, motion) and get the user's sign-off
 - [x] 4. Build the site (Astro: layouts, home page, project pages, media pipeline)
 - [x] 5. QA: visual check desktop/mobile, accessibility, performance, content accuracy (first pass + fixes, 2026-10-20)
-- [ ] 6. Deploy: create the `AlexandrosDellios.github.io` repo and push (needs the user's OK)
+- [x] 6. Deploy: repo `AlexandrosDellios/AlexandrosDellios.github.io` (public), Pages source = GitHub Actions, first deploy succeeded 2026-10-20
 - [ ] 7. Swap placeholders for the user's real media as it arrives in `Images/` (see docs/MEDIA.md, docs/QUESTIONS.md)
 
 ## Session log
@@ -55,10 +55,15 @@
 - **Final check (main session):** clean rebuild (`rm -rf dist && npm run build`, 9 pages), `npm run check` 0 errors. Reviewed by eye in the browser pane at 1440×900 and 375×812 (hero, Now, work grid, more work, experience/toolbox, footer, quadruped project page). Added `.claude/launch.json` (gitignored): `portfolio-preview` (astro preview :4321) and `portfolio-dev` (astro dev :4322).
 - Note for future sessions: a **hidden** browser pane throttles animation frames to about 2 per second, so the CSS/GSAP intro and reveals look half-finished in screenshots. Wait or show the pane before judging visuals.
 
+### 2026-10-20: Session 1, launch
+
+- **Repo clean-up (approved by Alexandros):** removed the report PDFs, which carried student IDs, from the **full git history** of the public Legged-Robot and MPC-Rocket repos (`git filter-branch --index-filter 'git rm --cached …' --prune-empty`, then `--force-with-lease` push). Also dropped the README line pointing to `report.pdf`. Verified with fresh clones (0 PDFs). Backups: `private/backups/*.bundle` (local only). GitHub can still serve the old commit SHAs from its cache; a GitHub Support "remove sensitive data" request would purge them (optional, listed in QUESTIONS Q-A2). Code links restored on the quadruped and rocket pages.
+- **Deploy:** created the public repo `AlexandrosDellios/AlexandrosDellios.github.io`, enabled Pages with `build_type=workflow` (via `gh api`), and pushed `main`. The "Deploy to GitHub Pages" run succeeded (build + deploy). Live checks: `/`, the project pages, `/cv/`, the CV PDF, OG images and videos return 200, unknown paths get the custom 404, the live page has no console errors, and all fonts load.
+- **Folder move (approved):** the project moves from `~/Documents/Portfolio` (iCloud-synced) to **`~/Developer/Portfolio`** at the end of this session. Claude memory notes were copied to the new path's project memory.
+
 ## Next
 
-1. **Launch blockers (Alexandros):** the repo clean-up in Q-A2 (then restore the two `links.code` entries), and moving the folder out of iCloud (Q-B10).
-2. Get Alexandros's answers to docs/QUESTIONS.md (team sizes / "my part", Uno solo or team, course names, the Marco Odermatt mention, the research-card illustration, CV PDF metadata).
+1. Get Alexandros's answers to docs/QUESTIONS.md (local file): "my part" per team project, Uno solo/team + course, glider report/plots, Marco Odermatt mention, research-card illustration, spoken languages, CV PDF metadata, teammates' names in his repo READMEs.
+2. Swap placeholders for real media as it arrives in `Images/` (MEDIA.md §3: BioRob photo, award photos, glider plots/clip, rocket landing recording, Uno overlay, hi-res quadruped/Thymio videos, hi-res guide-dog photo). Re-run `python3 scripts/og/make_og_images.py <slug>` when a project's poster, title or metric changes.
 3. A quick real-device pass with **reduced motion**, **JavaScript off** and a **touch phone**, which the automated checks could not emulate.
-4. Deploy: create the `AlexandrosDellios.github.io` repo and push (needs the user's OK), then set Pages → Source: GitHub Actions.
-5. Swap placeholders for real media as it arrives in `Images/` (MEDIA.md §3). Re-run `python3 scripts/og/make_og_images.py <slug>` when a project's poster, title or metric changes.
+4. After any content or media change: `npm run build` locally, then commit and push to `main` (it deploys automatically). Re-run a QA review pass after big changes.
