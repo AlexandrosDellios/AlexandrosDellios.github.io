@@ -1,0 +1,78 @@
+---
+/**
+ * NameStrip (DESIGN §5.2, also the project TitleStrip §5.18): giant Anton
+ * uppercase text repeated in a flex row that runs off the right edge.
+ *
+ *   <NameStrip text="Alexandros Dellios" as="h1" />            home
+ *   <NameStrip text={project.shortWord} as="h1" />             project page
+ *   <NameStrip text="404" copies={5} ariaHidden intro />       decorative
+ *
+ * Accessibility: only the FIRST copy is exposed (rendered as `as`); the other
+ * copies are aria-hidden. `ariaHidden` hides the whole strip (use it when the
+ * page has its own visible heading).
+ *
+ * Hooks for page scripts (home M2 collapse, project transitions):
+ *   [data-name-strip]          root (overflow clip). Make it sticky from page CSS:
+ *                              `.name-strip { position: sticky; top: var(--header-h); }`
+ *   [data-name-strip-inner]    the moving row: tween x / scaleY / clip-path here
+ *   [data-name-strip-copy]     each copy (index in data-index)
+ * The root carries `view-transition-name: page-title` (M8) unless `vtName={null}`;
+ * only ONE element per page may use a given name.
+ *
+ * `intro` adds the M1 rise-in (CSS, gated by html.js + .is-ready + motion OK).
+ * It animates the `translate` property.
+ * GOTCHA (GSAP 3.15): on the first tween of an element, GSAP folds the CSS
+ * individual properties (translate / rotate / scale) into its own transform
+ * and writes `translate: none` inline. If you tween [data-name-strip-inner]
+ * while the intro is still running, the current intro offset gets baked in.
+ * Pin it in the tween (`gsap.fromTo(inner, { x: 0, y: 0 }, …)`, as
+ * scripts/home/hero.ts does) or tween a wrapper element instead.
+ * Styles: src/styles/components.css (.name-strip*).
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'div'>, 'id'> {
+  text: string;
+  as?: 'h1' | 'h2' | 'p' | 'div';
+  copies?: number;
+  ariaHidden?: boolean;
+  intro?: boolean;
+  /** view-transition-name for the root. Default 'page-title'; null disables it. */
+  vtName?: string | null;
+  id?: string;
+  class?: string;
+}
+
+const {
+  text,
+  as: Tag = 'div',
+  copies = 3,
+  ariaHidden = false,
+  intro = false,
+  vtName = 'page-title',
+  id,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const extra = Array.from({ length: Math.max(0, copies - 1) }, (_, i) => i + 1);
+---
+
+<div
+  class:list={['name-strip', intro && 'name-strip--intro', className]}
+  data-name-strip
+  aria-hidden={ariaHidden ? 'true' : undefined}
+  style={vtName ? `view-transition-name: ${vtName}` : undefined}
+  {...rest}
+>
+  <div class="name-strip__inner" data-name-strip-inner>
+    <Tag class="name-strip__copy" data-name-strip-copy data-index="0" id={id}>{text}</Tag>
+    {
+      extra.map((i) => (
+        <span class="name-strip__copy" data-name-strip-copy data-index={i} aria-hidden="true">
+          {text}
+        </span>
+      ))
+    }
+  </div>
+</div>

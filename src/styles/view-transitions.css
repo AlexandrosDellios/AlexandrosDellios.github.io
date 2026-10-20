@@ -1,0 +1,152 @@
+/* =============================================================================
+   Cross-document view transitions (DESIGN M8). Native, no ClientRouter:
+   Chrome/Edge 126+ and Safari 18.2+ animate same-origin navigations; other
+   browsers simply load the page. Everything is off under reduced motion
+   (the at-rule itself only exists inside the no-preference query).
+
+   Named groups used across the site:
+     site-header      the sticky header (stays put, quick crossfade)
+     page-title       NameStrip / project TitleStrip (old slides up, new rises)
+     .project-media   class for tile media <-> project hero (`media-<slug>`)
+     .project-title   class for tile title <-> project h1 (`title-<slug>`)
+   Builders set `view-transition-name: media-<slug>; view-transition-class: project-media;`
+   on BOTH the tile media box and the project hero media box (same for titles).
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  /* Defaults for every captured group. */
+  ::view-transition-group(*) {
+    animation-duration: var(--dur-vt);
+    animation-timing-function: var(--ease-out-quart);
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-fill-mode: both;
+  }
+
+  /* Root: the old page fades out quickly; the new one fades in behind the
+     shared elements. The accent re-theme rides on this crossfade. */
+  ::view-transition-old(root) {
+    animation: vt-fade-out 0.25s var(--ease-out-quart) both;
+  }
+
+  ::view-transition-new(root) {
+    animation: vt-fade-in 0.4s 0.2s var(--ease-out-quart) both;
+  }
+
+  /* Header: identical on both pages, keep it on top and barely animate it. */
+  ::view-transition-group(site-header) {
+    z-index: 10;
+    animation-duration: 0.3s;
+  }
+
+  ::view-transition-old(site-header),
+  ::view-transition-new(site-header) {
+    animation-duration: 0.3s;
+  }
+
+  /* Title strip: old slides up and out (in-back), new rises from below (back-out). */
+  ::view-transition-group(page-title) {
+    z-index: 4;
+    overflow: clip;
+    animation-duration: 0.2s;
+    animation-delay: 0.3s;
+    animation-timing-function: var(--ease-in-back);
+  }
+
+  ::view-transition-old(page-title),
+  ::view-transition-new(page-title) {
+    /* keep the snapshot's own aspect ratio while the group resizes */
+    width: auto;
+    height: 100%;
+  }
+
+  ::view-transition-old(page-title) {
+    animation: vt-title-out 0.3s var(--ease-in-back) both;
+  }
+
+  ::view-transition-new(page-title) {
+    animation: vt-title-in 0.5s 0.3s var(--ease-out-back) both;
+  }
+
+  /* Tile media -> project hero: one shared box morphs size and position. */
+  ::view-transition-group(.project-media) {
+    z-index: 3;
+    overflow: clip;
+    animation-duration: var(--dur-vt);
+    animation-timing-function: var(--ease-out-quart);
+  }
+
+  ::view-transition-old(.project-media),
+  ::view-transition-new(.project-media) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  ::view-transition-old(.project-media) {
+    animation: vt-fade-out calc(var(--dur-vt) * 0.5) var(--ease-out-quart) both;
+  }
+
+  ::view-transition-new(.project-media) {
+    animation: vt-fade-in calc(var(--dur-vt) * 0.5) var(--ease-out-quart) both;
+  }
+
+  /* Tile title -> project title. */
+  ::view-transition-group(.project-title) {
+    z-index: 3;
+    animation-duration: calc(var(--dur-vt) * 0.8);
+  }
+}
+
+/* Belt and braces: if a browser ever runs a transition anyway, don't animate. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-title-out {
+  0% {
+    translate: 0 0;
+  }
+  99% {
+    translate: 0 -100%;
+    opacity: 1;
+  }
+  100% {
+    translate: 0 -100%;
+    opacity: 0;
+  }
+}
+
+@keyframes vt-title-in {
+  from {
+    translate: 0 100%;
+    opacity: 0;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}

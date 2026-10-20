@@ -1,0 +1,80 @@
+---
+/**
+ * Home page (DESIGN §2, §4; content plan §2). One scroll, six sections:
+ *
+ *   Hero          name strip (h1) · portrait arch · roles · bio · CTAs · stickers
+ *   01 Now        research card (dark) + EPFL AI Team card (accent)
+ *   02 Work       6 project tiles + 3 statement cells        id="work"
+ *   03 More work  compact rows                               id="more-work"
+ *   04 Experience experience + education rows                id="experience"
+ *   05 Toolbox    skill groups with "seen in" links          id="toolbox"
+ *                 (04 and 05 share one band on desktop: 7 + 5 columns, which
+ *                 keeps the page within the 6-screen budget, DESIGN §2.5)
+ *   (Footer, id="contact", comes from BaseLayout.)
+ *
+ * Components: src/components/home/. Client code: src/scripts/home/ (imported
+ * below; the shared core is booted by BaseLayout).
+ */
+import { getCollection } from 'astro:content';
+import CursorPreview from '../components/home/CursorPreview.astro';
+import Experience from '../components/home/Experience.astro';
+import Hero from '../components/home/Hero.astro';
+import MoreWork from '../components/home/MoreWork.astro';
+import NowSection from '../components/home/NowSection.astro';
+import Toolbox from '../components/home/Toolbox.astro';
+import WorkSection from '../components/home/WorkSection.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+
+// Featured projects in grid order. Ids starting with "_" are content stubs.
+const projects = (await getCollection('projects', ({ id }) => !id.startsWith('_'))).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<BaseLayout title={`${site.name} · Robotics M.Sc. student at EPFL`} pageClass="page-home">
+  <Hero />
+  <NowSection />
+  <WorkSection projects={projects} />
+  <MoreWork />
+  <div class="home-band container">
+    <Experience stackHead class="home-band__xp" />
+    <Toolbox projects={projects} stackHead class="home-band__tb" />
+  </div>
+  <CursorPreview />
+</BaseLayout>
+
+<script>
+  import '../scripts/home/index';
+</script>
+
+<style>
+  /* One vertical rhythm for the gaps between home sections (components read
+     var(--home-gap) with this same value as their fallback). */
+  :global(html.page-home main) {
+    --home-gap: var(--section-sm);
+  }
+
+  /* Experience | Toolbox band. Stacked below 1024px. */
+  .home-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--home-gap, var(--section-sm));
+  }
+
+  @media (min-width: 1024px) {
+    .home-band {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+      align-items: start;
+    }
+
+    .home-band__xp {
+      grid-column: 1 / span 7;
+    }
+
+    .home-band__tb {
+      grid-column: 8 / -1;
+    }
+  }
+</style>

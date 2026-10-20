@@ -1,0 +1,69 @@
+---
+/**
+ * TitleStrip (DESIGN §5.18): the project's short word as a giant Anton strip
+ * in the page accent, built on the global NameStrip.
+ *
+ *   <TitleStrip text={data.shortWord} />
+ *
+ * Decorative (aria-hidden): the real heading is the serif <h1> below it.
+ * Same look as the home name strip: ✦ between copies (.name-strip--stars),
+ * and enough copies that even a short word ("UNO") runs off the right edge
+ * (about 20 letters in total: UNO → 7, ROCKET → 4, POLYMANDER → 3).
+ * Keeps NameStrip's `view-transition-name: page-title`, so on a cross-document
+ * navigation the old strip slides up and this one rises (view-transitions.css).
+ *
+ * Scroll behaviour (M2, scripts/project/title-strip.ts): once the script runs
+ * it adds .is-pinned (sticky under the header) and scrubs the strip sideways,
+ * squashes it (>= 600px) and clips it away into the header. Without JS, or
+ * under reduced motion, it is a static strip that scrolls away normally.
+ */
+import NameStrip from '../global/NameStrip.astro';
+
+interface Props {
+  text: string;
+  class?: string;
+}
+
+const { text, class: className } = Astro.props;
+const copies = Math.max(3, Math.ceil(20 / Math.max(1, text.length)));
+---
+
+<NameStrip
+  text={text}
+  ariaHidden
+  copies={copies}
+  class={['title-strip', 'name-strip--stars', className].filter(Boolean).join(' ')}
+  data-title-strip
+/>
+
+<style>
+  .title-strip {
+    margin-top: clamp(0.25rem, 1vw, 0.75rem);
+  }
+
+  /* Set by the script when the M2 collapse is active. The paper background
+     hides content passing underneath while the strip is still visible; the
+     script clips the whole box (background included) as it collapses. */
+  .title-strip.is-pinned {
+    position: sticky;
+    top: var(--header-h);
+    z-index: var(--z-strip);
+    background: var(--paper);
+  }
+
+  .title-strip.is-pinned :global(.name-strip__inner) {
+    will-change: transform;
+  }
+
+  /* Phones: a smaller word and no gap above it, so the TL;DR fits the first
+     screen and long words lose fewer letters at the edge. */
+  @media (max-width: 599.98px) {
+    .title-strip {
+      margin-top: 0;
+    }
+
+    .title-strip :global(.name-strip__copy) {
+      font-size: clamp(3.25rem, 16vw, 5rem);
+    }
+  }
+</style>

@@ -1,0 +1,157 @@
+---
+/**
+ * Toolbox (DESIGN §5.16, content plan §2.7), id="toolbox".
+ * Group grid: 2 columns from 600px (also inside the 5-column right half of
+ * the desktop "Experience | Toolbox" band, see pages/index.astro), 1 on
+ * phones. Each group: mono label, the items as a flowing list, and
+ * "Seen in →" links to the project pages that prove it (only slugs that
+ * exist in the collection). No skill bars or percentages (DESIGN §11).
+ * The parent provides the container / column; this section adds no gutters.
+ */
+import type { CollectionEntry } from 'astro:content';
+import type { HTMLAttributes } from 'astro/types';
+import { site } from '../../data/site';
+import SectionHead from './SectionHead.astro';
+
+interface Props extends HTMLAttributes<'section'> {
+  projects: CollectionEntry<'projects'>[];
+  /** Stack the heading (when the section shares a row with another one). */
+  stackHead?: boolean;
+  class?: string;
+}
+
+const { projects, stackHead = false, class: className, ...rest } = Astro.props;
+const known = new Set(projects.map((p) => p.id));
+const pad2 = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class:list={['tb', className]} id="toolbox" aria-labelledby="toolbox-title" {...rest}>
+  <SectionHead index="05" label="Toolbox" id="toolbox-title" title="The *toolbox*" aside="From the CV and projects · linked to proof" stack={stackHead} />
+
+  <ul class="tb__grid" role="list">
+    {
+      site.toolbox.map((group, i) => {
+        const seen = (group.seenIn ?? []).filter((s) => known.has(s.slug));
+        return (
+          <li class="tb__group">
+            <h3 class="tb__label">
+              <span class="tb__index" aria-hidden="true">{pad2(i + 1)}</span>
+              <span>{group.label}</span>
+            </h3>
+            <ul class="tb__items" role="list">
+              {/* The ' ' after each item is a real break opportunity (Astro drops newline whitespace). */}
+              {group.items.map((item) => [<li>{item}</li>, ' '])}
+            </ul>
+            {seen.length > 0 && (
+              <p class="tb__seen">
+                <span class="tb__seen-label">Seen in</span>{' '}<span class="tb__seen-arrow" aria-hidden="true">→</span>{' '}
+                {seen.map((s, j) => [
+                  <a class="link-hl tb__seen-link" href={`/work/${s.slug}/`}>{s.label}</a>,
+                  j < seen.length - 1 ? ', ' : '',
+                ])}
+              </p>
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>
+
+<style>
+  .tb {
+    display: grid;
+    align-content: start;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .tb__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 var(--gap);
+    margin: 0;
+    padding: 0;
+  }
+
+  .tb__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-block: clamp(0.75rem, 1.2vw, 0.9rem) clamp(1rem, 1.6vw, 1.25rem);
+    border-top: var(--hairline);
+  }
+
+  .tb__label {
+    display: flex;
+    gap: 0.6em;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .tb__index {
+    color: var(--accent-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Items flow like a sentence, separated by thin dots. Each item is an
+     inline-block, so a line only breaks BETWEEN items ("ROS 2 Jazzy" never
+     splits); an item longer than the line still wraps inside its own box. */
+  .tb__items {
+    margin: 0;
+    padding: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .tb__items > li {
+    display: inline-block;
+  }
+
+  .tb__items > li:not(:last-child)::after {
+    content: '·';
+    margin-inline: 0.45em;
+    color: var(--accent-ink);
+    font-weight: 600;
+  }
+
+  .tb__seen {
+    margin-top: auto;
+    padding-top: 0.25rem;
+    font-size: var(--fs-small);
+    line-height: 1.6;
+  }
+
+  .tb__seen-label {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .tb__seen-arrow {
+    margin-right: 0.15em;
+    color: var(--ink-2);
+  }
+
+  /* Taller hit area for thumbs (≈ 44px) without changing the line height. */
+  .tb__seen-link {
+    padding-block: 0.75rem;
+    margin-block: -0.75rem;
+    /* Keep the highlighter fill on the text, not on the padding. */
+    background-origin: content-box;
+    background-clip: content-box;
+  }
+
+  @media (min-width: 600px) {
+    .tb__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(1rem, 2vw, 1.75rem);
+    }
+  }
+</style>

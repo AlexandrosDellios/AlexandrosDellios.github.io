@@ -1,0 +1,33 @@
+---
+/**
+ * Chip (DESIGN §5.13): small mono "telemetry" label.
+ *   variant="tag"     1px hairline border, ink-2 text        e.g. PPO, PYBULLET
+ *   variant="metric"  paper background, ink border + text    e.g. 29% INCLINE · ≈16°
+ *   variant="team"    paper-2 background + people icon       e.g. TEAM OF 3
+ *
+ *   <Chip>PyBullet</Chip>
+ *   <Chip variant="metric" text={project.metric} />
+ *   <ul class="cluster" role="list">{tags.map(t => <Chip as="li">{t}</Chip>)}</ul>
+ *
+ * Text is uppercased by CSS (screen readers get the original case).
+ * Styles: src/styles/components.css (.chip, .chip--tag/--metric/--team).
+ */
+import Icon from './Icon.astro';
+
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'span'> {
+  variant?: 'tag' | 'metric' | 'team';
+  /** Text content (alternative to the default slot). */
+  text?: string;
+  as?: 'span' | 'li';
+  class?: string;
+}
+
+const { variant = 'tag', text, as: Tag = 'span', class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={['chip', `chip--${variant}`, className]} {...rest}>
+  {variant === 'team' && <Icon name="users" class="chip__icon" />}
+  {text ?? <slot />}
+</Tag>

@@ -1,0 +1,228 @@
+---
+/**
+ * ProjectHero (DESIGN §4 project row, §5.18, M8): the project's main media on
+ * a full-width accent "board", framed like a print pinned to a lab poster.
+ *
+ *   <ProjectHero id={entry.id} data={entry.data} />
+ *
+ * Media, in order of preference:
+ *   1. data.video   LoopVideo, poster first, plays when >= 60% in view (any
+ *                   device), visible pause control, nothing autoplays under
+ *                   reduced motion / Save-Data (scripts/core/video.ts).
+ *   2. data.poster  optimised <Picture> (AVIF + WebP). Posters whose alt text
+ *                   starts with "Illustration:" / "Diagram:" get that word as
+ *                   a chip, so a drawing is never mistaken for a result.
+ *   3. otherwise    MediaPlaceholder with data.mediaNeeded.
+ *
+ * Frame size: the media's own aspect ratio (video: its first-frame poster in
+ * public/; image: the poster), capped by the viewport height and by 1.5× the
+ * source width (floor 560px), so low-resolution sim captures stay a crisp
+ * print on the board instead of being blown up. The accent board fills the
+ * rest of the width.
+ *
+ * Diagram posters (alt starts with "Diagram:") get a "Full size ↗" link under
+ * the board on phones, where their labels are too small to read.
+ *
+ * The poster loads eagerly but without fetchpriority="high": on phones the
+ * hero sits below the TL;DR (outside the first screen).
+ *
+ * View transition: the FRAME carries `media-<id>` + class project-media, the
+ * same name as the home tile's media box, so the tile grows into this frame.
+ * `data-vt-name` lets the page script drop the name when the frame is off
+ * screen on arrival (BaseLayout inline script, pagereveal).
+ */
+import { getImage, Picture } from 'astro:assets';
+import LoopVideo from '../global/LoopVideo.astro';
+import MediaPlaceholder from '../global/MediaPlaceholder.astro';
+import {
+  mediaKind,
+  publicImageSize,
+  ratioOf,
+  vtNames,
+  vtStyle,
+  widthsFor,
+  type ProjectData,
+  type Size,
+} from './projects';
+
+interface Props {
+  id: string;
+  data: ProjectData;
+  class?: string;
+}
+
+const { id, data, class: className } = Astro.props;
+const { video, poster } = data;
+
+const mode: 'video' | 'image' | 'placeholder' = video ? 'video' : poster ? 'image' : 'placeholder';
+
+const posterSize: Size | null = poster ? { width: poster.width, height: poster.height } : null;
+// Video frame = the clip's own aspect (its poster is the first frame, same crop).
+const size = mode === 'video' ? (publicImageSize(video?.poster) ?? posterSize) : posterSize;
+const ratio = ratioOf(size);
+
+// Never show a source more than 1.5x its native width (floor 35rem).
+const sourceWidth = size?.width ?? 1600;
+const mediaMax = Math.max(560, Math.round(sourceWidth * 1.5));
+const sizes = `(min-width: 1024px) ${Math.min(mediaMax, 1500)}px, (min-width: 600px) 92vw, 100vw`;
+
+const kind = mediaKind(data.posterAlt);
+const vt = vtNames(id).media;
+
+// Phones: a native-size copy of a diagram poster, to zoom into its labels.
+const fullSize =
+  kind === 'Diagram' && mode === 'image' && poster
+    ? (await getImage({ src: poster, width: poster.width, format: 'png' })).src
+    : null;
+---
+
+<div
+  class:list={['pj-hero', className]}
+  style={`--ratio: ${ratio.css}; --ratio-n: ${ratio.n}; --media-max: ${mediaMax}px`}
+>
+  <div
+    class="pj-hero__frame"
+    id="pj-hero"
+    data-vt-name={vt}
+    style={vtStyle(vt, 'project-media')}
+  >
+    {
+      mode === 'video' && video ? (
+        <LoopVideo
+          mp4={video.mp4}
+          webm={video.webm}
+          poster={poster ?? video.poster}
+          alt={data.posterAlt}
+          label={data.shortTitle}
+          aspect="auto"
+          focus={data.focus}
+          autoplay
+          controlsAt="bottom-right"
+          eager
+          sizes={sizes}
+          id={`video-hero-${id}`}
+          class="pj-hero__media"
+        />
+      ) : mode === 'image' && poster ? (
+        <Picture
+          src={poster}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={widthsFor(poster.width)}
+          sizes={sizes}
+          alt={data.posterAlt}
+          loading="eager"
+          decoding="async"
+          class="pj-hero__img"
+          pictureAttributes={{ class: 'pj-hero__media' }}
+        />
+      ) : (
+        <MediaPlaceholder label={data.mediaNeeded ?? 'Project footage'} aspect="auto" class="pj-hero__media" />
+      )
+    }
+    {kind && mode !== 'placeholder' && <span class="chip chip--metric pj-hero__kind" aria-hidden="true">{kind}</span>}
+  </div>
+</div>
+{
+  fullSize && (
+    <p class="pj-hero__full">
+      <a href={fullSize} target="_blank" rel="noopener" data-astro-prefetch="false">
+        Full size<span class="sr-only"> diagram (opens in a new tab)</span>
+        <span aria-hidden="true"> ↗</span>
+      </a>
+    </p>
+  )
+}
+
+<style>
+  .pj-hero {
+    /* Tallest the media may get: keeps the whole frame on one screen. */
+    --hero-h: min(72vh, 48rem);
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 4.5vw, 4.5rem);
+    background: var(--accent);
+    /* Three round corners, one exposed (DESIGN §3.3 tile shape). */
+    border-radius: var(--r-tile) var(--r-tile) var(--r-tile) 0;
+  }
+
+  @supports (height: 1svh) {
+    .pj-hero {
+      --hero-h: min(72svh, 48rem);
+    }
+  }
+
+  .pj-hero__frame {
+    position: relative;
+    width: min(100%, var(--media-max), calc(var(--hero-h) * var(--ratio-n)));
+    aspect-ratio: var(--ratio);
+    overflow: hidden;
+    border: var(--border-2);
+    border-radius: var(--r-sm);
+    background: var(--paper-2);
+    /* A print pinned to the board: hard ink offset, never blurred. */
+    box-shadow: -6px 6px 0 0 var(--ink);
+  }
+
+  /* Media fills the frame (LoopVideo/placeholder use aspect="auto"). */
+  .pj-hero__frame > :global(.pj-hero__media) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .pj-hero__frame :global(.pj-hero__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pj-hero__frame :global(.media-ph) {
+    border: 0;
+  }
+
+  /* Bottom-left: posters keep their top for their own labels, and the
+     play/pause button owns the bottom-right corner. */
+  .pj-hero__kind {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    z-index: 2;
+  }
+
+  /* "Full size ↗" under the board: phones only (labels are readable above). */
+  .pj-hero__full {
+    display: none;
+    margin-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .pj-hero__full a {
+    color: var(--accent-ink);
+    /* 44px-tall hit area without changing the line height. */
+    padding-block: 0.9rem;
+  }
+
+  /* Phones: the board goes edge to edge (figures are full-bleed too). */
+  @media (max-width: 599.98px) {
+    .pj-hero__full {
+      display: block;
+    }
+
+    .pj-hero {
+      margin-inline: calc(var(--pad) * -1);
+      padding: var(--pad);
+      border-radius: 0;
+    }
+
+    .pj-hero__frame {
+      box-shadow: -4px 4px 0 0 var(--ink);
+    }
+  }
+</style>

@@ -1,0 +1,310 @@
+---
+/**
+ * Footer (DESIGN §5.17, M14), id="contact" (target of the "Contact" nav link).
+ *
+ *   ┌ accent block (full bleed, ink text) ───────────────────────────────┐
+ *   │ CONTACT chip                                                         │
+ *   │ Big serif footer line with *one italic*     ┌ paper card ─────────┐ │
+ *   │                                             │ status · location    │ │
+ *   │                                             │ email (copy)         │ │
+ *   │                                             │ CV · GitHub · LinkedIn│ │
+ *   └─────────────────────────────────────────────└──────────────────────┘ ┘
+ *   ALEXANDROS DELLIOS ✦ ALEXANDROS DELLIOS ✦ …   (CSS marquee, sticky)
+ *   © 2026 Alexandros Dellios · Built with Astro            Back to top ↑
+ *
+ * Small text never sits directly on the accent fill (per-project accents can be
+ * as dark as magenta): it lives on the paper card / chips.
+ * Ticker: pauses on hover, while focus is in the footer, and off-screen
+ * ([data-marquee] + scripts/core/marquee.ts); static under reduced motion.
+ */
+import { site } from '../../data/site';
+import CopyEmail from './CopyEmail.astro';
+import Emph from './Emph.astro';
+import Icon from './Icon.astro';
+import PillButton from './PillButton.astro';
+import StatusBadge from './StatusBadge.astro';
+
+const year = new Date().getFullYear();
+// Two identical halves so translateX(-50%) loops seamlessly.
+const tickerItems = Array.from({ length: 4 });
+---
+
+<footer id="contact" class="site-footer" aria-labelledby="footer-title" tabindex="-1">
+  <div class="site-footer__block on-accent">
+    <div class="site-footer__grid container">
+      <div class="site-footer__lead">
+        <p class="site-footer__kicker">Contact</p>
+        <h2 id="footer-title" class="site-footer__line">
+          <Emph text={site.footerLine} />
+        </h2>
+      </div>
+
+      <div class="site-footer__card">
+        <div class="site-footer__meta">
+          <StatusBadge />
+          <p class="site-footer__location">
+            <Icon name="pin" />
+            <span>{site.location}</span>
+          </p>
+        </div>
+        <CopyEmail variant="large" class="site-footer__email" />
+        <ul class="site-footer__pills" role="list">
+          <li>
+            <PillButton href={site.cv} icon="download" download>Download CV</PillButton>
+          </li>
+          <li><PillButton href={site.github} variant="secondary">GitHub</PillButton></li>
+          <li><PillButton href={site.linkedin} variant="secondary">LinkedIn</PillButton></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-footer__ticker" aria-hidden="true" data-marquee>
+    <div class="site-footer__track">
+      {
+        [0, 1].map(() => (
+          <div class="site-footer__half">
+            {tickerItems.map(() => (
+              <span class="site-footer__word">
+                {site.name}
+                <Icon name="star" class="site-footer__star" />
+              </span>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="site-footer__bottom container">
+    <p class="site-footer__small">© {year} {site.name} · Built with Astro</p>
+    <a class="site-footer__top" href="#main" data-scroll-top>
+      Back to top <Icon name="arrow-up" />
+    </a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    /* Same rhythm as the gaps between home sections (not the full --section):
+       the accent block already reads as its own section, and the home page
+       has to stay within 6 screens (DESIGN §2.5). */
+    margin-top: var(--section-sm);
+    overflow: clip; /* ticker never causes horizontal scroll */
+  }
+
+  .site-footer:focus {
+    outline: none;
+  }
+
+  /* ---- Accent block -------------------------------------------------------- */
+  .site-footer__block {
+    position: relative;
+    z-index: 1; /* above the sticky ticker, which is revealed underneath */
+    /* Kept fairly tight: the home page must stay within 6 screens (DESIGN §2.5). */
+    padding-block: clamp(3rem, 6vw, 6rem) clamp(2.25rem, 4vw, 4rem);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+    gap: clamp(2rem, 4vw, 3rem) var(--gap);
+    align-items: end;
+  }
+
+  .site-footer__lead {
+    grid-column: 1 / -1;
+  }
+
+  .site-footer__card {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 1024px) {
+    .site-footer__lead {
+      grid-column: 1 / span 7;
+    }
+
+    .site-footer__card {
+      grid-column: 8 / -1;
+    }
+  }
+
+  @media (min-width: 600px) and (max-width: 1023.98px) {
+    .site-footer__card {
+      grid-column: 1 / span 5;
+    }
+  }
+
+  .site-footer__kicker {
+    display: inline-block;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    padding: 0.45em 0.7em 0.4em;
+    border: 1px solid var(--ink);
+    border-radius: var(--r-xs);
+    background: var(--paper);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: 1.2;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .site-footer__line {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 1.2rem + 5vw, 6rem);
+    line-height: 0.98;
+    letter-spacing: var(--track-serif);
+    max-width: 14ch;
+  }
+
+  /* ---- Paper card ------------------------------------------------------------ */
+  .site-footer__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+    border: var(--border-2);
+    border-radius: var(--r-sm);
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: -6px 6px 0 0 var(--ink);
+  }
+
+  .site-footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+  }
+
+  /* The availability line may wrap on narrow cards (320px = 400% zoom). */
+  .site-footer__meta :global(.status) {
+    white-space: normal;
+  }
+
+  .site-footer__location {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .site-footer__email :global(.copy-email__btn) {
+    font-size: clamp(1.375rem, 0.9rem + 1vw, 1.875rem);
+  }
+
+  .site-footer__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0.25rem 0 0;
+    padding: 0 0 0 3px; /* room for the hard shadows */
+    list-style: none;
+  }
+
+  /* ---- Ticker (M14) ------------------------------------------------------------ */
+  .site-footer__ticker {
+    position: sticky;
+    bottom: 0;
+    z-index: 0;
+    padding-block: 0.15em 0.05em;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 9vw, 10rem);
+    line-height: 0.86;
+    letter-spacing: var(--track-giant);
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .site-footer__track {
+    display: flex;
+    width: max-content;
+  }
+
+  .site-footer__half {
+    display: flex;
+    flex: none;
+  }
+
+  .site-footer__word {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    padding-right: 0.25em;
+  }
+
+  .site-footer__star {
+    width: 0.42em;
+    height: 0.42em;
+    translate: 0 -0.04em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .site-footer__track {
+      animation: footer-ticker 40s linear infinite;
+    }
+
+    /* Pause on hover, while keyboard focus is in the footer, or off-screen. */
+    .site-footer__ticker:hover .site-footer__track,
+    .site-footer:focus-within .site-footer__track,
+    .site-footer__ticker.is-offscreen .site-footer__track {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes footer-ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ---- Bottom line ---------------------------------------------------------- */
+  .site-footer__bottom {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-block: 0.75rem 1.25rem;
+    background: var(--paper);
+  }
+
+  .site-footer__small,
+  .site-footer__top {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .site-footer__top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  .site-footer__top:hover,
+  .site-footer__top:focus-visible {
+    color: var(--ink);
+  }
+
+  .site-footer__top:focus-visible {
+    background: var(--highlight);
+  }
+</style>

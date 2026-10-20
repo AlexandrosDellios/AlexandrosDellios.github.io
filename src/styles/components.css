@@ -1,0 +1,622 @@
+/* =============================================================================
+   Shared component styles (global so the classes also work on raw markup and
+   can be restyled in context by page CSS). Layout-heavy one-offs (Header,
+   Footer, MobileMenu, GaitMetronome) keep scoped <style> in their .astro file.
+   ========================================================================== */
+
+/* ---- Icon -------------------------------------------------------------------- */
+.icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: -0.125em;
+}
+
+/* ---- PillButton (DESIGN §5.6, M12) ------------------------------------------ */
+.pill {
+  /* Theme hooks: override these in context instead of the properties. */
+  --pill-bg: var(--ink);
+  --pill-fg: var(--paper);
+  --pill-border: var(--ink);
+  --pill-shadow: var(--accent);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 44px;
+  padding: 0.55em 1.15em 0.5em;
+  border: 1px solid var(--pill-border);
+  border-radius: var(--r-pill);
+  background: var(--pill-bg);
+  color: var(--pill-fg);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-hard) var(--pill-shadow);
+  transition:
+    transform var(--dur-ui) ease,
+    box-shadow var(--dur-ui) ease,
+    background-color var(--dur-ui) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pill:hover,
+.pill:focus-visible {
+  transform: var(--press);
+  box-shadow: var(--shadow-pressed) var(--pill-shadow);
+}
+
+.pill:active {
+  transform: translate(-3px, 3px);
+  box-shadow: 0 0 0 0 var(--pill-shadow);
+}
+
+.pill--secondary {
+  --pill-bg: var(--paper);
+  --pill-fg: var(--accent-ink);
+  --pill-border: var(--accent-ink);
+  --pill-shadow: var(--accent-ink);
+}
+
+.pill--secondary:hover,
+.pill--secondary:focus-visible {
+  --pill-bg: color-mix(in srgb, var(--paper) 90%, var(--accent));
+}
+
+/* Compact pill (header). Visual 40px, hit area extended to 44px. */
+.pill--sm {
+  min-height: 40px;
+  padding: 0.45em 0.95em 0.4em;
+  font-size: 0.875rem;
+}
+
+.pill--sm::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+}
+
+.pill__icon {
+  width: 1em;
+  height: 1em;
+  transition: transform var(--dur-ui) var(--ease-out-quart);
+}
+
+.pill:hover .pill__icon--arrow-up-right,
+.pill:focus-visible .pill__icon--arrow-up-right {
+  transform: translate(2px, -2px);
+}
+
+.pill:hover .pill__icon--download,
+.pill:focus-visible .pill__icon--download,
+.pill:hover .pill__icon--arrow-down,
+.pill:focus-visible .pill__icon--arrow-down {
+  transform: translateY(2px);
+}
+
+.pill:hover .pill__icon--arrow-right,
+.pill:focus-visible .pill__icon--arrow-right {
+  transform: translateX(3px);
+}
+
+/* On accent fills the accent shadow would vanish: switch to ink. */
+.on-accent .pill {
+  --pill-shadow: var(--ink);
+}
+
+.on-accent .pill--secondary {
+  --pill-fg: var(--ink);
+  --pill-border: var(--ink);
+}
+
+/* On the dark card: paper pill, paper shadow outline. */
+.on-dark .pill {
+  --pill-bg: var(--paper);
+  --pill-fg: var(--ink);
+  --pill-border: var(--paper);
+}
+
+/* ---- Chip (DESIGN §5.13) ------------------------------------------------------ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.4em 0.6em 0.36em;
+  border: 1px solid transparent;
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-label);
+  line-height: 1.2;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chip--tag {
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+
+.chip--metric {
+  border-color: var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.chip--team {
+  background: var(--paper-2);
+  color: var(--ink-2);
+}
+
+.chip__icon {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+/* Fills never carry small text: chips get their own paper background there. */
+.on-accent .chip--tag,
+.on-accent .chip--team {
+  border-color: var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.on-dark .chip--tag {
+  color: color-mix(in srgb, var(--paper) 80%, transparent);
+}
+
+.on-dark .chip--team {
+  background: color-mix(in srgb, var(--paper) 10%, transparent);
+  color: color-mix(in srgb, var(--paper) 80%, transparent);
+}
+
+/* ---- StatusBadge (DESIGN §5.8) -------------------------------------------------- */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-label);
+  line-height: 1.2;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status__dot {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--highlight);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .status__dot::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--highlight) 80%, var(--ink));
+    /* A few pulses on load, then still (WCAG 2.2.2: no endless decorative loop). */
+    animation: status-pulse 2.4s var(--ease-out-quart) 3;
+  }
+}
+
+@keyframes status-pulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+
+.status--chip {
+  padding: 0.5em 0.75em 0.45em;
+  border: 1px solid var(--ink);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ---- CopyEmail (DESIGN §5.7, M13) ------------------------------------------------ */
+.copy-email {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.copy-email__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  min-height: 44px;
+  max-width: 100%;
+  color: inherit;
+  text-decoration: none;
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  letter-spacing: 0;
+  text-align: left;
+}
+
+.copy-email__addr {
+  min-width: 0;
+  overflow-wrap: anywhere; /* wrap rather than hide part of the address */
+  /* Highlighter underline that grows on hover/focus (same feel as links). */
+  background-image: linear-gradient(var(--highlight), var(--highlight));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0;
+  transition: background-size var(--dur-ui) var(--ease-out-quart);
+}
+
+.copy-email__btn:hover .copy-email__addr,
+.copy-email__btn:focus-visible .copy-email__addr {
+  background-size: 100% 100%;
+}
+
+.copy-email__icons {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+}
+
+.copy-email__icons > * {
+  grid-area: 1 / 1;
+}
+
+.copy-email__icon {
+  width: 0.85em;
+  height: 0.85em;
+  transition:
+    opacity var(--dur-ui) ease,
+    transform var(--dur-ui) var(--ease-out-back);
+}
+
+.copy-email__icon--copy {
+  opacity: 0.55;
+}
+
+.copy-email__btn:hover .copy-email__icon--copy,
+.copy-email__btn:focus-visible .copy-email__icon--copy {
+  opacity: 1;
+}
+
+.copy-email__icon--check {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.copy-email.is-copied .copy-email__icon--copy {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.copy-email.is-copied .copy-email__icon--check {
+  opacity: 1;
+  transform: none;
+}
+
+/* Feedback chip under the address: "Click to copy" on hover, "Copied ✓" after. */
+.copy-email__chip {
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 0;
+  z-index: 2;
+  padding: 0.4em 0.6em 0.35em;
+  border-radius: var(--r-xs);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  translate: 0 4px;
+  transition:
+    opacity 0.2s ease,
+    translate 0.2s var(--ease-out-quart);
+}
+
+.copy-email__chip-done {
+  display: none;
+}
+
+.copy-email.is-copied .copy-email__chip-hint {
+  display: none;
+}
+
+.copy-email.is-copied .copy-email__chip-done {
+  display: inline;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .copy-email:has(.copy-email__btn:hover) .copy-email__chip {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.copy-email:has(.copy-email__btn:focus-visible) .copy-email__chip,
+.copy-email.is-copied .copy-email__chip {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.copy-email.is-copied .copy-email__chip {
+  background: var(--highlight);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.copy-email--large .copy-email__btn {
+  font-size: var(--fs-statement);
+  line-height: 1.1;
+  letter-spacing: var(--track-statement);
+}
+
+/* Paper chip: safe on accent fills (fills never carry small text). */
+.copy-email--chip .copy-email__btn {
+  padding: 0.35em 0.9em;
+  border: 1px solid var(--ink);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.copy-email--chip .copy-email__chip {
+  left: 0.9em;
+}
+
+/* ---- NameStrip (DESIGN §5.2) ----------------------------------------------------- */
+.name-strip {
+  position: relative;
+  overflow: clip; /* never causes horizontal page scroll */
+  color: var(--accent);
+}
+
+.name-strip__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 3.5vw;
+  width: max-content;
+  padding-inline: var(--pad);
+  padding-block: 0.02em 0.04em;
+  transform-origin: 0 0;
+}
+
+.name-strip__copy {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--fs-giant);
+  line-height: var(--lh-giant);
+  letter-spacing: var(--track-giant);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: inherit;
+  text-wrap: nowrap;
+}
+
+/* ✦ after each copy (opt-in with .name-strip--stars; home name strip and the
+   project title strips). Drawn with a mask, so screen readers never announce it. */
+.name-strip--stars {
+  --star-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0Z'/%3E%3C/svg%3E");
+}
+
+.name-strip--stars .name-strip__copy::after {
+  content: '';
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  margin-left: 0.24em;
+  vertical-align: 0.17em;
+  background: currentColor;
+  -webkit-mask: var(--star-mask) center / contain no-repeat;
+  mask: var(--star-mask) center / contain no-repeat;
+}
+
+/* M1 intro: rises in once fonts are ready (html.is-ready, set in <head>). */
+@media (prefers-reduced-motion: no-preference) {
+  html.js:not(.is-ready) .name-strip--intro .name-strip__inner {
+    opacity: 0;
+    translate: 0 100%;
+  }
+
+  html.js.is-ready .name-strip--intro .name-strip__inner {
+    animation: name-strip-rise 0.8s 0.1s var(--ease-out-back) backwards;
+  }
+}
+
+@keyframes name-strip-rise {
+  from {
+    opacity: 0;
+    translate: 0 100%;
+  }
+}
+
+/* ---- MediaPlaceholder (DESIGN §5.19) --------------------------------------------- */
+.media-ph {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: var(--aspect, 4 / 3);
+  padding: clamp(0.75rem, 3%, 1.5rem);
+  border: 1px dashed var(--ink);
+  border-radius: var(--r-sm);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--accent) 14%, transparent) 0 7px,
+    transparent 7px 16px
+  );
+  overflow: hidden;
+}
+
+/* Registration marks in two corners: a quiet "lab poster" detail. */
+.media-ph__corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--ink);
+  border-style: solid;
+  border-width: 0;
+}
+
+.media-ph__corner--tl {
+  top: 10px;
+  left: 10px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.media-ph__corner--br {
+  right: 10px;
+  bottom: 10px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.media-ph__label {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  max-width: min(100%, 44ch);
+  padding: 0.55em 0.8em 0.5em;
+  border: 1px solid var(--ink);
+  border-radius: var(--r-xs);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-label);
+  line-height: 1.35;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.media-ph__kicker {
+  color: var(--accent-ink);
+}
+
+.media-ph__sep {
+  display: none; /* kicker sits on its own line; the dot only matters in copied text */
+}
+
+/* ---- LoopVideo (DESIGN §5.20) ---------------------------------------------------- */
+.loop-video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aspect, 16 / 9);
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--paper-2);
+  isolation: isolate;
+}
+
+.loop-video__poster,
+.loop-video__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focus, 50% 50%);
+}
+
+.loop-video__video {
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out-quart);
+}
+
+/* Without a poster the video element is the only content: show it. */
+.loop-video:not(:has(.loop-video__poster)) .loop-video__video,
+.loop-video.is-playing .loop-video__video,
+.loop-video.has-frame:not([data-reset-on-pause]) .loop-video__video {
+  opacity: 1;
+}
+
+/* Play/pause button inside the media box (and, without JS, the "Watch clip"
+   link in the same spot). Corner chosen with the `controlsAt` prop
+   (data-controls-at); distance from the edges with --toggle-offset.
+   Put it in the exposed (sharp) corner of rounded tiles so it isn't clipped. */
+.loop-video :is(.loop-video__toggle, .loop-video__nojs) {
+  position: absolute;
+  z-index: 2;
+  inset: auto var(--toggle-offset, 0.75rem) var(--toggle-offset, 0.75rem) auto;
+}
+
+.loop-video[data-controls-at='bottom-left'] :is(.loop-video__toggle, .loop-video__nojs) {
+  inset: auto auto var(--toggle-offset, 0.75rem) var(--toggle-offset, 0.75rem);
+}
+
+.loop-video[data-controls-at='top-left'] :is(.loop-video__toggle, .loop-video__nojs) {
+  inset: var(--toggle-offset, 0.75rem) auto auto var(--toggle-offset, 0.75rem);
+}
+
+.loop-video[data-controls-at='top-right'] :is(.loop-video__toggle, .loop-video__nojs) {
+  inset: var(--toggle-offset, 0.75rem) var(--toggle-offset, 0.75rem) auto auto;
+}
+
+/* ---- VideoToggle ------------------------------------------------------------------ */
+.video-toggle {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-hard) var(--ink);
+  transition:
+    transform var(--dur-ui) ease,
+    box-shadow var(--dur-ui) ease;
+}
+
+.video-toggle::after {
+  content: '';
+  position: absolute;
+  inset: -2px; /* 44px hit area */
+  border-radius: 50%;
+}
+
+.video-toggle:hover,
+.video-toggle:focus-visible {
+  transform: var(--press);
+  box-shadow: var(--shadow-pressed) var(--ink);
+}
+
+.video-toggle__icon {
+  grid-area: 1 / 1;
+  width: 16px;
+  height: 16px;
+}
+
+.video-toggle[data-state='paused'] .video-toggle__icon--pause,
+.video-toggle[data-state='playing'] .video-toggle__icon--play {
+  display: none;
+}

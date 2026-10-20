@@ -1,0 +1,9 @@
+/* =============================================================================
+   Global stylesheet entry, imported once by src/layouts/BaseLayout.astro.
+   Order matters: tokens -> fonts -> base -> shared components -> transitions.
+   ========================================================================== */
+@import './tokens.css';
+@import './fonts.css';
+@import './base.css';
+@import './components.css';
+@import './view-transitions.css';

@@ -1,0 +1,19 @@
+---
+/**
+ * Emph: renders copy that marks ONE phrase with *asterisks* as <em>.
+ * The content files (site.ts, project frontmatter) use this convention for the
+ * serif italic ("Let’s build robots that *help people*.").
+ *
+ * Usage: <h2 class="t-h2"><Emph text={site.footerLine} /></h2>
+ * Text is escaped by Astro; only the <em> wrapping is generated here.
+ */
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+// "a *b* c" -> ["a ", "b", " c"]; odd indexes are emphasised.
+const parts = text.split('*');
+---
+
+{parts.map((part, i) => (i % 2 === 1 ? <em>{part}</em> : part))}

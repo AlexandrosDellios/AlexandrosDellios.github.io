@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 500" width="1400" height="500" role="img" aria-labelledby="t d">
+  <!--
+    Uno sim-to-real counting pipeline, restyled for the "Lab Poster" design system (docs/DESIGN.md).
+    Source: private/media-src/uno-cards/pipeline-diagram.svg (same geometry and wording).
+    Palette: paper #F4EFE6, ink #151412, ink-2 #5E5850, project accent crimson #D23445 / #A61F30.
+    The four player-zone colours (blue, yellow, green, red) are the original Uno colours and are kept.
+    Fonts: Geist / Geist Mono when the SVG is inlined in the page; system fallbacks inside an <img>.
+  -->
+  <title id="t">Uno table reader: synthetic-to-real counting pipeline</title>
+  <desc id="d">Each table photo is split into four rotated hand zones and a center zone. A ResNet-18 with CBAM attention is pre-trained from scratch on synthetic card composites, then fine-tuned on real crops, and counts 0 to 5 copies of each of 56 card classes per zone to reconstruct the table state.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#151412"/>
+    </marker>
+    <marker id="arr-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#D23445"/>
+    </marker>
+    <style>
+      .sans  { font-family: 'Geist', 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+      .mono  { font-family: 'Geist Mono', 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+      .box   { fill: #F4EFE6; stroke: #151412; stroke-width: 1.5; }
+      .shadow{ fill: #151412; }
+      .ttl   { fill: #151412; font-size: 15.5px; font-weight: 600; }
+      .txt   { fill: #5E5850; font-size: 12.5px; }
+      .stage { fill: #151412; font-size: 11px; font-weight: 500; letter-spacing: 1.4px; }
+      .lnk   { stroke: #151412; stroke-width: 1.5; fill: none; }
+      .zl    { font-size: 13px; font-weight: 600; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="500" fill="#F4EFE6"/>
+
+  <!-- Heading -->
+  <text x="50" y="58" class="sans" fill="#151412" font-size="21" font-weight="600">Reading an Uno table: synthetic-to-real counting pipeline</text>
+  <text x="50" y="82" class="sans txt">ResNet-18 + CBAM trained from scratch; every crop predicts how many copies (0-5) of each of 56 classes it contains</text>
+
+  <!-- Left: 5-zone table split (zone fractions from the project's data split) -->
+  <text x="50" y="112" class="mono stage">5-ZONE TABLE SPLIT</text>
+  <rect x="50" y="120" width="300" height="300" fill="#EBE4D8" stroke="#151412" stroke-width="1.5"/>
+  <!-- P3, top -->
+  <rect class="zone zone-p3" x="125" y="120" width="150" height="90" fill="#1e88e5" fill-opacity="0.18" stroke="#1e88e5" stroke-width="2"/>
+  <text x="200" y="160" text-anchor="middle" class="sans zl" fill="#1565C0">P3</text>
+  <text x="200" y="178" text-anchor="middle" class="sans txt">rot 180°</text>
+  <!-- P4, left -->
+  <rect class="zone zone-p4" x="50" y="195" width="90" height="195" fill="#f4c430" fill-opacity="0.22" stroke="#f4c430" stroke-width="2"/>
+  <text x="95" y="288" text-anchor="middle" class="sans zl" fill="#8A6A00">P4</text>
+  <text x="95" y="306" text-anchor="middle" class="sans txt">rot 90° ccw</text>
+  <!-- P2, right -->
+  <rect class="zone zone-p2" x="260" y="195" width="90" height="180" fill="#2fa84f" fill-opacity="0.18" stroke="#2fa84f" stroke-width="2"/>
+  <text x="305" y="280" text-anchor="middle" class="sans zl" fill="#1E7A3A">P2</text>
+  <text x="305" y="298" text-anchor="middle" class="sans txt">rot 90° cw</text>
+  <!-- P1, bottom -->
+  <rect class="zone zone-p1" x="125" y="345" width="165" height="75" fill="#e5383b" fill-opacity="0.16" stroke="#e5383b" stroke-width="2"/>
+  <text x="207" y="378" text-anchor="middle" class="sans zl" fill="#B3262A">P1</text>
+  <text x="207" y="396" text-anchor="middle" class="sans txt">upright</text>
+  <!-- Centre pile -->
+  <rect class="zone zone-ctr" x="170" y="240" width="60" height="90" fill="#F4EFE6" stroke="#151412" stroke-width="1.5"/>
+  <text x="200" y="282" text-anchor="middle" class="sans zl" fill="#151412">CTR</text>
+  <text x="200" y="299" text-anchor="middle" class="sans txt">card</text>
+  <text x="50" y="446" class="sans txt">Each table photo becomes 4 hand crops + the</text>
+  <text x="50" y="464" class="sans txt">center pile, each rotated to face the camera.</text>
+
+  <!-- Stage 1: synthetic pre-training. Each box = hard offset shadow (-4, +4) + paper box. -->
+  <text x="410" y="112" class="mono stage">STAGE 1 · SYNTHETIC PRE-TRAINING</text>
+  <rect class="shadow" x="406" y="124" width="210" height="110" rx="8"/>
+  <rect class="box" x="410" y="120" width="210" height="110" rx="8"/>
+  <text x="426" y="150" class="sans ttl">Single-card cutouts</text>
+  <text x="426" y="174" class="sans txt">56 classes incl. 2 turn tokens</text>
+  <text x="426" y="193" class="sans txt">200 samples per card,</text>
+  <text x="426" y="212" class="sans txt">3x oversampled tokens</text>
+
+  <rect class="shadow" x="652" y="124" width="210" height="110" rx="8"/>
+  <rect class="box" x="656" y="120" width="210" height="110" rx="8"/>
+  <text x="672" y="150" class="sans ttl">Synthetic compositor</text>
+  <text x="672" y="174" class="sans txt">real table textures, 640 px</text>
+  <text x="672" y="193" class="sans txt">±180° rotation, perspective,</text>
+  <text x="672" y="212" class="sans txt">color jitter, noise, occlusion</text>
+
+  <rect class="shadow" x="898" y="124" width="210" height="110" rx="8"/>
+  <rect class="box" x="902" y="120" width="210" height="110" rx="8"/>
+  <text x="918" y="150" class="sans ttl">Pre-train from scratch</text>
+  <text x="918" y="174" class="sans txt">ResNet-18 + CBAM attention</text>
+  <text x="918" y="193" class="sans txt">AdamW, LR 1e-3</text>
+  <text x="918" y="212" class="sans txt">early stopping (patience 15)</text>
+
+  <!-- Counting head: part of the network, so drawn dashed and without a shadow -->
+  <rect class="box" x="1148" y="120" width="210" height="110" rx="8" stroke-dasharray="5 4"/>
+  <text x="1164" y="150" class="sans ttl">Counting head</text>
+  <text x="1164" y="174" class="sans txt">FC 512 → 56 × 6 logits</text>
+  <text x="1164" y="193" class="sans txt">count 0-5 per class (CE loss)</text>
+  <text x="1164" y="212" class="sans txt">12M-parameter budget</text>
+
+  <path class="lnk" d="M620 175 H650" marker-end="url(#arr)"/>
+  <path class="lnk" d="M866 175 H896" marker-end="url(#arr)"/>
+  <path class="lnk" d="M1112 175 H1144" stroke-dasharray="3 4"/>
+
+  <!-- Stage 2: real-data fine-tuning -->
+  <text x="410" y="292" class="mono stage">STAGE 2 · REAL-DATA FINE-TUNING</text>
+  <rect class="shadow" x="406" y="304" width="210" height="110" rx="8"/>
+  <rect class="box" x="410" y="300" width="210" height="110" rx="8"/>
+  <text x="426" y="330" class="sans ttl">Real table photos</text>
+  <text x="426" y="354" class="sans txt">competition training set</text>
+  <text x="426" y="373" class="sans txt">sliced into 5 upright zones</text>
+
+  <rect class="shadow" x="652" y="304" width="210" height="110" rx="8"/>
+  <rect class="box" x="656" y="300" width="210" height="110" rx="8"/>
+  <text x="672" y="330" class="sans ttl">Crop labels + augment</text>
+  <text x="672" y="354" class="sans txt">table CSV → per-crop card lists</text>
+  <text x="672" y="373" class="sans txt">active-player token injected</text>
+  <text x="672" y="392" class="sans txt">1 original + 4 augmented</text>
+
+  <rect class="shadow" x="898" y="304" width="210" height="110" rx="8"/>
+  <rect class="box" x="902" y="300" width="210" height="110" rx="8"/>
+  <text x="918" y="330" class="sans ttl">Fine-tune on real crops</text>
+  <text x="918" y="354" class="sans txt">init from stage-1 weights</text>
+  <text x="918" y="373" class="sans txt">LR 1e-4 (10x lower)</text>
+  <text x="918" y="392" class="sans txt">early stopping (patience 10)</text>
+
+  <!-- Output: the only crimson (project accent) element -->
+  <rect x="1144" y="304" width="210" height="110" rx="8" fill="#D23445"/>
+  <rect x="1148" y="300" width="210" height="110" rx="8" fill="#F4EFE6" stroke="#D23445" stroke-width="2"/>
+  <text x="1164" y="330" class="sans ttl" fill="#A61F30" style="fill:#A61F30">Table state</text>
+  <text x="1164" y="354" class="sans txt">center card, active player,</text>
+  <text x="1164" y="373" class="sans txt">cards held in each of 4 hands</text>
+  <text x="1164" y="392" class="sans txt">→ Kaggle submission CSV</text>
+
+  <path class="lnk" d="M620 355 H650" marker-end="url(#arr)"/>
+  <path class="lnk" d="M866 355 H896" marker-end="url(#arr)"/>
+  <path d="M1112 355 H1140" stroke="#D23445" stroke-width="1.5" fill="none" marker-end="url(#arr-accent)"/>
+  <path class="lnk" d="M1007 234 V294" marker-end="url(#arr)"/>
+  <text x="1016" y="268" class="mono" fill="#5E5850" font-size="11" letter-spacing="1">WEIGHTS</text>
+  <path class="lnk" d="M350 270 C 380 270, 380 355, 404 355" marker-end="url(#arr)"/>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- "AD" monogram: Anton glyph outlines (OFL) in ink on actuator orange. -->
+  <rect width="64" height="64" rx="14" fill="#E5501D"/>
+  <path fill="#151412" transform="translate(11.464 50.000) scale(0.020455)" d="M30 0 200 -1760H797L964 0H631L606 -284H394L372 0ZM419 -565H579L502 -1460H486ZM1112 0V-1760H1596Q1786 -1760 1882.0 -1654.5Q1978 -1549 1978 -1346V-522Q1978 -272 1890.5 -136.0Q1803 0 1584 0ZM1466 -311H1527Q1624 -311 1624 -405V-1313Q1624 -1401 1600.5 -1426.5Q1577 -1452 1505 -1452H1466Z"/>
+</svg>

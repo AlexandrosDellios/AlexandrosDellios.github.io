@@ -1,0 +1,504 @@
+---
+/**
+ * ProjectTile (DESIGN §5.11, M5, M6, M7): one featured project in the
+ * Selected-work grid. The whole card is ONE link to /work/<id>/.
+ *
+ *   ┌ media box (4:3, project accent) ──────────┐  one SHARP corner (`corner`),
+ *   │ [METRIC CHIP]  (in the sharp corner)       │  the other three round
+ *   │ (▶ toggle under the chip, video tiles)      │  (r-tile; 45% on hover, M6)
+ *   │          duotone poster / loop video        │
+ *   │             A1 QUADRUPED (outlined word)    │
+ *   └────────────────────────────────────────────┘
+ *   Title (serif) →                                 always visible (rule 4); the arrow
+ *                                                   follows the last word inline
+ *   One-liner
+ *   [TAG] [TAG] [TAG] [TAG]                          (fan on an arc on hover)
+ *   2025 · EPFL · LEGGED ROBOTS COURSE · TEAM OF 3
+ *
+ * - Subgrid: the tile spans 5 rows of the parent grid (`grid-template-rows:
+ *   subgrid`) so titles, one-liners, tags and meta line up across a row.
+ * - Duotone (fine pointers only): grayscale poster + accent `multiply` overlay;
+ *   full colour on hover / keyboard focus (anywhere in the tile, including its
+ *   play button). Touch screens always show colour.
+ * - Image: `tilePoster` (a label-free crop for drawings) or else `poster`.
+ * - Bottom-left sharp corner (tile--bl): chips and the outlined word share
+ *   one flex row, so a long metric chip never runs under the word.
+ * - Video: LoopVideo with controls={false} (no <button> inside <a>); the
+ *   VideoToggle sits outside the link, in the sharp corner. [data-video-hover]
+ *   on the tile makes scripts/core/video.ts play on hover/focus (fine pointer);
+ *   touch screens autoplay the most visible clip (M7).
+ * - View transitions: media box `media-<id>` + title `title-<id>` (same names
+ *   on the project page hero / h1), filtered per navigation by BaseLayout's
+ *   inline script through data-vt-name / data-vt-only.
+ * - Per-tile accent: --accent / --accent-ink set inline from frontmatter.
+ * - The link's accessible name is the title; the metric, one-liner and meta
+ *   are its description.
+ */
+import type { CollectionEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
+import type { HTMLAttributes } from 'astro/types';
+import Chip from '../global/Chip.astro';
+import Segments from '../global/Segments.astro';
+import Icon from '../global/Icon.astro';
+import LoopVideo from '../global/LoopVideo.astro';
+import MediaPlaceholder from '../global/MediaPlaceholder.astro';
+import VideoToggle from '../global/VideoToggle.astro';
+import { vtNames, vtStyle } from '../project/projects';
+
+export type TileCorner = 'tl' | 'tr' | 'bl';
+
+interface Props extends HTMLAttributes<'article'> {
+  project: CollectionEntry<'projects'>;
+  /** The exposed (sharp) corner. Chips and the play toggle live there. */
+  corner: TileCorner;
+  class?: string;
+}
+
+const { project, corner, class: className, ...rest } = Astro.props;
+const { id, data } = project;
+
+const href = `/work/${id}/`;
+// Shared view-transition names (same on the project hero / h1). data-vt-only
+// lets BaseLayout's script keep them only for navigations to/from this project.
+const vt = vtNames(id);
+const ids = {
+  title: `tile-title-${id}`,
+  metric: `tile-metric-${id}`,
+  line: `tile-line-${id}`,
+  meta: `tile-meta-${id}`,
+  video: `tile-video-${id}`,
+};
+
+// Posters that are drawings, not footage, say so (glider = illustration, Uno = diagram).
+const kind = /^illustration/i.test(data.posterAlt) ? 'Illustration' : /^diagram/i.test(data.posterAlt) ? 'Diagram' : null;
+
+const sizes = '(min-width: 1024px) 31vw, (min-width: 600px) 48vw, 100vw';
+const accentStyle = `--accent: ${data.accent}; --accent-ink: ${data.accentInk}`;
+const tagCount = data.tags.length;
+// Every project is at EPFL (the hero says so): drop the prefix so the meta fits one line.
+const context = data.context.replace(/^EPFL\s*·\s*/i, '');
+// Drawings may ship a label-free tile crop (tilePoster); footage uses the poster.
+const tileImage = data.tilePoster ?? data.poster;
+// Never upscale: keep the standard widths below the source width, plus the source itself.
+const posterWidths = tileImage
+  ? [...[400, 800, 1200].filter((w) => w < tileImage.width), Math.min(tileImage.width, 1600)]
+  : [];
+---
+
+<article
+  class:list={['tile', `tile--${corner}`, data.video && 'tile--video', className]}
+  style={accentStyle}
+  data-video-hover={data.video ? '' : undefined}
+  data-enter
+  {...rest}
+>
+  <a
+    class="tile__link"
+    href={href}
+    aria-labelledby={ids.title}
+    aria-describedby={`${ids.metric} ${ids.line} ${ids.meta}`}
+  >
+    <div class="tile__frame">
+      <div class="tile__media" data-vt-name={vt.media} data-vt-only={href} style={vtStyle(vt.media, 'project-media')}>
+        {
+          data.video ? (
+            <LoopVideo
+              id={ids.video}
+              mp4={data.video.mp4}
+              webm={data.video.webm}
+              poster={data.poster ?? data.video.poster}
+              alt={data.posterAlt}
+              label={data.shortTitle}
+              aspect="auto"
+              focus={data.focus}
+              controls={false}
+              resetOnPause
+              sizes={sizes}
+              class="tile__video"
+            />
+          ) : tileImage ? (
+            <Picture
+              src={tileImage}
+              alt={data.posterAlt}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={posterWidths}
+              sizes={sizes}
+              loading="lazy"
+              decoding="async"
+              class="tile__img"
+              style={`object-position: ${data.focus}`}
+            />
+          ) : (
+            <MediaPlaceholder label={data.mediaNeeded ?? 'Project media'} aspect="auto" class="tile__ph" />
+          )
+        }
+      </div>
+
+      <div class="tile__overlay">
+        <p class="tile__chips">
+          <Chip variant="metric" text={data.metric} id={ids.metric} class="tile__metric" />
+          {kind && <Chip variant="tag" text={kind} class="tile__kind" />}
+        </p>
+        <span class="tile__word t-tileword t-outline" aria-hidden="true">{data.shortWord}</span>
+      </div>
+    </div>
+
+    <h3
+      class="tile__title"
+      id={ids.title}
+      data-vt-name={vt.title}
+      data-vt-only={href}
+      style={vtStyle(vt.title, 'project-title')}
+    >
+      <span class="tile__title-text">{data.title}</span><Icon name="arrow-right" class="tile__arrow" />
+    </h3>
+    <p class="tile__line" id={ids.line}>{data.oneLiner}</p>
+    <ul class="tile__tags" role="list">
+      {data.tags.map((tag, i) => <Chip as="li" text={tag} class="tile__tag" style={`--i: ${i}; --n: ${tagCount}`} />)}
+    </ul>
+    <p class="tile__meta" id={ids.meta}><Segments parts={[data.year, context, data.team]} /></p>
+  </a>
+
+  {data.video && <VideoToggle target={ids.video} label={data.shortTitle} class="tile__toggle" />}
+</article>
+
+<style>
+  /* ---- Card + subgrid ------------------------------------------------------------ */
+  .tile {
+    --chip-inset: 0.75rem;
+    --radius: var(--r-tile);
+    --radius-hover: 45%;
+    position: relative;
+    display: grid;
+    grid-row: span 5;
+    grid-template-rows: subgrid;
+    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  .tile__link {
+    display: grid;
+    grid-row: 1 / -1;
+    grid-template-rows: subgrid;
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--r-sm);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tile__link:focus-visible {
+    outline-offset: 6px;
+  }
+
+  /* No subgrid support: a plain column, nothing lines up but nothing breaks. */
+  @supports not (grid-template-rows: subgrid) {
+    .tile,
+    .tile__link {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  /* ---- Media box -------------------------------------------------------------------- */
+  .tile__frame {
+    position: relative;
+  }
+
+  .tile__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    isolation: isolate; /* keeps the multiply overlay inside the box */
+    background: var(--accent);
+    border-radius: var(--radius);
+    transition: border-radius 0.4s 0.1s var(--ease-out-quart);
+  }
+
+  /* The exposed corner rotates TL → TR → BL with the grid position. */
+  .tile--tl .tile__media {
+    border-top-left-radius: 0;
+  }
+
+  .tile--tr .tile__media {
+    border-top-right-radius: 0;
+  }
+
+  .tile--bl .tile__media {
+    border-bottom-left-radius: 0;
+  }
+
+  .tile__media :global(.tile__video),
+  .tile__media :global(.tile__ph) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .tile__media :global(.tile__img),
+  .tile__media :global(.loop-video__poster) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---- Overlay: chips in the sharp corner, outlined word on the opposite edge ------ */
+  .tile__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .tile__chips {
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    max-width: calc(100% - 2 * var(--chip-inset));
+  }
+
+  .tile--tl .tile__chips {
+    top: var(--chip-inset);
+    left: var(--chip-inset);
+  }
+
+  .tile--tr .tile__chips {
+    top: var(--chip-inset);
+    right: var(--chip-inset);
+    justify-content: flex-end;
+  }
+
+  /* Sharp corner bottom-left: chips and word share the bottom edge as one flex
+     row (the chips wrap in the space left of the word, never under it). */
+  .tile--bl .tile__overlay {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: var(--chip-inset) clamp(1.25rem, 2.6vw, 2rem) var(--chip-inset) var(--chip-inset);
+  }
+
+  .tile--bl .tile__chips {
+    position: static;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    flex-wrap: wrap-reverse;
+  }
+
+  .tile__chips :global(.tile__kind) {
+    border-color: var(--ink);
+    background: var(--highlight);
+    color: var(--ink);
+  }
+
+  .tile__word {
+    position: absolute;
+    bottom: clamp(0.75rem, 1.6vw, 1.25rem);
+    left: 50%;
+    max-width: calc(100% - 2rem);
+    translate: -50% 0;
+    white-space: nowrap;
+    transition: translate 0.45s var(--ease-out-quart);
+  }
+
+  .tile--bl .tile__word {
+    position: static;
+    flex: none;
+    max-width: none;
+    margin-bottom: calc(clamp(1rem, 2vw, 1.5rem) - var(--chip-inset));
+    translate: 0 0;
+  }
+
+  /* Play/pause (outside the link): in the sharp corner, under the chips. */
+  .tile__toggle {
+    position: absolute;
+    z-index: 3;
+    top: calc(var(--chip-inset) + 2.35rem);
+  }
+
+  .tile--tl .tile__toggle {
+    left: var(--chip-inset);
+  }
+
+  .tile--tr .tile__toggle {
+    right: var(--chip-inset);
+  }
+
+  /* ---- Text --------------------------------------------------------------------------- */
+  /* Block title: the arrow follows the LAST word inline (a flex row would push
+     it to the far edge of the column once the title wraps). */
+  .tile__title {
+    display: block;
+    margin-top: clamp(0.7rem, 1vw, 0.9rem);
+    font-size: clamp(1.375rem, 1.1rem + 0.75vw, 1.875rem);
+    line-height: var(--lh-h3);
+    text-wrap: balance;
+  }
+
+  .tile__title-text {
+    display: inline;
+  }
+
+  .tile__arrow {
+    display: inline-block;
+    width: 0.7em;
+    height: 0.7em;
+    margin-left: 0.3em;
+    vertical-align: -0.02em;
+    color: var(--accent-ink);
+    transition:
+      opacity var(--dur-ui) ease,
+      transform 0.4s var(--ease-out-quart);
+  }
+
+  .tile__line {
+    margin-top: 0.5rem;
+    max-width: 52ch;
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+  }
+
+  .tile__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-self: start;
+    margin: clamp(0.65rem, 1vw, 0.85rem) 0 0;
+    padding: 0;
+  }
+
+  .tile__tags :global(.tile__tag) {
+    transition:
+      transform 0.4s var(--ease-out-back),
+      border-color var(--dur-ui) ease,
+      color var(--dur-ui) ease;
+    /* |i − middle| × 50 ms (max(x, −x) = abs, which older browsers lack). */
+    --off: calc(var(--i) - (var(--n) - 1) / 2);
+    transition-delay: calc(max(var(--off), -1 * var(--off)) * 50ms);
+  }
+
+  .tile__meta {
+    margin-top: 0.6rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: 1.45;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+  }
+
+  /* ---- Hover / focus (M6), fine pointers only ------------------------------------------ */
+  @media (hover: hover) and (pointer: fine) {
+    /* Duotone: grayscale poster under an accent multiply layer. */
+    .tile__media :global(img) {
+      filter: grayscale(1) contrast(1.1);
+      transition: filter 0.3s ease;
+    }
+
+    .tile__media::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: var(--accent);
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .tile__arrow {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+
+    .tile:hover .tile__media,
+    .tile:has(:focus-visible) .tile__media {
+      border-radius: var(--radius-hover);
+    }
+
+    .tile--tl:hover .tile__media,
+    .tile--tl:has(:focus-visible) .tile__media {
+      border-top-left-radius: 0;
+    }
+
+    .tile--tr:hover .tile__media,
+    .tile--tr:has(:focus-visible) .tile__media {
+      border-top-right-radius: 0;
+    }
+
+    .tile--bl:hover .tile__media,
+    .tile--bl:has(:focus-visible) .tile__media {
+      border-bottom-left-radius: 0;
+    }
+
+    .tile:hover .tile__media::after,
+    .tile:has(:focus-visible) .tile__media::after {
+      opacity: 0;
+    }
+
+    .tile:hover .tile__media :global(img),
+    .tile:has(:focus-visible) .tile__media :global(img) {
+      filter: none;
+    }
+
+    .tile:hover .tile__arrow,
+    .tile:has(:focus-visible) .tile__arrow {
+      opacity: 1;
+      transform: none;
+    }
+
+    .tile:not(.tile--bl):hover .tile__word,
+    .tile:not(.tile--bl):has(:focus-visible) .tile__word {
+      translate: -50% -0.4rem;
+    }
+
+    /* Tags fan out on a gentle smile-shaped arc, middle ones first. */
+    .tile:hover :global(.tile__tag),
+    .tile:has(:focus-visible) :global(.tile__tag) {
+      transform: translateY(calc(max(var(--off), -1 * var(--off)) * -3px)) rotate(calc(var(--off) * 2.5deg));
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    /* The play toggle shows while the clip plays, or when the tile is hovered/focused. */
+    .tile__toggle {
+      opacity: 0;
+      transition: opacity var(--dur-ui) ease;
+    }
+
+    .tile:hover .tile__toggle,
+    .tile:focus-within .tile__toggle,
+    .tile__toggle[data-state='playing'] {
+      opacity: 1;
+    }
+  }
+
+  /* Reduced motion: colour still changes on hover, but shapes and tags stay put. */
+  @media (prefers-reduced-motion: reduce) {
+    .tile {
+      --radius-hover: var(--radius);
+    }
+
+    .tile__media,
+    .tile__word,
+    .tile__arrow,
+    .tile__tags :global(.tile__tag) {
+      transition: none;
+    }
+
+    .tile:hover :global(.tile__tag),
+    .tile:has(:focus-visible) :global(.tile__tag) {
+      transform: none;
+    }
+
+    .tile:not(.tile--bl):hover .tile__word,
+    .tile:not(.tile--bl):has(:focus-visible) .tile__word {
+      translate: -50% 0;
+    }
+  }
+</style>

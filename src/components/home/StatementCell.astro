@@ -1,0 +1,135 @@
+---
+/**
+ * StatementCell (DESIGN §5.12, M16): a big Instrument Serif sentence that sits
+ * in the Selected-work grid between tiles. Phrases with a `slug` link to
+ * /work/<slug>/ with the highlighter treatment (.link-hl). On fine pointers a
+ * pill with a round thumbnail + the project name follows the cursor
+ * (CursorPreview.astro + scripts/home/cursor-preview.ts read the
+ * data-preview-* attributes). An optional PillButton sits underneath.
+ *
+ * Grid: the cell spans the same 5 rows as a tile (subgrid). The sentence and
+ * its pill form one group (.stmt__inner) centred over rows 1–4 (the
+ * neighbouring tiles' media, title, line and tags), so the pill sits right
+ * under its sentence, as on cydstumpel.nl, and a long sentence never makes
+ * the media row taller.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import type { IconName } from '../global/Icon.astro';
+import PillButton from '../global/PillButton.astro';
+import type { Statement } from '../../data/site';
+
+export interface PreviewInfo {
+  src: string;
+  label: string;
+  accent: string;
+}
+
+interface Props extends HTMLAttributes<'div'> {
+  statement: Statement;
+  /** Thumbnail + name per project slug (for the cursor tooltip). */
+  previews: Record<string, PreviewInfo>;
+  class?: string;
+}
+
+const { statement, previews, class: className, ...rest } = Astro.props;
+const { segments, pill } = statement;
+
+// Pill labels in the data carry their own arrow ("GitHub ↗", "More work ↓");
+// PillButton draws icons itself, so strip the glyph and map it to an icon.
+let pillLabel = '';
+let pillIcon: IconName | undefined;
+let pillDownload = false;
+if (pill) {
+  const arrow = pill.label.match(/\s*([↗↓→])\s*$/)?.[1];
+  pillLabel = pill.label.replace(/\s*[↗↓→]\s*$/, '');
+  pillDownload = /\.pdf$/i.test(pill.href);
+  pillIcon = pillDownload ? 'download' : arrow === '↓' ? 'arrow-down' : arrow === '→' ? 'arrow-right' : undefined;
+}
+---
+
+<div class:list={['stmt', className]} data-enter {...rest}>
+  <div class="stmt__inner">
+    <p class="stmt__text">
+      {
+        segments.map((seg) =>
+          'slug' in seg ? (
+            <a
+              class="link-hl link-hl--ink stmt__link"
+              href={`/work/${seg.slug}/`}
+              data-preview-src={previews[seg.slug]?.src}
+              data-preview-label={previews[seg.slug]?.label}
+              data-preview-accent={previews[seg.slug]?.accent}
+              data-preview-variant="pill"
+            >
+              {seg.text}
+            </a>
+          ) : (
+            seg.text
+          ),
+        )
+      }
+    </p>
+    {
+      pill && (
+        <div class="stmt__pill">
+          <PillButton
+            href={pill.href}
+            external={pill.external}
+            variant="secondary"
+            icon={pillIcon}
+            download={pillDownload}
+            aria-label={pillDownload ? 'Download CV (PDF)' : undefined}
+          >
+            {pillLabel}
+          </PillButton>
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .stmt {
+    position: relative;
+    display: grid;
+    grid-row: span 5;
+    grid-template-rows: subgrid;
+    align-content: start;
+    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  .stmt__inner {
+    grid-row: 1 / span 4;
+    align-self: center;
+    display: grid;
+    gap: clamp(0.9rem, 1.5vw, 1.25rem);
+    justify-items: start;
+  }
+
+  .stmt__text {
+    max-width: 24ch;
+    padding-top: 0.15rem;
+    font-family: var(--font-serif);
+    font-size: var(--fs-statement);
+    line-height: var(--lh-statement);
+    letter-spacing: var(--track-statement);
+    text-wrap: pretty;
+  }
+
+  .stmt__link {
+    /* The underline sits a bit lower on the big serif. */
+    text-underline-offset: 0.14em;
+    text-decoration-thickness: 1px;
+  }
+
+  .stmt__pill {
+    padding-left: 3px; /* hard shadow */
+  }
+
+  @supports not (grid-template-rows: subgrid) {
+    .stmt {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+</style>

@@ -1,0 +1,300 @@
+---
+/**
+ * PrevNext (DESIGN §5.18, adhamdannaway influence): two compact tiles to the
+ * previous and next project, in wrap-around grid order. The cards are neutral
+ * paper-2 (the page's own accent already fills the footer: max two accents on
+ * screen, DESIGN §11); each project's colour shows only in its thumbnail board
+ * and as the metric chip's border.
+ *
+ *   <PrevNext prev={prevEntry} next={nextEntry} />
+ *
+ * View transitions: the tile's media box / title carry `media-<id>` /
+ * `title-<id>` so they grow into the target page's hero / <h1>. Two rules
+ * keep names unique and morphs sensible:
+ *   - names are only set when prev and next are different projects;
+ *   - `data-vt-only` tells the view-transition script (BaseLayout) to drop a tile's
+ *     names unless the navigation goes to that tile's page.
+ * Phones: stacked full-width tiles. Hover/focus: the media corner morphs and
+ * the arrow nudges (motion is decoration only; everything is always visible).
+ */
+import { Picture } from 'astro:assets';
+import Icon from '../global/Icon.astro';
+import {
+  accentStyle,
+  projectHref,
+  vtNames,
+  vtStyle,
+  widthsFor,
+  type Project,
+} from './projects';
+
+interface Props {
+  prev: Project;
+  next: Project;
+  /** id of the current page (never morph into ourselves). */
+  current: string;
+}
+
+const { prev, next, current } = Astro.props;
+
+const distinct = prev.id !== next.id && prev.id !== current && next.id !== current;
+const tiles = (
+  distinct ? [{ dir: 'prev' as const, entry: prev }, { dir: 'next' as const, entry: next }] : [{ dir: 'next' as const, entry: next }]
+).filter(({ entry }) => entry.id !== current);
+---
+
+{
+  tiles.length > 0 && (
+    <nav class="pn" aria-labelledby="pn-title">
+      <div class="pn__head">
+        <h2 id="pn-title" class="pn__title">Keep browsing</h2>
+        <a class="pn__all link-hl" href="/#work">
+          All projects
+        </a>
+      </div>
+
+      <ul class="pn__list" role="list">
+        {tiles.map(({ dir, entry }) => {
+          const href = projectHref(entry.id);
+          const vt = vtNames(entry.id);
+          const poster = entry.data.poster;
+          return (
+            <li class:list={['pn__item', `pn__item--${dir}`]}>
+              <a class:list={['pn-tile', `pn-tile--${dir}`]} href={href} style={accentStyle(entry.data)}>
+                <span
+                  class="pn-tile__media"
+                  data-vt-name={vt.media}
+                  data-vt-only={href}
+                  style={vtStyle(vt.media, 'project-media')}
+                >
+                  {poster ? (
+                    <Picture
+                      src={poster}
+                      formats={['avif', 'webp']}
+                      fallbackFormat="webp"
+                      widths={widthsFor(poster.width, [240, 400, 640])}
+                      sizes="(min-width: 600px) 16rem, 40vw"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      class="pn-tile__img"
+                      style={`object-position: ${entry.data.focus}`}
+                    />
+                  ) : (
+                    <span class="pn-tile__word t-outline" aria-hidden="true">
+                      {entry.data.shortWord}
+                    </span>
+                  )}
+                </span>
+                <span class="pn-tile__body">
+                  <span class="pn-tile__dir">
+                    <Icon name="arrow-right" class="pn-tile__arrow" />
+                    {dir === 'prev' ? 'Previous project' : 'Next project'}
+                  </span>
+                  <span
+                    class="pn-tile__title"
+                    data-vt-name={vt.title}
+                    data-vt-only={href}
+                    style={vtStyle(vt.title, 'project-title')}
+                  >
+                    {entry.data.title}
+                  </span>
+                  <span class="chip chip--metric pn-tile__metric">{entry.data.metric}</span>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  .pn {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .pn__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: clamp(1.25rem, 2.4vw, 2rem);
+    border-top: 1px solid var(--ink);
+  }
+
+  .pn__title {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .pn__all {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    /* 44px hit area for a one-line text link. */
+    padding-block: 0.8rem;
+    margin-block: -0.8rem;
+  }
+
+  .pn__list {
+    display: grid;
+    gap: var(--gap);
+    margin: 0;
+    padding: 0 0 0 4px; /* room for the hard shadow (it falls down-left) */
+    list-style: none;
+  }
+
+  @media (min-width: 600px) {
+    .pn__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* "Next" sits on the right even when it is the only tile. */
+    .pn__item--next {
+      grid-column: 2;
+    }
+  }
+
+  /* ---- Tile ------------------------------------------------------------------ */
+  .pn-tile {
+    --tile-r: clamp(1rem, 2.6vw, 2rem);
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 38%) minmax(0, 1fr);
+    gap: clamp(0.875rem, 2vw, 1.5rem);
+    align-items: center;
+    height: 100%;
+    padding: clamp(0.625rem, 1.2vw, 0.875rem);
+    border: 1px solid var(--ink);
+    border-radius: var(--tile-r) var(--tile-r) var(--tile-r) 0;
+    background: var(--paper-2);
+    color: var(--ink);
+    text-decoration: none;
+    box-shadow: var(--shadow-hard) var(--ink);
+    transition:
+      transform var(--dur-ui) ease,
+      box-shadow var(--dur-ui) ease,
+      background-color var(--dur-ui) ease;
+  }
+
+  .pn-tile--next {
+    border-radius: var(--tile-r) var(--tile-r) 0 var(--tile-r);
+  }
+
+  .pn-tile:hover,
+  .pn-tile:focus-visible {
+    transform: var(--press);
+    box-shadow: var(--shadow-pressed) var(--ink);
+    background-color: color-mix(in srgb, var(--paper-2) 90%, var(--ink));
+  }
+
+  .pn-tile__media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: calc(var(--tile-r) * 0.6) calc(var(--tile-r) * 0.6) calc(var(--tile-r) * 0.6) 0;
+    background: var(--accent);
+    transition: border-radius 0.4s 0.05s var(--ease-out-quart);
+  }
+
+  .pn-tile__media :global(.pn-tile__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* M6-style corner morph on hover / focus. */
+  .pn-tile:hover .pn-tile__media,
+  .pn-tile:focus-visible .pn-tile__media {
+    border-radius: 0 45% 45% 45%;
+  }
+
+  .pn-tile__word {
+    font-family: var(--font-display);
+    font-size: var(--fs-tileword);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .pn-tile__body {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+    min-width: 0;
+  }
+
+  .pn-tile__dir {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .pn-tile__dir :global(.pn-tile__arrow) {
+    transition: transform var(--dur-ui) var(--ease-out-quart);
+  }
+
+  .pn-tile--prev .pn-tile__dir :global(.pn-tile__arrow) {
+    transform: scaleX(-1);
+  }
+
+  .pn-tile--next:hover .pn-tile__dir :global(.pn-tile__arrow),
+  .pn-tile--next:focus-visible .pn-tile__dir :global(.pn-tile__arrow) {
+    transform: translateX(3px);
+  }
+
+  .pn-tile--prev:hover .pn-tile__dir :global(.pn-tile__arrow),
+  .pn-tile--prev:focus-visible .pn-tile__dir :global(.pn-tile__arrow) {
+    transform: scaleX(-1) translateX(3px);
+  }
+
+  .pn-tile__title {
+    font-family: var(--font-serif);
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+    text-wrap: balance;
+  }
+
+  .pn-tile__metric {
+    max-width: 100%;
+    white-space: normal;
+    border-color: var(--accent);
+  }
+
+  /* Mirror "Next": text left, media right (tablet up). */
+  @media (min-width: 600px) {
+    .pn-tile--next {
+      grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 38%);
+    }
+
+    .pn-tile--next .pn-tile__media {
+      order: 2;
+      border-radius: calc(var(--tile-r) * 0.6) calc(var(--tile-r) * 0.6) 0 calc(var(--tile-r) * 0.6);
+    }
+
+    .pn-tile--next:hover .pn-tile__media,
+    .pn-tile--next:focus-visible .pn-tile__media {
+      border-radius: 45% 0 45% 45%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pn-tile,
+    .pn-tile__media {
+      transition-duration: 0.01s;
+    }
+  }
+</style>

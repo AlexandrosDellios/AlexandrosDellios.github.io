@@ -1,0 +1,584 @@
+/* =============================================================================
+   Base: modern reset, document defaults, typography classes, links, focus,
+   selection, skip link, layout helpers, surfaces and reduced-motion rules.
+   Components that are used everywhere live in components.css.
+   ========================================================================== */
+
+/* ---- Reset ----------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--paper);
+  /* The sticky header covers the top of the page: keep anchored targets visible. */
+  scroll-padding-top: var(--header-h);
+}
+
+body {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--track-body);
+  font-synthesis: none; /* never fake bold/italic */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Programmatic focus targets (#main, sections reached by anchor links) get
+   tabindex=-1; don't draw a ring around a whole region. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+figcaption {
+  overflow-wrap: break-word;
+}
+
+p,
+li,
+figcaption {
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---- Headings & typography ------------------------------------------------- */
+/* Serif "voice" for h1-h3 by default; one italic phrase per headline (<em>). */
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+h1,
+h2 {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--track-serif);
+}
+
+h3 {
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+}
+
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: 600;
+}
+
+/* Instrument Serif has a real italic. Elsewhere <em> keeps the normal behaviour. */
+:is(h1, h2, h3, .t-display, .t-h2, .t-h3, .t-statement, .serif) em {
+  font-style: italic;
+}
+
+strong,
+b {
+  font-weight: 600; /* "Bold only as Geist 600" */
+}
+
+small {
+  font-size: var(--fs-small);
+}
+
+/* Type classes: one per row of DESIGN §3.2. Apply to any element. */
+.t-giant {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--fs-giant);
+  line-height: var(--lh-giant);
+  letter-spacing: var(--track-giant);
+  text-transform: uppercase;
+}
+
+.t-display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  letter-spacing: var(--track-serif);
+}
+
+.t-h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--track-serif);
+}
+
+.t-statement {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-statement);
+  line-height: var(--lh-statement);
+  letter-spacing: var(--track-statement);
+}
+
+.t-h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  letter-spacing: 0;
+}
+
+.t-tileword {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--fs-tileword);
+  line-height: 1;
+  letter-spacing: var(--track-giant);
+  text-transform: uppercase;
+}
+
+.t-lead {
+  font-family: var(--font-sans);
+  font-size: var(--fs-lead);
+  line-height: var(--lh-lead);
+  letter-spacing: var(--track-lead);
+}
+
+.t-body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--track-body);
+}
+
+.t-small {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  letter-spacing: 0;
+}
+
+/* Telemetry voice: eyebrows, chips, dates, metrics. */
+.t-label,
+.eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.eyebrow {
+  color: var(--ink-2);
+}
+
+/* Family-only helpers. */
+.serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--ink-2);
+}
+
+.accent-ink {
+  color: var(--accent-ink);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Outlined display word for use on color fills (DESIGN §3.1 rule):
+   paper fill + 1px ink stroke + hard ink shadow, legible on any accent. */
+.t-outline {
+  color: var(--paper);
+  -webkit-text-stroke: 1px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: -2px 2px 0 var(--ink);
+}
+
+/* Measures. */
+.measure {
+  max-width: var(--measure);
+}
+
+.measure-lead {
+  max-width: var(--measure-lead);
+}
+
+/* ---- Links ------------------------------------------------------------------ */
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+/* Highlighter link (DESIGN §5.12, tamalsen influence): a lime fill grows from
+   the underline to the full line box on hover/focus. Applied automatically to
+   class-less links (e.g. Markdown prose) and opt-in via .link-hl. */
+a:where(:not([class])),
+.link-hl {
+  color: var(--accent-ink);
+  text-decoration-line: underline;
+  text-decoration-color: currentColor;
+  background-image: linear-gradient(var(--highlight), var(--highlight));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition:
+    background-size var(--dur-ui) var(--ease-out-quart),
+    color var(--dur-ui) ease;
+}
+
+a:where(:not([class])):hover,
+.link-hl:hover,
+a:where(:not([class])):focus-visible,
+.link-hl:focus-visible {
+  color: var(--ink);
+  background-size: 100% 100%;
+}
+
+/* Ink-coloured variant for links that sit in ink text (e.g. statements). */
+.link-hl--ink {
+  color: inherit;
+}
+
+/* Visible arrow for links that leave the site. */
+.ext::after {
+  content: '\2009↗';
+  font-family: var(--font-sans);
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* ---- Focus ------------------------------------------------------------------ */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Remove the ring only for mouse focus (keyboard always gets :focus-visible). */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---- Selection -------------------------------------------------------------- */
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+/* ---- Skip link ---------------------------------------------------------------- */
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: var(--pad);
+  z-index: var(--z-skip);
+  padding: 0.75rem 1.1rem;
+  border: var(--border);
+  border-radius: var(--r-pill);
+  background: var(--highlight);
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: var(--shadow-hard) var(--ink);
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform var(--dur-ui) var(--ease-out-quart);
+}
+
+.skip-link:focus-visible,
+.skip-link:focus {
+  transform: none;
+}
+
+/* ---- Accessibility helpers ---------------------------------------------------- */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ---- Layout helpers ------------------------------------------------------------ */
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+
+/* 12 / 6 / 4 column grid (columns follow --grid-cols, set in tokens.css). */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+/* Children of a .grid: full width by default on small screens. */
+.col-full {
+  grid-column: 1 / -1;
+}
+
+.section {
+  padding-block: var(--section);
+}
+
+/* Vertical rhythm for stacked content: set --flow to change the gap. */
+.flow > * + * {
+  margin-block-start: var(--flow, 1em);
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cluster-gap, 0.5rem);
+}
+
+.hairline-top {
+  border-top: var(--hairline);
+}
+
+/* Meta-line segment (components/global/Segments.astro): keeps a phrase such as
+   "Team of 3" together, so mono meta lines break only between their " · "
+   segments. A phrase wider than the line still wraps inside its own box. */
+.seg {
+  display: inline-block;
+}
+
+/* ---- Prose (Markdown bodies) --------------------------------------------------- */
+.prose {
+  max-width: var(--measure);
+}
+
+.prose > * + * {
+  margin-block-start: 1em;
+}
+
+.prose :is(h2, h3) {
+  margin-block-start: 1.6em;
+}
+
+.prose h2 {
+  font-size: var(--fs-statement);
+  line-height: var(--lh-statement);
+}
+
+.prose :is(ul, ol) {
+  padding-inline-start: 1.25em;
+}
+
+.prose li + li {
+  margin-block-start: 0.4em;
+}
+
+.prose li::marker {
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border-radius: var(--r-xs);
+  background: var(--paper-2);
+}
+
+/* ---- Surfaces ------------------------------------------------------------------- */
+/* Accent fill: ink text (4.8:1 on the default orange). Small text on a fill must
+   sit on its own paper chip/card (DESIGN §3.1), components handle that. */
+.on-accent {
+  background: var(--accent);
+  color: var(--ink);
+  --focus-ring: var(--ink);
+}
+
+.on-accent ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.on-dark {
+  background: var(--dark);
+  color: var(--paper);
+  --focus-ring: var(--paper);
+  --line: color-mix(in srgb, var(--paper) 22%, transparent);
+}
+
+.on-paper-2 {
+  background: var(--paper-2);
+}
+
+/* ---- Progressive enhancement hooks ---------------------------------------------- */
+/* Only visible when JS runs (e.g. copy buttons); the no-JS alternative uses .no-js-only. */
+html:not(.js) .js-only {
+  display: none !important;
+}
+
+html.js .no-js-only {
+  display: none !important;
+}
+
+/* ---- Heading reveal (M4) --------------------------------------------------------- */
+/* [data-reveal="lines"] headings are split + animated by scripts/core/reveal.ts.
+   Hidden only when JS runs and motion is allowed; a fail-safe animation reveals
+   them anyway after 2.5s if the script never arrives. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js:not(.reduced-motion) [data-reveal='lines']:not(.is-split) {
+    visibility: hidden;
+    animation: reveal-failsafe 0s 2.5s forwards;
+  }
+}
+
+@keyframes reveal-failsafe {
+  to {
+    visibility: visible;
+  }
+}
+
+/* Masked line wrappers created by SplitText. */
+.reveal-line-mask {
+  padding-block: 0.08em; /* room for descenders and italic overhang inside the mask */
+  margin-block: -0.08em;
+}
+
+/* ---- Lenis (smooth scroll, desktop only) ----------------------------------------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* ---- Scroll lock (mobile menu) ------------------------------------------------- */
+html.is-scroll-locked {
+  overflow: hidden;
+}
+
+/* ---- Reduced motion -------------------------------------------------------------- */
+/* Decorative motion is opt-in per component (wrapped in no-preference queries).
+   This is the global safety net for anything that slipped through. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-motion='decorative'] {
+    animation: none !important;
+    transition: none !important;
+  }
+}

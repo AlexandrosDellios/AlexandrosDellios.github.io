@@ -1,0 +1,46 @@
+/* =============================================================================
+   Fonts (DESIGN §3.2): self-hosted via Fontsource, Latin subsets, font-display: swap.
+   No Google Fonts requests. BaseLayout preloads Anton + Geist (latin woff2).
+   ========================================================================== */
+
+/* Display: Anton 400 (uppercase only). */
+@import '@fontsource/anton/latin-400.css';
+/* Voice: Instrument Serif 400 + italic. */
+@import '@fontsource/instrument-serif/latin-400.css';
+@import '@fontsource/instrument-serif/latin-400-italic.css';
+/* Body + telemetry: variable fonts. These files declare every subset, but each
+   @font-face has a unicode-range, so browsers only download the Latin file. */
+@import '@fontsource-variable/geist/wght.css';
+@import '@fontsource-variable/geist-mono/wght.css';
+
+/* -----------------------------------------------------------------------------
+   Metric-matched fallbacks: keep layout stable while the web fonts swap in.
+   Values computed from the font files (fontTools): advance width ratio for
+   size-adjust, then ascent/descent divided by that ratio.
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Anton Fallback';
+  src: local('Impact'), local('Impact Regular'), local('Arial Narrow Bold');
+  size-adjust: 92.6%;
+  ascent-override: 127%;
+  descent-override: 35.5%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Instrument Serif Fallback';
+  src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Times');
+  size-adjust: 84%;
+  ascent-override: 117.9%;
+  descent-override: 36.9%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Geist Fallback';
+  src: local('Arial'), local('ArialMT'), local('Helvetica');
+  size-adjust: 105.3%;
+  ascent-override: 95.4%;
+  descent-override: 28%;
+  line-gap-override: 0%;
+}

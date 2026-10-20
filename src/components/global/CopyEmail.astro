@@ -1,0 +1,55 @@
+---
+/**
+ * CopyEmail (DESIGN §5.7, M13): a button showing the address + copy icon.
+ * Click copies to the clipboard and shows a "Copied ✓" chip for 1.6 s.
+ * - Without JS: a plain mailto: link is rendered instead (.no-js-only).
+ * - If the Clipboard API is unavailable or fails, the click opens mailto:.
+ * Behaviour: src/scripts/core/copy-email.ts (wired by motion.ts).
+ *
+ *   <CopyEmail />                         header style (inherits font)
+ *   <CopyEmail variant="large" />         big serif (footer)
+ *   <CopyEmail variant="chip" />          paper chip, safe on accent fills
+ *
+ * Styles: src/styles/components.css (.copy-email*).
+ */
+import { site } from '../../data/site';
+import Icon from './Icon.astro';
+
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'span'> {
+  email?: string;
+  variant?: 'inline' | 'large' | 'chip';
+  class?: string;
+}
+
+const { email = site.email, variant = 'inline', class: className, ...rest } = Astro.props;
+// Preferred line break right after the "@" when space is short.
+const [local, domain] = email.split('@');
+---
+
+<span class:list={['copy-email', `copy-email--${variant}`, className]} data-copy-email {...rest}>
+  <button
+    type="button"
+    class="copy-email__btn js-only"
+    data-copy-email-btn
+    data-email={email}
+    aria-label={`Copy email address ${email}`}
+  >
+    <span class="copy-email__addr">{local}@<wbr />{domain}</span>
+    <span class="copy-email__icons" aria-hidden="true">
+      <Icon name="copy" class="copy-email__icon copy-email__icon--copy" />
+      <Icon name="check" class="copy-email__icon copy-email__icon--check" />
+    </span>
+  </button>
+  <a class="copy-email__btn copy-email__link no-js-only" href={`mailto:${email}`}>
+    <span class="copy-email__addr">{local}@<wbr />{domain}</span>
+    <Icon name="mail" class="copy-email__icon" />
+  </a>
+  <!-- Visual feedback chip (aria-hidden); the live region below announces the copy. -->
+  <span class="copy-email__chip" aria-hidden="true">
+    <span class="copy-email__chip-hint">Click to copy</span>
+    <span class="copy-email__chip-done">Copied ✓</span>
+  </span>
+  <span class="sr-only" role="status" aria-live="polite" data-copy-email-status></span>
+</span>

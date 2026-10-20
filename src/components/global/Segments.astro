@@ -1,0 +1,22 @@
+---
+/**
+ * Segments: a " · "-separated meta line that only breaks BETWEEN segments
+ * ("2025 · Legged Robots course · Team of 3" never splits "Team / of 3").
+ *
+ *   <Segments parts={[year, context, team]} />
+ *   <Segments text="06 projects · 2025–26" />      (split at " · ")
+ *
+ * Each part is an inline-block .seg (base.css); the separator is glued to the
+ * part before it with a no-break space, so no line ever starts with "·".
+ * Renders inline content only: put it inside the element that styles the line.
+ */
+interface Props {
+  parts?: (string | undefined | null | false)[];
+  text?: string;
+}
+
+const { parts, text } = Astro.props;
+const list = (parts ?? text?.split(' · ') ?? []).filter((p): p is string => Boolean(p && p.trim()));
+---
+
+{list.map((part, i) => [i > 0 ? ' · ' : '', <span class="seg">{part}</span>])}

@@ -1,0 +1,299 @@
+---
+/**
+ * MobileMenu (DESIGN §5.21): full-screen accent panel for < 1024px.
+ *
+ * Built on the Popover API, so it opens/closes (and Esc works) even before JS:
+ * the Header's menu button has popovertarget="site-menu". scripts/core/menu.ts
+ * adds the rest: aria-expanded sync, focus trap, focus return, scroll lock
+ * (Lenis stop + html.is-scroll-locked), close on link click / on resize to
+ * desktop, and a fallback for browsers without popover support.
+ *
+ * Wipe: clip-path inset(0 0 100%) -> inset(0) with @starting-style; links rise
+ * in with a small stagger. No animation under reduced motion.
+ *
+ * Colour: the accent lightened 20% toward paper. The panel carries small ink
+ * text (CLOSE, the 01–04 indices, the count), and the darker project accents
+ * (rocket magenta, Uno crimson) are under 4.5:1 with ink at full strength;
+ * the mix keeps every page at ≥ 4.9:1.
+ */
+import { site } from '../../data/site';
+import CopyEmail from './CopyEmail.astro';
+import Icon from './Icon.astro';
+import PillButton from './PillButton.astro';
+import StatusBadge from './StatusBadge.astro';
+import type { NavItem } from './types';
+
+interface Props {
+  id: string;
+  nav: NavItem[];
+}
+
+const { id, nav } = Astro.props;
+const pad2 = (n: number) => String(n).padStart(2, '0');
+---
+
+<div
+  id={id}
+  class="mobile-menu on-accent"
+  popover="auto"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Site menu"
+  data-mobile-menu
+  data-lenis-prevent
+>
+  <div class="mobile-menu__inner">
+    <div class="mobile-menu__top">
+      <a class="mobile-menu__logo" href="/" aria-label={`${site.name}, home`}>AD</a>
+      <button
+        type="button"
+        class="mobile-menu__close"
+        popovertarget={id}
+        popovertargetaction="hide"
+        data-menu-close
+      >
+        <span>Close</span>
+        <Icon name="close" class="mobile-menu__close-icon" />
+      </button>
+    </div>
+
+    <nav class="mobile-menu__nav" aria-label="Menu">
+      <ol class="mobile-menu__links" role="list">
+        {
+          nav.map((item, i) => (
+            <li class="mobile-menu__item" style={`--i: ${i}`}>
+              <a class="mobile-menu__link" href={item.href}>
+                <span class="mobile-menu__index" aria-hidden="true">
+                  {pad2(i + 1)}
+                </span>
+                <span class="mobile-menu__label">{item.label}</span>
+                {item.count !== undefined && (
+                  <>
+                    <sup class="mobile-menu__count" aria-hidden="true">
+                      {pad2(item.count)}
+                    </sup>
+                    <span class="sr-only">
+                      , {item.count} {item.countLabel}
+                    </span>
+                  </>
+                )}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <div class="mobile-menu__meta">
+      <StatusBadge chip />
+      <CopyEmail variant="chip" />
+      <div class="mobile-menu__pills">
+        <PillButton href={site.cv} icon="download" download>Download CV</PillButton>
+        <PillButton href={site.github} variant="secondary">GitHub</PillButton>
+        <PillButton href={site.linkedin} variant="secondary">LinkedIn</PillButton>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-menu);
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: color-mix(in srgb, var(--accent) 80%, var(--paper));
+    color: var(--ink);
+    clip-path: inset(0 0 100% 0);
+    transition:
+      clip-path 0.5s var(--ease-out-quart),
+      display 0.5s allow-discrete,
+      overlay 0.5s allow-discrete;
+  }
+
+  .mobile-menu:popover-open {
+    clip-path: inset(0);
+  }
+
+  @starting-style {
+    .mobile-menu:popover-open {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  .mobile-menu::backdrop {
+    background: transparent;
+  }
+
+  /* Browsers without the Popover API: menu.ts toggles [data-open]. */
+  @supports not selector(:popover-open) {
+    .mobile-menu {
+      display: none;
+    }
+
+    .mobile-menu[data-open] {
+      display: block;
+      clip-path: inset(0);
+    }
+  }
+
+  .mobile-menu__inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 0 var(--pad) calc(var(--pad) + env(safe-area-inset-bottom));
+  }
+
+  .mobile-menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-h);
+    flex: none;
+  }
+
+  .mobile-menu__logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 0.9;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .mobile-menu__close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 0.15rem 0 0.4rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .mobile-menu__close-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .mobile-menu__nav {
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    padding-block: 2rem;
+  }
+
+  .mobile-menu__links {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mobile-menu__item {
+    border-top: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+
+  .mobile-menu__item:last-child {
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+
+  .mobile-menu__link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding-block: 0.6rem 0.5rem;
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 11vw, 3.5rem);
+    line-height: 1;
+    letter-spacing: var(--track-serif);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .mobile-menu__link:hover .mobile-menu__label,
+  .mobile-menu__link:focus-visible .mobile-menu__label {
+    font-style: italic;
+  }
+
+  .mobile-menu__index,
+  .mobile-menu__count {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: var(--track-label);
+    line-height: 1;
+  }
+
+  .mobile-menu__index {
+    min-width: 2.2ch;
+    translate: 0 -0.2em;
+  }
+
+  .mobile-menu__count {
+    align-self: flex-start;
+    margin-top: 0.4em;
+  }
+
+  .mobile-menu__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding-top: 1rem;
+  }
+
+  /* The availability chip may wrap at 320px (400% zoom) instead of overflowing. */
+  .mobile-menu__meta :global(.status) {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .mobile-menu__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.25rem 0 0 3px; /* room for the hard shadows */
+  }
+
+  /* Links rise in after the wipe. */
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-menu:popover-open .mobile-menu__item,
+    .mobile-menu[data-open] .mobile-menu__item {
+      animation: menu-item-in 0.6s var(--ease-out-quart) backwards;
+      animation-delay: calc(var(--i, 0) * 50ms + 150ms);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu {
+      transition: none;
+    }
+  }
+
+  @keyframes menu-item-in {
+    from {
+      opacity: 0;
+      translate: 0 0.75rem;
+    }
+  }
+
+  /* Never shown on desktop (menu.ts also closes it when resizing past 1024px). */
+  @media (min-width: 1024px) {
+    .mobile-menu {
+      display: none !important;
+    }
+  }
+</style>

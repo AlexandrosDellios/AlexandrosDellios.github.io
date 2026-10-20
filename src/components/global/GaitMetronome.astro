@@ -1,0 +1,223 @@
+---
+/**
+ * GaitMetronome (DESIGN §5.9, M10): a tiny top view of a quadruped whose four
+ * feet step in a CPG gait pattern. Clicking cycles trot → walk → pace → bound.
+ *
+ * - Pure CSS keyframes; each foot gets a phase offset through a negative
+ *   animation-delay (--phase × --cycle). Phases per gait are set below.
+ * - The robot faces right: top row = left legs (LH, LF), bottom row = right legs.
+ * - Swing phase (40% of the cycle): the foot steps forward, lifts (scale) and
+ *   turns accent. Stance: it slides back relative to the body, ink at 30%.
+ * - Scroll speed raises playbackRate (scripts/core/gait.ts, fed by Lenis).
+ * - It walks while you scroll: the script pauses it (.is-paused) about 5 s
+ *   after load and 2 s after scrolling stops, and wakes it on scroll or click
+ *   (no endless decorative loop, WCAG 2.2.2).
+ * - Reduced motion: the animation is paused at t = 0, which shows a static pose.
+ * - Hidden below 600px (the header is too narrow), and without JS (.js-only:
+ *   the button only does something with the script).
+ * - Accessible name "Change gait animation"; the visible gait word is its
+ *   description, and a polite status line announces each change.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'button'> {
+  gait?: 'trot' | 'walk' | 'pace' | 'bound';
+  class?: string;
+}
+
+const { gait = 'trot', class: className, ...rest } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={['gait', 'js-only', className]}
+  data-gait-metronome
+  data-gait={gait}
+  aria-label="Change gait animation"
+  aria-describedby="gait-label"
+  {...rest}
+>
+  <span class="gait__body" aria-hidden="true">
+    <span class="gait__foot" data-leg="lh"></span>
+    <span class="gait__foot" data-leg="lf"></span>
+    <span class="gait__foot" data-leg="rh"></span>
+    <span class="gait__foot" data-leg="rf"></span>
+    <span class="gait__head"></span>
+  </span>
+  <span class="gait__label" id="gait-label" data-gait-label>{gait}</span>
+  <span class="sr-only" role="status" aria-live="polite" data-gait-status></span>
+</button>
+
+<style>
+  .gait {
+    --cycle: 0.9s;
+    --foot: 6px;
+    --stance: color-mix(in srgb, var(--ink) 30%, transparent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 44px;
+    padding: 0 0.6rem;
+    border-radius: var(--r-pill);
+    color: var(--ink-2);
+    transition: background-color var(--dur-ui) ease;
+  }
+
+  .gait:hover {
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+
+  /* Body outline: a rounded rectangle with the feet inside its corners. */
+  .gait__body {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, var(--foot));
+    gap: 4px 9px;
+    padding: 3px 6px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+
+  /* Small nub on the right = the head, so the direction of travel reads. */
+  .gait__head {
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    width: 3px;
+    height: 6px;
+    translate: 0 -50%;
+    border-radius: 0 2px 2px 0;
+    background: var(--line);
+  }
+
+  .gait__foot {
+    width: var(--foot);
+    height: var(--foot);
+    border-radius: 50%;
+    background-color: var(--stance);
+    animation: gait-step var(--cycle) linear infinite;
+    animation-delay: calc(var(--phase, 0) * var(--cycle) * -1);
+  }
+
+  /* ---- Phase offsets per gait (fraction of the cycle) ------------------- */
+  /* Trot: diagonal pairs. */
+  .gait[data-gait='trot'] [data-leg='lf'],
+  .gait[data-gait='trot'] [data-leg='rh'] {
+    --phase: 0;
+  }
+  .gait[data-gait='trot'] [data-leg='rf'],
+  .gait[data-gait='trot'] [data-leg='lh'] {
+    --phase: 0.5;
+  }
+
+  /* Walk: lateral sequence LF → RH → RF → LH, shorter swing (25%). */
+  .gait[data-gait='walk'] .gait__foot {
+    animation-name: gait-step-walk;
+  }
+  .gait[data-gait='walk'] [data-leg='lf'] {
+    --phase: 0;
+  }
+  .gait[data-gait='walk'] [data-leg='rh'] {
+    --phase: 0.25;
+  }
+  .gait[data-gait='walk'] [data-leg='rf'] {
+    --phase: 0.5;
+  }
+  .gait[data-gait='walk'] [data-leg='lh'] {
+    --phase: 0.75;
+  }
+
+  /* Pace: lateral pairs. */
+  .gait[data-gait='pace'] [data-leg='lf'],
+  .gait[data-gait='pace'] [data-leg='lh'] {
+    --phase: 0;
+  }
+  .gait[data-gait='pace'] [data-leg='rf'],
+  .gait[data-gait='pace'] [data-leg='rh'] {
+    --phase: 0.5;
+  }
+
+  /* Bound: front pair, then hind pair. */
+  .gait[data-gait='bound'] [data-leg='lf'],
+  .gait[data-gait='bound'] [data-leg='rf'] {
+    --phase: 0;
+  }
+  .gait[data-gait='bound'] [data-leg='lh'],
+  .gait[data-gait='bound'] [data-leg='rh'] {
+    --phase: 0.5;
+  }
+
+  .gait__label {
+    min-width: 5ch; /* "bound" is the longest: no layout shift when cycling */
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  /* Static pose: keep the frame at t = 0 (feet with phase 0 are mid-swing). */
+  @media (prefers-reduced-motion: reduce) {
+    .gait__foot {
+      animation-play-state: paused;
+    }
+  }
+
+  /* Paused by script while the tab or the header is hidden. */
+  .gait.is-paused .gait__foot {
+    animation-play-state: paused;
+  }
+
+  @media (max-width: 599.98px) {
+    .gait {
+      display: none;
+    }
+  }
+
+  /* 0% = mid-swing (peak), 20% = touchdown, 80% = lift-off. Swing = 40%. */
+  @keyframes gait-step {
+    0%,
+    100% {
+      translate: 0 0;
+      scale: 1.3;
+      background-color: var(--accent);
+      animation-timing-function: ease-in-out;
+    }
+    20% {
+      translate: 2px 0;
+      scale: 1;
+      background-color: var(--stance);
+      animation-timing-function: linear;
+    }
+    80% {
+      translate: -2px 0;
+      scale: 1;
+      background-color: var(--stance);
+      animation-timing-function: ease-in-out;
+    }
+  }
+
+  /* Walk: swing = 25% of the cycle. */
+  @keyframes gait-step-walk {
+    0%,
+    100% {
+      translate: 0 0;
+      scale: 1.3;
+      background-color: var(--accent);
+      animation-timing-function: ease-in-out;
+    }
+    12.5% {
+      translate: 2px 0;
+      scale: 1;
+      background-color: var(--stance);
+      animation-timing-function: linear;
+    }
+    87.5% {
+      translate: -2px 0;
+      scale: 1;
+      background-color: var(--stance);
+      animation-timing-function: ease-in-out;
+    }
+  }
+</style>

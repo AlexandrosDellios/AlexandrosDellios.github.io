@@ -1,0 +1,194 @@
+---
+/**
+ * SectionHead: the heading row every home section starts with.
+ *
+ *   ─────────────────────────────────────────────────────────────── hairline
+ *   02 / WORK            Selected *work*                 6 projects · 2025–26
+ *   (mono label)         (serif h2, M4 line reveal)      (optional mono aside)
+ *
+ *   <SectionHead index="02" label="Work" id="work-title" title="Selected *work*" aside="6 projects" />
+ *
+ * - `title` follows the site convention: ONE phrase wrapped in *asterisks*
+ *   renders as the serif italic (Emph.astro).
+ * - The h2 carries data-reveal="lines" (M4, wired by scripts/core/reveal.ts);
+ *   keep it to section headings only (≤ 8 per page).
+ * - `aside` breaks only between its " · " segments (Segments.astro).
+ * - `hint` is an extra aside segment for mouse users only ("hover to play"):
+ *   shown under (hover: hover) and (pointer: fine), so touch screens never
+ *   see an instruction they can't follow.
+ * - `size="sm"` is a quieter variant for secondary sections (More work).
+ * - `stack` keeps label / title / aside stacked at every width (for sections
+ *   that share a row with another section, e.g. Experience | Toolbox).
+ * - The section element itself should use aria-labelledby={id}.
+ */
+import Emph from '../global/Emph.astro';
+import Segments from '../global/Segments.astro';
+
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'header'>, 'title'> {
+  /** Two-digit section number, e.g. "02". */
+  index: string;
+  /** Short mono label next to the number, e.g. "Work". */
+  label: string;
+  /** id of the h2 (for the section's aria-labelledby). */
+  id: string;
+  /** Serif heading; wrap ONE phrase in *asterisks* for the italic. */
+  title: string;
+  /** Optional mono note on the right (desktop) / under the title (mobile). */
+  aside?: string;
+  /** Extra aside segment shown to fine pointers only, e.g. "hover to play". */
+  hint?: string;
+  size?: 'lg' | 'sm';
+  /** Keep the label above the title on desktop too (narrow columns). */
+  stack?: boolean;
+  class?: string;
+}
+
+const { index, label, id, title, aside, hint, size = 'lg', stack = false, class: className, ...rest } = Astro.props;
+---
+
+<header class:list={['sh', `sh--${size}`, stack && 'sh--stack', className]} {...rest}>
+  {/* Telemetry label: decorative (the h2 names the section), so hidden from screen readers. */}
+  <p class="sh__label" aria-hidden="true">
+    <span class="sh__index">{index}</span><span class="sh__slash" aria-hidden="true">/</span><span>{label}</span>
+  </p>
+  <h2 class="sh__title" id={id} data-reveal="lines"><Emph text={title} /></h2>
+  {
+    aside && (
+      <p class="sh__aside">
+        <Segments text={aside} />
+        {hint && <span class="sh__hint">{'\u00a0· '}<span class="seg">{hint}</span></span>}
+      </p>
+    )
+  }
+</header>
+
+<style>
+  .sh {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+    column-gap: var(--gap);
+    row-gap: 0.75rem;
+    align-items: start;
+    padding-top: clamp(0.9rem, 1.4vw, 1.25rem);
+    border-top: var(--hairline);
+  }
+
+  /* Telemetry label: "02 / WORK". */
+  .sh__label {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.45em;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .sh__index {
+    color: var(--accent-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sh__slash {
+    opacity: 0.5;
+  }
+
+  .sh__title {
+    grid-column: 1 / -1;
+    max-width: 18ch;
+    /* A notch under the global h2 size: section heads stay one line. */
+    font-size: clamp(2.25rem, 1.45rem + 2.7vw, 4rem);
+  }
+
+  .sh--sm .sh__title {
+    max-width: 28ch;
+    font-size: var(--fs-statement);
+    line-height: var(--lh-statement);
+    letter-spacing: var(--track-statement);
+  }
+
+  /* Phones: label and aside are decorative telemetry (the h2 names the
+     section); skip them to keep the page within its mobile length budget. */
+  @media (max-width: 599.98px) {
+    .sh__label,
+    .sh__aside {
+      display: none;
+    }
+  }
+
+  .sh__aside {
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: 1.5;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The hint is an instruction for mouse users only. */
+  .sh__hint {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sh__hint {
+      display: inline;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .sh:not(.sh--stack) {
+      row-gap: 0;
+    }
+
+    .sh--stack {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.6rem 1.5rem;
+    }
+
+    .sh--stack .sh__label {
+      flex: 1 0 100%;
+    }
+
+    .sh--stack .sh__aside {
+      max-width: 30ch;
+      text-align: right;
+    }
+
+    .sh:not(.sh--stack) .sh__label {
+      grid-column: 1 / span 3;
+      /* Optically align the label with the cap height of the serif title. */
+      padding-top: 0.55rem;
+    }
+
+    .sh--sm:not(.sh--stack) .sh__label {
+      padding-top: 0.4rem;
+    }
+
+    .sh:not(.sh--stack) .sh__title {
+      grid-column: 4 / span 7;
+      max-width: none;
+    }
+
+    .sh:not(.sh--stack) .sh__aside {
+      grid-column: 11 / -1;
+      align-self: end;
+      justify-self: end;
+      max-width: 30ch;
+      padding-bottom: 0.35rem;
+      text-align: right;
+    }
+  }
+</style>

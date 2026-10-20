@@ -1,0 +1,331 @@
+---
+/**
+ * FigureCard (DESIGN §5.18 "Figure", §6 motion budget): one <figure> on a
+ * paper-2 mat with a numbered caption and a mono credit line. Used by
+ * ProjectGallery for three kinds of items:
+ *
+ *   figure  optimised image (AVIF + WebP <Picture>; SVG diagrams as a plain
+ *           <img>, they are vector already) + a "Full size ↗" link to the
+ *           original file so small plot labels stay readable. Raster plots
+ *           (white matplotlib PNGs) are multiplied onto the paper, so their
+ *           white turns into paper and the lines stay; wide ones are capped
+ *           at 56rem so their text is not blown up.
+ *   video   LoopVideo card (poster first, hover/focus to play on desktop,
+ *           visible play/pause button; touch screens follow the core rules;
+ *           `clickToPlay` clips only start from the button). Very wide clips
+ *           (> 3:1, e.g. three panels side by side) get their play button and
+ *           a "Full size ↗" link to the MP4 under the frame instead of on it.
+ *   soon    a slim "Coming soon · <label>" band (media still to come); the
+ *           label is the whole message, so there is no caption
+ *
+ * Layouts (chosen by ProjectGallery from the media's aspect ratio):
+ *   wide  spans the gallery width        half  one of two side by side
+ *   side  a lone narrow item: media left, caption right (stacks below 1024px)
+ */
+import type { ImageMetadata } from 'astro';
+import { getImage, Picture } from 'astro:assets';
+import LoopVideo from '../global/LoopVideo.astro';
+import MediaPlaceholder from '../global/MediaPlaceholder.astro';
+import VideoToggle from '../global/VideoToggle.astro';
+import { widthsFor } from './projects';
+
+export type GalleryItem =
+  | {
+      type: 'figure';
+      src: ImageMetadata;
+      alt: string;
+      caption: string;
+      credit?: string;
+      ratio: { css: string; n: number };
+    }
+  | {
+      type: 'video';
+      mp4: string;
+      webm?: string;
+      poster?: string;
+      caption: string;
+      /** Only the play button starts it (no hover / scroll autoplay). */
+      clickToPlay?: boolean;
+      ratio: { css: string; n: number };
+    }
+  | {
+      type: 'soon';
+      label: string;
+      ratio: { css: string; n: number };
+    };
+
+export type GalleryLayout = 'wide' | 'half' | 'side';
+
+interface Props {
+  item: GalleryItem;
+  layout: GalleryLayout;
+  /** Visible number, e.g. "Fig. 02" or "Clip 01". */
+  number?: string;
+}
+
+const { item, layout, number } = Astro.props;
+
+const sizes =
+  layout === 'wide'
+    ? '(min-width: 1024px) 66vw, 100vw'
+    : '(min-width: 1024px) 33vw, (min-width: 600px) 50vw, 100vw';
+
+const isSvg = item.type === 'figure' && item.src.format === 'svg';
+
+// "Full size ↗" target: a native-size, lossless copy emitted by the image
+// pipeline (so it exists in the build), opened in a new tab to zoom into
+// small plot labels. SVG diagrams pass through as SVG.
+const fullSize =
+  item.type === 'figure'
+    ? (await getImage({ src: item.src, width: item.src.width, format: isSvg ? 'svg' : 'png' })).src
+    : null;
+
+// "Walking: the limb oscillators…" -> "Walking"; "Flat-ground trot at about
+// 1.3 m/s." -> whole sentence (split on ": " or ". ", never inside "1.3").
+const videoLabel =
+  item.type === 'video'
+    ? (item.caption.split(/:\s|\.(?:\s|$)/)[0]?.trim() || 'Project clip').slice(0, 80)
+    : '';
+
+// Very wide clips: the controls go under the frame (they would cover a panel).
+const wideClip = item.type === 'video' && item.ratio.n > 3;
+const videoId =
+  item.type === 'video'
+    ? `fig-video-${item.mp4.replace(/^\/?media\//, '').replace(/\.[a-z0-9]+$/i, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`
+    : undefined;
+---
+
+<figure
+  class:list={['fig', `fig--${layout}`, `fig--${item.type}`, isSvg && 'fig--svg']}
+  data-video-hover={item.type === 'video' && !item.clickToPlay ? '' : undefined}
+>
+  <div class="fig__media" style={item.type === 'soon' ? undefined : `--fig-ratio: ${item.ratio.css}`}>
+    {
+      item.type === 'figure' ? (
+        isSvg ? (
+          <img
+            class="fig__img"
+            src={item.src.src}
+            width={item.src.width}
+            height={item.src.height}
+            alt={item.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Picture
+            src={item.src}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={widthsFor(item.src.width, [480, 800, 1200, 1600, 2000])}
+            sizes={sizes}
+            alt={item.alt}
+            loading="lazy"
+            decoding="async"
+            class="fig__img"
+          />
+        )
+      ) : item.type === 'video' ? (
+        <LoopVideo
+          id={videoId}
+          mp4={item.mp4}
+          webm={item.webm}
+          poster={item.poster}
+          alt={`${videoLabel} (video still)`}
+          label={videoLabel}
+          aspect={item.ratio.css}
+          controls={!wideClip}
+          controlsAt="bottom-right"
+          manual={item.clickToPlay}
+        />
+      ) : (
+        <MediaPlaceholder label={item.label} kicker="Coming soon" aspect="auto" class="fig__soon" />
+      )
+    }
+  </div>
+
+  {
+    item.type !== 'soon' && (
+      <figcaption class="fig__cap">
+        {number && <span class="fig__num">{number}</span>}
+        <span class="fig__text">{item.caption}</span>
+        {
+          wideClip && item.type === 'video' && videoId ? (
+            <span class="fig__meta fig__meta--clip">
+              <VideoToggle target={videoId} label={videoLabel} class="fig__toggle" />
+              <a class="fig__full" href={item.mp4} target="_blank" rel="noopener" data-astro-prefetch="false">
+                Full size<span class="sr-only"> video: {videoLabel} (MP4, opens in a new tab)</span>
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            </span>
+          ) : null
+        }
+        {
+          item.type === 'figure' && fullSize ? (
+            <span class="fig__meta">
+              {item.credit && <span class="fig__credit">{item.credit}</span>}
+              <a class="fig__full" href={fullSize} target="_blank" rel="noopener" data-astro-prefetch="false">
+                Full size<span class="sr-only"> image: {item.alt} (opens in a new tab)</span>
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            </span>
+          ) : null
+        }
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  /* ---- Card: paper-2 mat, media "print", caption ------------------------- */
+  .fig {
+    display: grid;
+    gap: 0.85rem;
+    align-content: start;
+    margin: 0;
+    padding: clamp(0.625rem, 1.4vw, 1.125rem);
+    border-radius: var(--r-sm);
+    background: var(--paper-2);
+  }
+
+  .fig__media {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate; /* the plots' multiply blend stays inside the frame */
+    border: var(--hairline);
+    border-radius: var(--r-xs);
+    background: var(--paper);
+  }
+
+  /* Figures keep their own aspect (no crop). */
+  .fig--figure .fig__media {
+    aspect-ratio: var(--fig-ratio);
+  }
+
+  .fig__media :global(.fig__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Raster plots are white prints: multiply them onto the paper, so the white
+     becomes paper and the lines and fills stay (SVG diagrams are drawn for
+     paper already). */
+  .fig--figure:not(.fig--svg) .fig__media :global(img) {
+    mix-blend-mode: multiply;
+  }
+
+  /* Wide raw plots: don't blow their axis labels up past ~1.4× (cap 56rem). */
+  .fig--wide.fig--figure:not(.fig--svg) .fig__media {
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
+  }
+
+  /* "Coming soon": a slim hatched band, not a 16:9 box. */
+  .fig--soon {
+    align-content: stretch;
+  }
+
+  .fig--soon .fig__media {
+    display: grid;
+    border: 0;
+    background: none;
+  }
+
+  .fig--soon :global(.fig__soon) {
+    min-height: 6rem;
+    height: 100%;
+  }
+
+  .fig--video .fig__media {
+    border-color: var(--ink);
+  }
+
+  /* ---- Caption ------------------------------------------------------------- */
+  .fig__cap {
+    display: grid;
+    gap: 0.35rem;
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    max-width: 68ch;
+  }
+
+  .fig__num {
+    color: var(--accent-ink);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Wide clips: play/pause + "Full size ↗" in a row under the frame. */
+  .fig__meta.fig__meta--clip {
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    padding: 0.25rem 0 0 3px; /* room for the toggle's hard shadow */
+  }
+
+  .fig__meta.fig__meta--clip :global(.fig__toggle) {
+    flex: none;
+  }
+
+  .fig__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .fig__full {
+    color: var(--accent-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    /* 44px-tall hit area without changing the line height. */
+    padding-block: 0.9rem;
+    margin-block: -0.9rem;
+    background-image: linear-gradient(var(--highlight), var(--highlight));
+    background-repeat: no-repeat;
+    background-position: 0 50%;
+    background-size: 100% 0;
+    transition: background-size var(--dur-ui) var(--ease-out-quart);
+  }
+
+  .fig__full:hover,
+  .fig__full:focus-visible {
+    color: var(--ink);
+    background-size: 100% 1.4em;
+  }
+
+  /* ---- Lone narrow item: caption beside the media on desktop -------------- */
+  @media (min-width: 1024px) {
+    .fig--side {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(1rem, 2vw, 2rem);
+      align-items: end;
+    }
+
+    .fig--side .fig__cap {
+      padding-bottom: 0.25rem;
+    }
+  }
+
+  /* ---- Phones: figures go full-bleed (DESIGN §8) ------------------------- */
+  @media (max-width: 599.98px) {
+    .fig {
+      margin-inline: calc(var(--pad) * -1);
+      padding: 0.75rem var(--pad) 1rem;
+      border-radius: 0;
+    }
+  }
+</style>

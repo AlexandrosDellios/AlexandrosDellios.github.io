@@ -1,0 +1,29 @@
+# build output
+dist/
+# generated types
+.astro/
+# dependencies
+node_modules/
+# logs
+npm-debug.log*
+# environment variables
+.env
+.env.production
+# macOS
+.DS_Store
+.idea/
+
+# ---- Portfolio-specific (never publish) ----
+# Raw media drop-zone from Alexandros (processed copies live in src/assets / public/media)
+Images/
+# Research notes + raw media extracted from repos (some from PRIVATE repos / unpublished research)
+private/
+# Open questions for Alexandros: internal notes about specific repos and courses (local only)
+docs/QUESTIONS.md
+
+# iCloud Drive conflict copies ("index 2.html", "folder 3") must never be committed
+* [0-9].*
+* [0-9]
+
+# Local Claude Code launch config
+.claude/

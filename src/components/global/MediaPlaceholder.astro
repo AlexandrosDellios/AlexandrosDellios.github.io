@@ -1,0 +1,43 @@
+---
+/**
+ * MediaPlaceholder (DESIGN §5.19): visible stand-in until Alexandros provides
+ * the real photo/video (docs/DECISIONS.md: placeholders stay visible).
+ * Dashed ink border, 45° accent hatching, mono label "MEDIA NEEDED · <label>".
+ *
+ *   <MediaPlaceholder label="Guide-dog walking video · landscape ≥1600px" />
+ *   <MediaPlaceholder label="Lab photo" aspect="16/9" />
+ *   <MediaPlaceholder label="Portrait" aspect="3/4" class="my-arch" />
+ *
+ * `aspect` is any CSS aspect-ratio value. Pass aspect="auto" to fill a parent
+ * that already has a size. The hatching uses the nearest --accent, so it
+ * follows per-tile accents too.
+ * Styles: src/styles/components.css (.media-ph*).
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'div'> {
+  label: string;
+  aspect?: string;
+  /** Prefix of the label. */
+  kicker?: string;
+  class?: string;
+}
+
+const { label, aspect = '4/3', kicker = 'Media needed', class: className, ...rest } = Astro.props;
+---
+
+<div
+  class:list={['media-ph', className]}
+  style={`--aspect: ${aspect}`}
+  role="img"
+  aria-label={`Placeholder: ${kicker.toLowerCase()}, ${label}`}
+  {...rest}
+>
+  <span class="media-ph__corner media-ph__corner--tl" aria-hidden="true"></span>
+  <span class="media-ph__corner media-ph__corner--br" aria-hidden="true"></span>
+  <span class="media-ph__label" aria-hidden="true">
+    <span class="media-ph__kicker">{kicker}</span>
+    <span class="media-ph__sep">·</span>
+    <span class="media-ph__text">{label}</span>
+  </span>
+</div>

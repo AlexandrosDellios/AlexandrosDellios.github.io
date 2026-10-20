@@ -1,0 +1,148 @@
+---
+/**
+ * CursorPreview (DESIGN §5.12 LinkTooltip, §5.14, §5.15, M16): ONE floating
+ * element, reused by every trigger on the page. Triggers declare:
+ *
+ *   data-preview-src="…"          image URL (already optimised at build time)
+ *   data-preview-label="…"        caption / project name
+ *   data-preview-variant="pill"   (statement links) ink pill, round 24px thumb + name
+ *                      ="card"   (more-work / experience rows) tilted thumbnail card,
+ *                                 pinned in the row's leading column
+ *   data-preview-accent="#…"      optional ring / shadow colour (project accent)
+ *
+ * scripts/home/cursor-preview.ts fills it in and moves it: it follows the
+ * cursor on fine pointers, sits next to a keyboard-focused link, and never
+ * moves under reduced motion (it just appears next to the trigger).
+ * Decorative (aria-hidden): every trigger's text already says where it goes.
+ * Fixed-position at the page level so no transformed ancestor can trap it.
+ */
+---
+
+<div class="cpv" data-cursor-preview data-variant="pill" aria-hidden="true">
+  <div class="cpv__inner">
+    <span class="cpv__thumb"><img
+        class="cpv__img"
+        src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+        alt=""
+        width="1"
+        height="1"
+        decoding="async"
+        data-cpv-img
+      /></span>
+    <span class="cpv__label" data-cpv-label></span>
+  </div>
+</div>
+
+<style>
+  .cpv {
+    --cpv-accent: var(--accent);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: calc(var(--z-header) - 1);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s linear 0.2s;
+    will-change: transform;
+  }
+
+  .cpv.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s;
+  }
+
+  .cpv__inner {
+    transform-origin: 0 0;
+    transition: scale 0.25s var(--ease-out-back);
+    scale: 0.85;
+  }
+
+  .cpv.is-visible .cpv__inner {
+    scale: 1;
+  }
+
+  .cpv__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---- Pill: statement links ------------------------------------------------------ */
+  .cpv[data-variant='pill'] .cpv__inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.3rem 0.85rem 0.3rem 0.3rem;
+    border: 1px solid var(--ink);
+    border-radius: var(--r-pill);
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: var(--shadow-hard) var(--cpv-accent);
+    white-space: nowrap;
+  }
+
+  .cpv[data-variant='pill'] .cpv__thumb {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    overflow: hidden;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--cpv-accent);
+  }
+
+  .cpv[data-variant='pill'] .cpv__label {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  /* ---- Card: list rows ------------------------------------------------------------ */
+  /* 160px: fits the Experience dates column (9.5rem) without reaching the text. */
+  .cpv[data-variant='card'] .cpv__inner {
+    display: grid;
+    gap: 0.4rem;
+    width: 160px;
+    padding: 0.4rem 0.4rem 0.5rem;
+    border: var(--border-2);
+    border-radius: var(--r-sm);
+    background: var(--paper);
+    box-shadow: var(--shadow-hard) var(--ink);
+    rotate: -4deg;
+  }
+
+  .cpv[data-variant='card'] .cpv__thumb {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--r-xs);
+    background: var(--paper-2);
+  }
+
+  .cpv[data-variant='card'] .cpv__label {
+    padding-inline: 0.15rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cpv,
+    .cpv.is-visible,
+    .cpv__inner {
+      transition: none;
+      scale: 1;
+    }
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+/**
+ * ReadingProgress (DESIGN §5.18, M15, bepatrickdavid influence): an accent
+ * hairline along the bottom edge of the sticky header that fills from left to
+ * right as you scroll the page.
+ *
+ *   <ReadingProgress />          (once per page; ProjectLayout renders it)
+ *
+ * - Browsers with scroll-driven animations: pure CSS (animation-timeline:
+ *   scroll(root)), works without JS.
+ * - Others: scripts/project/reading-progress.ts writes --progress (0..1) on
+ *   [data-reading-progress] from a passive scroll listener + rAF.
+ * Kept under reduced motion: it is information, not decoration (it only
+ *   moves when the user scrolls).
+ * It sits ON the header's own 2px underline slot, so project pages never show
+ * two accent lines; the header underline itself is not used on these pages.
+ * Decorative for assistive tech (the scroll position already conveys it).
+ */
+---
+
+<div class="reading-progress" data-reading-progress aria-hidden="true">
+  <span class="reading-progress__bar"></span>
+</div>
+
+<style>
+  .reading-progress {
+    --rp-h: 2px;
+    position: fixed;
+    top: calc(var(--header-h) - var(--rp-h));
+    left: 0;
+    right: 0;
+    z-index: calc(var(--z-header) + 1); /* over the header's edge, under the menu */
+    height: var(--rp-h);
+    pointer-events: none;
+  }
+
+  .reading-progress__bar {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform: scaleX(var(--progress, 0));
+    transform-origin: 0 50%;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    /* Longhands: older engines drop a whole shorthand that contains `auto`. */
+    .reading-progress__bar {
+      animation-name: reading-progress-fill;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: scroll(root block);
+    }
+  }
+
+  @keyframes reading-progress-fill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* Hidden while the mobile menu covers the page. */
+  :global(html.is-scroll-locked) .reading-progress {
+    visibility: hidden;
+  }
+</style>

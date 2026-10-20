@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" role="img" aria-labelledby="t d">
+  <!--
+    Uno sim-to-real: 4:3 tile/hero poster. A compact re-layout of fig-pipeline.svg (same facts, fewer words)
+    so it survives a 4:3 crop. The bottom ~20% is kept quiet because the project tile overlays its outlined
+    "UNO" word there. Palette: paper #F4EFE6 / paper-2 #EBE4D8, ink #151412 / ink-2 #5E5850,
+    project accent crimson #D23445 (fill) / #A61F30 (text); original Uno zone colours kept for P1-P4.
+    Rendered to poster.png with scripts/media/render_svg.py (fonts embedded only in the raster).
+    poster-tile.svg is the 4:3 tile crop of the left half (no small text).
+  -->
+  <title id="t">Uno table reader pipeline</title>
+  <desc id="d">A table photo is split into four rotated hand zones and a center pile. A ResNet-18 with CBAM attention is pre-trained from scratch on synthetic card composites, fine-tuned on real crops, and counts 0 to 5 copies of each of 56 card classes per zone to rebuild the table state.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#151412"/>
+    </marker>
+    <marker id="arr-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#D23445"/>
+    </marker>
+    <style>
+      .sans { font-family: 'Geist', 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+      .mono { font-family: 'Geist Mono', 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+      .label { fill: #151412; font-size: 15px; font-weight: 500; letter-spacing: 2px; }
+      .step  { fill: #5E5850; font-size: 13px; font-weight: 500; letter-spacing: 1.6px; }
+      .ttl   { fill: #151412; font-size: 25px; font-weight: 600; letter-spacing: -0.2px; }
+      .txt   { fill: #5E5850; font-size: 17px; }
+      .zl    { font-size: 22px; font-weight: 700; }
+      .zt    { fill: #5E5850; font-size: 15px; }
+      .box   { fill: #F4EFE6; stroke: #151412; stroke-width: 2; }
+      .lnk   { stroke: #151412; stroke-width: 2; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="900" fill="#F4EFE6"/>
+
+  <!-- Kicker -->
+  <text x="64" y="96" class="mono label">5-ZONE TABLE SPLIT</text>
+  <text x="620" y="96" class="mono label">SIM → REAL COUNTING</text>
+
+  <!-- Left: table split, 480 px square (1.6 x the original 300 px drawing) -->
+  <g transform="translate(64 120)">
+    <rect width="480" height="480" fill="#EBE4D8" stroke="#151412" stroke-width="2"/>
+    <rect class="zone zone-p3" x="120" y="0" width="240" height="144" fill="#1e88e5" fill-opacity="0.18" stroke="#1e88e5" stroke-width="3"/>
+    <text x="240" y="64" text-anchor="middle" class="sans zl" fill="#1565C0">P3</text>
+    <text x="240" y="90" text-anchor="middle" class="sans zt">rot 180°</text>
+    <rect class="zone zone-p4" x="0" y="120" width="144" height="312" fill="#f4c430" fill-opacity="0.22" stroke="#f4c430" stroke-width="3"/>
+    <text x="72" y="270" text-anchor="middle" class="sans zl" fill="#8A6A00">P4</text>
+    <text x="72" y="296" text-anchor="middle" class="sans zt">rot 90° ccw</text>
+    <rect class="zone zone-p2" x="336" y="120" width="144" height="288" fill="#2fa84f" fill-opacity="0.18" stroke="#2fa84f" stroke-width="3"/>
+    <text x="408" y="258" text-anchor="middle" class="sans zl" fill="#1E7A3A">P2</text>
+    <text x="408" y="284" text-anchor="middle" class="sans zt">rot 90° cw</text>
+    <rect class="zone zone-p1" x="120" y="360" width="264" height="120" fill="#e5383b" fill-opacity="0.16" stroke="#e5383b" stroke-width="3"/>
+    <text x="252" y="414" text-anchor="middle" class="sans zl" fill="#B3262A">P1</text>
+    <text x="252" y="440" text-anchor="middle" class="sans zt">upright</text>
+    <rect class="zone zone-ctr" x="192" y="192" width="96" height="144" fill="#F4EFE6" stroke="#151412" stroke-width="2"/>
+    <text x="240" y="262" text-anchor="middle" class="sans zl" fill="#151412">CTR</text>
+    <text x="240" y="288" text-anchor="middle" class="sans zt">card</text>
+  </g>
+  <text x="64" y="640" class="sans txt">4 hand crops + the center pile, each rotated upright.</text>
+
+  <!-- Right: four-step flow. Box = hard ink shadow offset (-5, +5) + paper box. -->
+  <g class="flow">
+    <rect x="615" y="125" width="521" height="104" rx="10" fill="#151412"/>
+    <rect class="box" x="620" y="120" width="521" height="104" rx="10"/>
+    <text x="644" y="162" class="sans ttl">Synthetic composites</text>
+    <text x="1117" y="160" text-anchor="end" class="mono step">01 · SIM</text>
+    <text x="644" y="196" class="sans txt">card cutouts on real table textures, ±180°, occlusion</text>
+
+    <rect x="615" y="285" width="521" height="104" rx="10" fill="#151412"/>
+    <rect class="box" x="620" y="280" width="521" height="104" rx="10"/>
+    <text x="644" y="322" class="sans ttl">Pre-train from scratch</text>
+    <text x="1117" y="320" text-anchor="end" class="mono step">02 · SIM</text>
+    <text x="644" y="356" class="sans txt">ResNet-18 + CBAM attention, 12M-parameter budget</text>
+
+    <rect x="615" y="445" width="521" height="104" rx="10" fill="#151412"/>
+    <rect class="box" x="620" y="440" width="521" height="104" rx="10"/>
+    <text x="644" y="482" class="sans ttl">Fine-tune on real crops</text>
+    <text x="1117" y="480" text-anchor="end" class="mono step">03 · REAL</text>
+    <text x="644" y="516" class="sans txt">stage-1 weights, 10x lower learning rate</text>
+
+    <!-- Output in the project accent -->
+    <rect x="615" y="605" width="521" height="104" rx="10" fill="#D23445"/>
+    <rect x="620" y="600" width="521" height="104" rx="10" fill="#F4EFE6" stroke="#D23445" stroke-width="2.5"/>
+    <text x="644" y="642" class="sans ttl" style="fill:#A61F30">Table state</text>
+    <text x="1117" y="640" text-anchor="end" class="mono step" style="fill:#A61F30">04 · OUTPUT</text>
+    <text x="644" y="676" class="sans txt">count 0-5 of each of 56 classes, per zone</text>
+
+    <path class="lnk" d="M880 228 V274" marker-end="url(#arr)"/>
+    <path class="lnk" d="M880 388 V434" marker-end="url(#arr)"/>
+    <path d="M880 548 V594" stroke="#D23445" stroke-width="2" fill="none" marker-end="url(#arr-accent)"/>
+  </g>
+
+  <!-- Real zone crops feed the fine-tuning step -->
+  <path class="lnk" d="M544 380 C 584 380, 572 492, 612 492" marker-end="url(#arr)"/>
+</svg>

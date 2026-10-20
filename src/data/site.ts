@@ -1,0 +1,286 @@
+// Site-wide copy that is not a featured project: identity, "Now" cards, statements,
+// more work, experience, education and toolbox.
+// Source of truth for the wording: docs/CONTENT.md (keep both in sync). Every claim
+// comes from Alexandros's CV unless CONTENT.md says otherwise.
+//
+// House rules for this file (docs/DECISIONS.md):
+// - No people's names (teammates, supervisors). Say "Team of 3". The one exception is
+//   Marco Odermatt in the Mediacom line, because the CV names him (open question in QUESTIONS.md).
+// - No links to private or teammate-owned repos. BioRob stays at CV-level wording.
+// - Serif titles mark exactly ONE italic phrase with *asterisks* (rendered by Emph.astro).
+
+export interface Link {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+export interface NowCard {
+  variant: 'dark' | 'accent';
+  kicker: string; // "NOW · RESEARCH · JUL 2026 –"
+  title: string; // serif; wrap ONE phrase in *asterisks* for italic
+  body: string;
+  bodyShort?: string; // phones (< 600px) only: the same facts in fewer words (CV level)
+  role: string; // "Graduate Research Assistant · BioRob, EPFL"
+  tags: string[];
+  footnote?: string;
+  image?: 'guide-dog'; // key into src/assets/me/ handled by the component
+  imageAlt?: string; // alt text for `image` (added by the content pass; optional)
+  mediaNeeded?: string; // visible placeholder label
+  link?: Link;
+}
+
+export interface MoreWorkItem {
+  title: string;
+  line: string;
+  context: string; // "2026 · CoBAR course · Team of 3"
+  stack: string;
+  year: string;
+  link?: Link; // omit when private / not publishable
+  thumb?: string; // public path (optional hover thumbnail)
+}
+
+export interface ExperienceItem {
+  when: string; // "Jul 2026 – now"
+  role: string;
+  org: string;
+  line: string;
+  mediaNeeded?: string;
+  image?: 'guide-dog'; // approved photo in src/assets/me/ shown as the desktop hover preview
+  imageLabel?: string; // caption of that preview card
+}
+
+export interface SkillGroup {
+  label: string;
+  items: string[];
+  seenIn?: { label: string; slug: string }[]; // links to /work/<slug>/
+}
+
+export interface Statement {
+  // Serif sentence; segments with `slug` render as project links with a hover thumbnail pill.
+  segments: ({ text: string } | { text: string; slug: string })[];
+  pill?: Link;
+}
+
+export const site = {
+  // ---- identity -------------------------------------------------------------
+  name: 'Alexandros Dellios',
+  firstName: 'Alexandros',
+  url: 'https://alexandrosdellios.github.io',
+  email: 'alexandrosdellios@icloud.com',
+  cv: '/CV-Alexandros-Dellios.pdf',
+  github: 'https://github.com/AlexandrosDellios',
+  linkedin: 'https://www.linkedin.com/in/alexandros-dellios',
+  location: 'Lausanne, Switzerland',
+  availability: 'Available summer 2027 · ~6 months',
+  eyebrow: 'Robotics M.Sc. · EPFL · Lausanne',
+  // Used for <title>/OG and as an optional static line. Echoes the CV research goal.
+  headline: 'Teaching robots to make sense of the real world.',
+  // ≤ 160 characters for search snippets.
+  metaDescription:
+    'Alexandros Dellios, Robotics M.Sc. student at EPFL: robot learning and manipulation. Projects in RL locomotion, MPC, sensor fusion and sim-to-real perception.',
+
+  // ---- hero -----------------------------------------------------------------
+  // Rotating role pairs (first word renders italic). Visual only; `rolesStatic` is the accessible version.
+  roles: [
+    ['Robot', 'Learning'],
+    ['Egocentric', 'Manipulation'],
+    ['Legged', 'Locomotion'],
+    ['Model Predictive', 'Control'],
+    ['Sim-to-Real', 'Perception'],
+  ] as [string, string][],
+  // Each " ·" is glued to the word before it (no-break space), so a wrapped line never starts with "·".
+  rolesStatic: 'Robot learning\u00a0· Manipulation\u00a0· Legged locomotion\u00a0· MPC\u00a0· Perception',
+  // ≤ 70 words. Sentence 2 is the CV summary, verbatim.
+  bio: 'I’m a Master’s student in Robotics at EPFL, focused on robot learning and manipulation. My research goal is to help robots make sense of unstructured, real-world information so they can better assist people in everyday tasks. Right now I research egocentric robot manipulation at BioRob, and I build an Isaac Lab training pipeline for a guide-dog quadruped with the EPFL AI Team.',
+
+  // ---- now (two cards; no detail pages) ---------------------------------------
+  now: [
+    {
+      // BioRob: CV wording only. No methods, models, equipment, sponsors or venues.
+      variant: 'dark',
+      kicker: 'NOW · RESEARCH · JUL 2026 –',
+      title: 'Robots that learn from *a human point of view*',
+      body: 'At EPFL’s Biorobotics Laboratory (BioRob), I research egocentric, data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution. I’m developing foundation models that synthesize human egocentric data with physical robot teleoperation, to improve policy robustness in unstructured environments.',
+      role: 'Graduate Research Assistant · BioRob, EPFL',
+      tags: ['Robot learning', 'Egocentric data', 'Manipulation', 'Teleoperation'],
+      bodyShort:
+        'At EPFL’s Biorobotics Laboratory (BioRob), I research egocentric, data-driven robot manipulation: bridging the embodiment gap between human demonstrations and robotic execution.',
+      footnote: 'Research in progress. Happy to talk about it in person.',
+      mediaNeeded: 'Lab photo',
+    },
+    {
+      variant: 'accent',
+      kicker: 'NOW · EPFL AI TEAM · FEB 2026 –',
+      title: 'A guide-dog quadruped, *built from scratch*',
+      body: 'As a Machine Learning Engineer, I contribute to the ground-up design of a custom quadruped that will act as a guide dog for visually impaired people. I wrote the low-level CAN communication on the NVIDIA Jetson for fast, reliable motor response, and I’m building a simulation pipeline in NVIDIA Isaac Lab to train reinforcement-learning policies for varied terrain.',
+      bodyShort:
+        'I contribute to the ground-up design of a custom quadruped that will act as a guide dog for visually impaired people. I wrote its low-level CAN communication on the NVIDIA Jetson, and I’m building an Isaac Lab pipeline to train its RL policies.',
+      role: 'Machine Learning Engineer · EPFL AI Team',
+      tags: ['Isaac Lab', 'Reinforcement learning', 'CAN bus', 'NVIDIA Jetson'],
+      image: 'guide-dog',
+      imageAlt: 'The EPFL AI Team’s guide-dog quadruped prototype on its test stand',
+    },
+  ] as NowCard[],
+
+  // ---- selected work: serif statement cells between the tiles -----------------
+  // Slugs must match src/content/projects/<slug>.md.
+  statements: [
+    {
+      segments: [
+        { text: 'I teach ' },
+        { text: 'legged robots', slug: 'quadruped-cpg-rl' },
+        { text: ' to walk with reinforcement learning, write ' },
+        { text: 'controllers that land rockets', slug: 'rocket-mpc' },
+        { text: ', and train networks to ' },
+        { text: 'read a cluttered table', slug: 'uno-sim2real' },
+        { text: '.' },
+      ],
+      pill: { label: 'GitHub ↗', href: 'https://github.com/AlexandrosDellios', external: true },
+    },
+    {
+      segments: [
+        { text: 'I like controllers that hold up when things go wrong: ' },
+        { text: 'sensory feedback', slug: 'polymander' },
+        { text: ' that keeps a robot swimming through neural damage, a glider that ' },
+        { text: 'lands precisely in the wind', slug: 'glider-codesign' },
+        { text: ', and a robot that keeps its bearings ' },
+        { text: 'when its camera goes dark', slug: 'thymio-ekf' },
+        { text: '.' },
+      ],
+      pill: { label: 'Download CV', href: '/CV-Alexandros-Dellios.pdf' },
+    },
+    {
+      segments: [
+        {
+          text: 'Also on the bench: a simulated fruit fly that follows a smell past obstacles, and a C++ simulator for a fleet of cleanup robots.',
+        },
+      ],
+      // Anchor of the More-work section on the home page.
+      pill: { label: 'More work ↓', href: '#more-work' },
+    },
+  ] as Statement[],
+
+  // ---- more work (compact list, no detail pages) -----------------------------
+  // No links: the fly project lives in a teammate-owned repo, and the C++ repo
+  // needs a clean-up before it can be linked (see docs/QUESTIONS.md).
+  moreWork: [
+    {
+      title: 'Fly navigation in NeuroMechFly',
+      line: 'A hierarchical controller steers a simulated fruit fly to an odor source past obstacles, wind, hills and a predator, using simulated vision and smell. My part: posture correction, odor attraction and the movement logic for the first two levels.',
+      context: '2026 · CoBAR course · Team of 3',
+      stack: 'Python · MuJoCo · flygym',
+      year: '2026',
+      thumb: '/media/more/fly-navigation.jpg',
+    },
+    {
+      title: 'Multi-robot cleanup simulator',
+      line: 'A base station deploys robots with limited turning rates to decontaminate a hazardous zone. I wrote the robot motion controllers, collision geometry and rendering.',
+      context: '2023 · B.Sc. C++ course · Team of 2',
+      stack: 'C++17 · GTKmm 4 · Cairo',
+      year: '2023',
+    },
+  ] as MoreWorkItem[],
+
+  // ---- experience (CV wording) ----------------------------------------------
+  experience: [
+    {
+      when: 'Jul 2026 – now',
+      role: 'Graduate Research Assistant',
+      org: 'BioRob, EPFL',
+      line: 'Researching egocentric data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution. Developing foundation models that synthesize human egocentric data with physical robot teleoperation, improving policy robustness in unstructured environments.',
+      mediaNeeded: 'Lab photo',
+    },
+    {
+      when: 'Feb 2026 – now',
+      role: 'Machine Learning Engineer',
+      org: 'EPFL AI Team',
+      line: 'Contributing to the ground-up design and build of a custom quadruped meant to act as a guide dog for the visually impaired. Wrote the low-level CAN communication on the NVIDIA Jetson for fast, reliable motor response; building an NVIDIA Isaac Lab pipeline to train RL policies for varied-terrain navigation.',
+      image: 'guide-dog',
+      imageLabel: 'Guide-dog quadruped prototype',
+    },
+    {
+      when: 'Feb – Oct 2025',
+      role: 'Lead Design & Fabrication Engineer',
+      org: 'Mediacom EPFL',
+      line: 'Won a competitive design pitch for the official EPFL Doctor Honoris Causa Award out of 12 proposals and took full ownership from concept to physical fabrication, partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards. The award was presented to Marco Odermatt and others.',
+      mediaNeeded: 'Award photos · finished piece / CAD / fabrication',
+    },
+  ] as ExperienceItem[],
+
+  education: [
+    {
+      when: '2025 – 2028',
+      role: 'M.Sc. Robotics',
+      org: 'EPFL',
+      line: 'Master of Science in Robotics-Engineering, expected 2028. Courses include Legged Robots, Model Predictive Control, Basics of Mobile Robotics, Computational Motor Control, Reinforcement Learning and Deep Learning.',
+    },
+    {
+      when: '2022 – 2025',
+      role: 'B.Sc. Micro-Engineering',
+      org: 'EPFL',
+      line: 'Bachelor of Science in Micro-Engineering.',
+    },
+  ] as ExperienceItem[],
+
+  // ---- toolbox (CV technical skills, grouped; seenIn = evidence on this site) ----
+  toolbox: [
+    {
+      label: 'Learning & vision',
+      items: [
+        'Reinforcement learning (PPO, SAC)',
+        'Domain randomization',
+        'Deep learning (data augmentation, debiasing)',
+        'PyTorch',
+        'JAX',
+        'TensorFlow',
+        'DeepSpeed',
+        'OpenCV',
+      ],
+      seenIn: [
+        { label: 'Quadruped', slug: 'quadruped-cpg-rl' },
+        { label: 'Glider', slug: 'glider-codesign' },
+        { label: 'Uno', slug: 'uno-sim2real' },
+      ],
+    },
+    {
+      label: 'Control & estimation',
+      items: [
+        'Model predictive control (linear, tube, nonlinear)',
+        'Extended Kalman filter',
+        'Central pattern generators',
+        'Hardware–software co-design',
+        'CasADi',
+      ],
+      seenIn: [
+        { label: 'Rocket', slug: 'rocket-mpc' },
+        { label: 'Thymio', slug: 'thymio-ekf' },
+        { label: 'Polymander', slug: 'polymander' },
+        { label: 'Glider', slug: 'glider-codesign' },
+      ],
+    },
+    {
+      label: 'Simulation & ROS',
+      items: ['Isaac Lab', 'Isaac Gym', 'MuJoCo', 'PyBullet', 'ROS 2 Jazzy'],
+      seenIn: [
+        { label: 'Quadruped', slug: 'quadruped-cpg-rl' },
+        { label: 'Polymander', slug: 'polymander' },
+      ],
+    },
+    {
+      label: 'Hardware & embedded',
+      items: ['NVIDIA Jetson (Orin Nano)', 'CAN bus', 'STM32', 'ESP32', 'RTOS'],
+    },
+    {
+      label: 'CAD & fabrication',
+      items: ['Fusion 360', 'CATIA', 'KiCad', '3D printing', 'Machining (lathe, milling)'],
+    },
+    {
+      label: 'Code & tools',
+      items: ['Python', 'C++', 'C', 'CUDA', 'Assembly', 'Linux', 'Git', 'Docker', 'HPC / GPU clusters'],
+    },
+  ] as SkillGroup[],
+
+  // ---- footer ---------------------------------------------------------------
+  footerLine: 'Let’s build robots that *help people*.',
+};

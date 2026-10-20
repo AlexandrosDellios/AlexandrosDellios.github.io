@@ -1,0 +1,234 @@
+---
+/**
+ * ProjectLayout: the /work/<id>/ page template (DESIGN §4 project row, §5.18,
+ * content plan §3). Used by src/pages/work/[slug].astro.
+ *
+ *   <ProjectLayout entry={entry} prev={prevEntry} next={nextEntry} />
+ *
+ * The whole page re-themes to the project's accent (BaseLayout puts
+ * --accent / --accent-ink on <html>): title strip, hero board, TL;DR shadow,
+ * reading progress, footer, ::selection.
+ *
+ * Structure
+ *   ReadingProgress     accent hairline on the header's bottom edge (M15)
+ *   TitleStrip          giant short word, decorative; collapses into the header (M2)
+ *   intro               <h1> (title-<id>) + MetaRow, TL;DR box, lead, chips
+ *                       phones: that order, so the TL;DR fits the first screen;
+ *                       desktop: title / lead / chips on the left, TL;DR on the
+ *                       right, both above the fold
+ *   ProjectHero         media on an accent board (media-<id>)
+ *   ProjectBody         Approach / Highlights / Footage & figures / Notes
+ *   PrevNext            two compact tiles in the neighbours' colours
+ *
+ * View transitions (M8, native cross-document, see view-transitions.css):
+ * the home tile's `media-<id>` / `title-<id>` morph into the hero frame and
+ * the <h1>. Every named element also carries `data-vt-name` (and the prev/next
+ * tiles `data-vt-only`), which the inline script in BaseLayout uses to keep
+ * only the useful names per navigation (off-screen targets are dropped).
+ * `<link rel="expect" … blocking="render">` makes sure the hero is parsed
+ * before the new page is first rendered, so it can be captured.
+ */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import Chip from '../components/global/Chip.astro';
+import Emph from '../components/global/Emph.astro';
+import MetaRow from '../components/project/MetaRow.astro';
+import PrevNext from '../components/project/PrevNext.astro';
+import ProjectBody from '../components/project/ProjectBody.astro';
+import ProjectHero from '../components/project/ProjectHero.astro';
+import ReadingProgress from '../components/project/ReadingProgress.astro';
+import TitleStrip from '../components/project/TitleStrip.astro';
+import Tldr from '../components/project/Tldr.astro';
+import { projectHref, vtNames, vtStyle, type Project } from '../components/project/projects';
+import { site } from '../data/site';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  entry: Project;
+  prev: Project;
+  next: Project;
+}
+
+const { entry, prev, next } = Astro.props;
+const { id, data } = entry;
+const vt = vtNames(id);
+
+const heroIsPlaceholder = !data.video && !data.poster;
+
+// Per-project social image if one was generated (public/og/<id>.png), else the default.
+const ogImage = existsSync(join(process.cwd(), 'public', 'og', `${id}.png`)) ? `/og/${id}.png` : undefined;
+
+const pageUrl = new URL(projectHref(id), Astro.site ?? site.url).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: data.title,
+  headline: data.title,
+  description: data.oneLiner,
+  dateCreated: data.year,
+  keywords: data.tags.join(', '),
+  url: pageUrl,
+  image: new URL(ogImage ?? '/og/default.png', Astro.site ?? site.url).href,
+  // The Person node every page carries (BaseLayout), by @id.
+  author: { '@type': 'Person', '@id': `${site.url}/#person`, name: site.name, url: site.url },
+};
+
+// `blocking` is a valid <link> attribute that Astro's JSX types don't list yet:
+// typed as {} so the spread type-checks, while the attribute is still rendered.
+const renderBlocking = { blocking: 'render' } as {};
+---
+
+<BaseLayout
+  title={data.shortTitle}
+  description={data.oneLiner}
+  accent={data.accent}
+  accentInk={data.accentInk}
+  ogImage={ogImage}
+  ogImageAlt={`Project card: ${data.title} (${data.metric})`}
+  ogType="article"
+  pageClass="page-project"
+>
+  <Fragment slot="head">
+    <link rel="expect" href="#pj-hero" {...renderBlocking} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </Fragment>
+
+  <ReadingProgress />
+
+  <article class="project" aria-labelledby="project-title">
+    <TitleStrip text={data.shortWord} />
+
+    <div class="project__wrap container">
+      <header class="project__intro">
+        <div class="project__lede">
+          <h1
+            id="project-title"
+            class="project__title"
+            data-vt-name={vt.title}
+            style={vtStyle(vt.title, 'project-title')}
+          >
+            <Emph text={data.title} />
+          </h1>
+          <MetaRow data={data} class="project__meta" />
+        </div>
+
+        <Tldr class="project__tldr" tldr={data.tldr} solo={/^solo$/i.test(data.team)} />
+
+        <p class="project__lead serif"><Emph text={data.lead} /></p>
+
+        <ul class="project__chips cluster" role="list" aria-label="Key result and topics">
+          <Chip as="li" variant="metric" text={data.metric} />
+          {data.tags.map((tag) => <Chip as="li" text={tag} />)}
+        </ul>
+      </header>
+
+      <ProjectHero id={id} data={data} class="project__hero" />
+
+      <ProjectBody entry={entry} showSoon={!heroIsPlaceholder} />
+
+      <div class="project__more">
+        <PrevNext prev={prev} next={next} current={id} />
+      </div>
+    </div>
+  </article>
+
+  <script>
+    import '../scripts/project/index';
+  </script>
+</BaseLayout>
+
+<style>
+  .project__wrap {
+    padding-top: clamp(1rem, 2.4vw, 2rem);
+  }
+
+  /* ---- Intro: title, meta, lead | TL;DR, chips --------------------------- */
+  /* Phones/tablets: one column in source order (title, meta, TL;DR, lead, chips):
+     the TL;DR comes before the serif lead so it fits the first screen (DESIGN §8). */
+  .project__intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(0.875rem, 2vw, 1.5rem);
+    align-items: start;
+  }
+
+  .project__lede {
+    display: grid;
+    gap: clamp(0.75rem, 1.6vw, 1.25rem);
+    justify-items: start;
+    min-width: 0;
+  }
+
+  .project__title {
+    max-width: 22ch;
+    font-size: clamp(2rem, 1.3rem + 2.2vw, 3.5rem);
+    line-height: 1.02;
+    letter-spacing: var(--track-serif);
+  }
+
+  .project__lead {
+    justify-self: start;
+    max-width: 32ch;
+    font-size: clamp(1.375rem, 1rem + 1.2vw, 2.125rem);
+    line-height: 1.15;
+    letter-spacing: var(--track-statement);
+    text-wrap: balance;
+  }
+
+  .project__lead :global(em) {
+    font-style: italic;
+  }
+
+  .project__chips {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    --cluster-gap: 0.4rem;
+  }
+
+  /* Desktop: two columns so the TL;DR sits beside the title, above the fold. */
+  @media (min-width: 1024px) {
+    .project__intro {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      /* The TL;DR spans all three rows; if it is the taller side, the extra
+         height goes to the last (1fr) row, so title, meta and lead stay together. */
+      grid-template-rows: auto auto 1fr;
+      column-gap: var(--gap);
+      row-gap: 1.25rem;
+    }
+
+    .project__lede {
+      grid-column: 1 / span 6;
+      grid-row: 1;
+      padding-right: clamp(1rem, 3vw, 3rem);
+    }
+
+    .project__lead {
+      grid-column: 1 / span 6;
+      grid-row: 2;
+      padding-right: clamp(1rem, 3vw, 3rem);
+    }
+
+    /* Stay with the lead (a tall TL;DR makes row 3 grow, not the gap above). */
+    .project__chips {
+      grid-column: 1 / span 6;
+      grid-row: 3;
+      align-self: start;
+    }
+
+    /* Child-component roots need :global() (scoped attrs stay in this file). */
+    .project__intro > :global(.project__tldr) {
+      grid-column: 7 / -1;
+      grid-row: 1 / span 3;
+    }
+  }
+
+  /* ---- Hero, body, prev/next ----------------------------------------------- */
+  .project__wrap > :global(.project__hero) {
+    margin-top: clamp(1.75rem, 3.5vw, 3rem);
+  }
+
+  .project__more {
+    margin-top: var(--section);
+  }
+</style>

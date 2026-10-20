@@ -1,0 +1,467 @@
+---
+/**
+ * Hero (DESIGN §4 "Hero", §5.2–5.5, §8; content plan §2.2).
+ *
+ *   ALEXANDROS DELLIOS ✦ ALEXANDROS DELLIOS ✦ …   <h1> NameStrip (sticky + M2 collapse)
+ *   ┌ arch + portrait ┐  ROBOTICS M.SC. · EPFL · LAUSANNE
+ *   │   (cols 1–5)    │  *Robot*                              (RoleRotator, M3)
+ *   │                 │     Learning
+ *   └─────────────────┘  ■ ROBOT LEARNING · MANIPULATION · …  (static roles line)
+ *        (ring sticker)  Bio …
+ *                        [Download CV] [Copy email] [GitHub ↗] [LinkedIn ↗]
+ *   stickers: tag (top right), ring (on the arch), lime "available" seal
+ *
+ * First viewport (browsability rule 2, 1440×900 and 390×844): name, eyebrow,
+ * static roles line, availability (header + lime sticker), the email address
+ * (header on desktop; the .hero__email line below the CTAs under 1024px, where
+ * the header hides it) and Download CV.
+ * Phones (< 720px): two-line name (< 600px), smaller arch with the lime
+ * sticker, then eyebrow → roles → CTA grid (2×2) → email → bio.
+ * Tablets (720–1023): arch | text. Desktop (≥ 1024): a square arch (cols 1–5).
+ *
+ * Motion hooks (scripts/home/hero.ts): [data-hero], the NameStrip hooks,
+ * [data-arch], [data-role-rotator], [data-sticker]. M1 intro is CSS only,
+ * gated by html.js + .is-ready (set inline in <head>), never without JS.
+ */
+import CopyEmail from '../global/CopyEmail.astro';
+import Icon from '../global/Icon.astro';
+import NameStrip from '../global/NameStrip.astro';
+import PillButton from '../global/PillButton.astro';
+import { site } from '../../data/site';
+import PortraitArch from './PortraitArch.astro';
+import RoleRotator from './RoleRotator.astro';
+import Sticker from './Sticker.astro';
+---
+
+<section class="hero" aria-labelledby="hero-name" data-hero>
+  <NameStrip text={site.name} as="h1" id="hero-name" intro class="hero__strip name-strip--stars" />
+
+  <div class="hero__body container">
+    <div class="hero__art">
+      <PortraitArch class="hero__arch" />
+    </div>
+
+    <div class="hero__text">
+      <p class="hero__eyebrow eyebrow hero__in" style="--in: 0">{site.eyebrow}</p>
+      <RoleRotator class="hero__role hero__in" />
+      <p class="hero__roles hero__in" style="--in: 2">
+        <span class="hero__roles-mark" aria-hidden="true"></span><span class="sr-only">Focus areas: </span><span>{site.rolesStatic}</span>
+      </p>
+      <p class="hero__bio hero__in" style="--in: 4">{site.bio}</p>
+
+      <ul class="hero__ctas hero__in" style="--in: 3" role="list" aria-label="Contact and links">
+        <li>
+          <PillButton href={site.cv} icon="download" download aria-label="Download CV (PDF)">Download CV</PillButton>
+        </li>
+        <li class="hero__copy" data-copy-email>
+          <PillButton
+            type="button"
+            variant="secondary"
+            icon={false}
+            class="hero__copy-btn js-only"
+            data-copy-email-btn
+            data-email={site.email}
+            aria-label={`Copy email address ${site.email}`}
+          >
+            <span class="hero__copy-idle">Copy email</span><span class="hero__copy-done" aria-hidden="true">Copied</span><span class="hero__copy-icons" aria-hidden="true"><Icon name="copy" class="hero__copy-icon hero__copy-icon--copy" /><Icon name="check" class="hero__copy-icon hero__copy-icon--check" /></span>
+          </PillButton>
+          <PillButton href={`mailto:${site.email}`} variant="secondary" icon="mail" class="no-js-only">Email me</PillButton>
+          <span class="sr-only" role="status" aria-live="polite" data-copy-email-status></span>
+        </li>
+        <li><PillButton href={site.github} variant="secondary">GitHub</PillButton></li>
+        <li><PillButton href={site.linkedin} variant="secondary">LinkedIn</PillButton></li>
+      </ul>
+
+      {/* The address itself, where the header hides it (< 1024px). */}
+      <CopyEmail class="hero__email hero__in" style="--in: 3" />
+    </div>
+
+    <Sticker kind="tag" order={0} class="hero__sticker hero__sticker--tag" />
+    <Sticker kind="ring" order={1} class="hero__sticker hero__sticker--ring" />
+    <Sticker kind="lime" order={2} class="hero__sticker hero__sticker--lime" />
+  </div>
+</section>
+
+<style>
+  .hero {
+    /* One-line name size from 600px: --fs-giant, capped so the WHOLE name fits
+       the first screen (Anton "ALEXANDROS DELLIOS" is ≈ 7.97em wide); the ✦
+       and the extra copies still run off the right edge. */
+    --name-size: min(var(--fs-giant), calc((100vw - 2 * var(--pad)) / 8));
+    /* Height of the name strip (font size × line height + its padding). */
+    --strip-h: calc(var(--name-size) * 0.92);
+    /* Phone arch width: 60vw, smaller on short screens so the CTA grid stays
+       in the first viewport (browsability rule 2). */
+    --arch-m: min(60vw, 22rem, max(10rem, calc((100svh - 31.5rem) / 1.2)));
+    position: relative;
+    /* Drifting stickers must never widen the page (clip keeps sticky working). */
+    overflow-x: clip;
+  }
+
+  /* ---- Name strip (the ✦ separators come from .name-strip--stars) ----------- */
+  .hero__strip {
+    background: var(--paper);
+  }
+
+  /* M2: the strip sticks under the header only while the collapse runs
+     (class set by scripts/home/hero.ts, never under reduced motion). */
+  .hero__strip.is-collapsing {
+    position: sticky;
+    top: var(--header-h);
+    z-index: var(--z-strip);
+  }
+
+  .hero__strip :global(.name-strip__inner) {
+    will-change: transform;
+  }
+
+  /* ---- Body grid -------------------------------------------------------------- */
+  .hero__body {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+    column-gap: var(--gap);
+    row-gap: 1.25rem;
+    align-items: center;
+    padding-block: clamp(0.5rem, 1.5vw, 1.25rem) clamp(1.75rem, 3vw, 2.75rem);
+  }
+
+  .hero__art {
+    grid-column: 1 / -1;
+    position: relative;
+    /* The arch bleeds to the left edge of the screen (poster feel). */
+    margin-left: calc(-1 * var(--pad));
+  }
+
+  .hero__arch {
+    width: var(--arch-m);
+  }
+
+  .hero__text {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  /* ---- Text ------------------------------------------------------------------- */
+  .hero__eyebrow {
+    color: var(--ink);
+  }
+
+  .hero__role {
+    --role-size: clamp(2.75rem, 1.6rem + 5.2vw, 7rem);
+    margin-top: 0.6rem;
+    margin-left: -0.04em; /* optical: serif side bearing */
+  }
+
+  .hero__roles {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    margin-top: 0.85rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: 1.5;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .hero__roles-mark {
+    flex: none;
+    width: 0.55em;
+    height: 0.55em;
+    background: var(--accent);
+    translate: 0 -0.05em;
+  }
+
+  .hero__bio {
+    margin-top: 1.25rem;
+    max-width: 58ch;
+    font-size: clamp(1rem, 0.94rem + 0.28vw, 1.1875rem);
+    line-height: 1.55;
+    letter-spacing: var(--track-lead);
+    text-wrap: pretty;
+  }
+
+  /* ---- CTAs: 2×2 grid on phones, a row from 600px ------------------------------ */
+  .hero__ctas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    width: 100%;
+    margin: 1.5rem 0 0;
+    padding: 0 0 3px 3px; /* room for the hard shadows */
+  }
+
+  .hero__ctas > li {
+    display: flex;
+  }
+
+  .hero__ctas :global(.pill) {
+    width: 100%;
+  }
+
+  /* Copy email: the label swaps to "Copied ✓" (state from scripts/core/copy-email.ts). */
+  .hero__copy {
+    position: relative;
+  }
+
+  .hero__copy-done,
+  .hero__copy-icon--check {
+    display: none;
+  }
+
+  .hero__copy-icons {
+    display: inline-grid;
+    margin-left: 0.5em;
+    vertical-align: -0.125em;
+  }
+
+  .hero__copy-icon {
+    width: 1em;
+    height: 1em;
+  }
+
+  .hero__copy:global(.is-copied) .hero__copy-idle,
+  .hero__copy:global(.is-copied) .hero__copy-icon--copy {
+    display: none;
+  }
+
+  .hero__copy:global(.is-copied) .hero__copy-done,
+  .hero__copy:global(.is-copied) .hero__copy-icon--check {
+    display: inline;
+  }
+
+  .hero__copy:global(.is-copied) :global(.pill) {
+    --pill-bg: var(--highlight);
+    --pill-fg: var(--ink);
+    --pill-border: var(--ink);
+    --pill-shadow: var(--ink);
+  }
+
+  /* The address line under the CTAs (the header shows it from 1024px). */
+  .hero__email {
+    margin-top: 0.75rem;
+  }
+
+  /* ---- Stickers ----------------------------------------------------------------- */
+  .hero__sticker--tag,
+  .hero__sticker--ring {
+    display: none;
+  }
+
+  /* Phones: one sticker, on the arch's right side. */
+  .hero__sticker--lime {
+    --tilt: 10deg;
+    top: calc(var(--arch-m) * 0.42);
+    left: calc(var(--arch-m) - 0.5rem);
+    width: clamp(7.25rem, 30vw, 9.5rem);
+  }
+
+  /* ---- Phones (< 600px): the name on two lines ------------------------------------ */
+  @media (max-width: 599.98px) {
+    /* The name breaks onto two lines so the whole name is readable.
+       "ALEXANDROS" is 4.78em wide in Anton: size it to the column (≈ 75px at
+       390px), never splitting the word. */
+    .hero__strip :global(.name-strip__copy) {
+      max-width: calc(100vw - 2 * var(--pad));
+      font-size: min(var(--fs-giant), calc((100vw - 2 * var(--pad)) / 4.85));
+      white-space: normal;
+      text-wrap: wrap;
+      overflow-wrap: normal;
+      word-break: keep-all;
+    }
+
+    .hero__strip :global(.name-strip__copy:not(:first-child)) {
+      display: none;
+    }
+  }
+
+  /* From 600px: one line, sized so the whole name is readable at rest. */
+  @media (min-width: 600px) {
+    .hero__strip :global(.name-strip__copy) {
+      font-size: var(--name-size);
+    }
+  }
+
+  /* ---- Phones and small tablets (< 720px): stacked ---------------------------------- */
+  @media (max-width: 719.98px) {
+    /* The cut-out is about square and stands on the bottom of the 5:6 arch box:
+       pull the box up over its empty top band (transparent, so it never shows). */
+    .hero__art {
+      margin-top: calc(var(--arch-m) * -0.18);
+    }
+
+    .hero__sticker--lime {
+      top: calc(var(--arch-m) * 0.24);
+    }
+
+    /* Order: roles + CTAs + email above the bio, so the first screen has the CV
+       button and the address. */
+    .hero__ctas {
+      order: 3;
+    }
+
+    .hero__email {
+      order: 4;
+    }
+
+    .hero__bio {
+      order: 5;
+    }
+  }
+
+  /* ---- Tablets (720–1023): two columns, smaller portrait ------------------------ */
+  @media (min-width: 720px) {
+    .hero__art {
+      grid-column: 1 / span 3;
+      align-self: start;
+    }
+
+    .hero__arch {
+      width: 100%;
+    }
+
+    .hero__text {
+      grid-column: 4 / -1;
+      padding-top: 1rem;
+    }
+
+    .hero__role {
+      --role-size: clamp(2.4rem, 6.2vw, 3.75rem);
+    }
+
+    .hero__ctas {
+      display: flex;
+      flex-wrap: wrap;
+      width: auto;
+    }
+
+    .hero__ctas :global(.pill) {
+      width: auto;
+    }
+
+    /* Tablets: on the arch's top-right corner, clear of the copy. */
+    .hero__sticker--lime {
+      top: 2.5rem;
+      left: calc(50% - 9rem);
+      width: clamp(7.5rem, 14vw, 9rem);
+    }
+  }
+
+  /* ---- Desktop (≥ 1024): cols 1–5 arch, cols 6–12 text --------------------------- */
+  @media (min-width: 1024px) {
+    .hero__body {
+      /* Content-sized: the arch takes what the first screen leaves after the
+         header and strip, minus a band so the Now section peeks in (rule 3).
+         --arch-w is the width a 5:6 arch of that height would have; the arch
+         itself is square here, so it is 1.2 × --arch-w wide and tall. */
+      --arch-w: max(17rem, calc((100svh - var(--header-h) - var(--strip-h) - 8.5rem) / 1.2));
+      padding-block: 0.25rem 1.5rem;
+      align-items: end;
+    }
+
+    .hero__art {
+      /* Square arch (PortraitArch reads --arch-a = height / width): the person
+         is ~20% bigger than in the 5:6 box, without making the hero taller. */
+      --arch-a: 1;
+      grid-column: 1 / span 5;
+      align-self: center;
+    }
+
+    .hero__arch {
+      width: min(100% + var(--pad), calc(var(--arch-w) * 1.2));
+    }
+
+    /* The header shows the address from here. */
+    .hero__email {
+      display: none;
+    }
+
+    .hero__text {
+      grid-column: 6 / -1;
+      align-self: center;
+      padding-block: 1rem 0.5rem;
+    }
+
+    .hero__role {
+      --role-size: clamp(3.5rem, 1.6rem + 5.2vw, 7rem);
+    }
+
+    .hero__bio {
+      max-width: min(48ch, 100%);
+    }
+
+    .hero__sticker--tag,
+    .hero__sticker--ring {
+      display: block;
+    }
+
+    .hero__sticker--tag {
+      --tilt: -6deg;
+      top: clamp(0.5rem, 3vh, 2.5rem);
+      right: calc(var(--pad) + 1vw);
+      width: clamp(10rem, 14vw, 15rem);
+    }
+
+    .hero__sticker--ring {
+      --tilt: 8deg;
+      bottom: clamp(0.5rem, 3vh, 2rem);
+      left: calc(min(100% * 5 / 12, var(--arch-w) * 1.2) - 5.5rem);
+      width: clamp(7.5rem, 9.5vw, 9.25rem);
+    }
+
+    .hero__sticker--lime {
+      --tilt: 12deg;
+      top: auto;
+      left: auto;
+      right: calc(var(--pad) + 1.5vw);
+      bottom: clamp(1.5rem, 6vh, 3.5rem);
+      width: clamp(8rem, 10.5vw, 10.5rem);
+    }
+  }
+
+  /* Between 1024 and 1279 the text column is narrow: keep stickers off the copy. */
+  @media (min-width: 1024px) and (max-width: 1279.98px) {
+    .hero__sticker--lime {
+      bottom: auto;
+      top: clamp(0.5rem, 3vh, 2rem);
+      right: auto;
+      left: calc(min(100% * 5 / 12, var(--arch-w) * 1.2) - 7rem);
+    }
+
+    .hero__sticker--tag {
+      display: none;
+    }
+  }
+
+  /* 1280–1439: the lime seal sits beside the bio; keep the lines short of it. */
+  @media (min-width: 1280px) and (max-width: 1439.98px) {
+    .hero__bio {
+      max-width: 44ch;
+    }
+  }
+
+  /* ---- M1 intro: text rises in after the strip and the arch (CSS only) ----------- */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js:not(.reduced-motion):not(.is-ready)) .hero__in {
+      opacity: 0;
+      translate: 0 16px;
+    }
+
+    :global(html.js.is-ready:not(.reduced-motion)) .hero__in {
+      animation: hero-in 0.6s calc(0.25s + var(--in, 1) * 0.05s) var(--ease-out-quart) backwards;
+    }
+  }
+
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      translate: 0 16px;
+    }
+  }
+</style>

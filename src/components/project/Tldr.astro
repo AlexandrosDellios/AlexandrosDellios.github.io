@@ -1,0 +1,125 @@
+---
+/**
+ * TL;DR (DESIGN §2.7, §5.18): four labelled lines, Problem / What we built /
+ * Result / Stack, in a 2px ink box on paper-2. It must sit above the fold on
+ * desktop (ProjectLayout places it beside the title) and inside the first
+ * screen on phones. The values are 15px at every width: this is the text a
+ * skim reads, so it is never smaller on the small screen.
+ *
+ *   <Tldr tldr={data.tldr} solo={data.team === 'Solo'} />
+ */
+import type { ProjectData } from './projects';
+
+interface Props {
+  tldr: ProjectData['tldr'];
+  /** Solo projects say "What I built". */
+  solo?: boolean;
+  class?: string;
+}
+
+const { tldr, solo = false, class: className } = Astro.props;
+
+const rows = [
+  { label: 'Problem', value: tldr.problem },
+  { label: solo ? 'What I built' : 'What we built', value: tldr.built },
+  { label: 'Result', value: tldr.result, result: true },
+  { label: 'Stack', value: tldr.stack, mono: true },
+];
+---
+
+<section class:list={['tldr', className]} aria-labelledby="tldr-title">
+  <h2 id="tldr-title" class="tldr__title">
+    <span>TL;DR</span>
+    <span class="tldr__count" aria-hidden="true">4 lines</span>
+  </h2>
+  <dl class="tldr__list">
+    {
+      rows.map((row) => (
+        <div class:list={['tldr__row', row.result && 'tldr__row--result']}>
+          <dt class="tldr__label">{row.label}</dt>
+          <dd class:list={['tldr__value', row.mono && 'tldr__value--mono']}>{row.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>
+
+<style>
+  .tldr {
+    border: var(--border-2);
+    border-radius: var(--r-sm);
+    background: var(--paper-2);
+    /* Hard offset shadow in the page accent: re-themes with the project. */
+    box-shadow: var(--shadow-hard) var(--accent);
+    padding: clamp(0.875rem, 1.6vw, 1.375rem) clamp(1rem, 2vw, 1.625rem);
+  }
+
+  .tldr__title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 clamp(0.5rem, 1.2vw, 0.75rem);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .tldr__count {
+    color: var(--ink-2);
+  }
+
+  .tldr__list {
+    display: grid;
+    gap: clamp(0.5rem, 1.2vw, 0.7rem);
+    margin: 0;
+  }
+
+  .tldr__row {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .tldr__label {
+    color: var(--accent-ink);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: 1.5;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .tldr__value {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .tldr__value--mono {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0;
+  }
+
+  /* The result line is what a skim should catch: a touch heavier. */
+  .tldr__row--result .tldr__value {
+    font-weight: 500;
+  }
+
+  /* Label column beside the text from tablet up (a spec-sheet table). */
+  @media (min-width: 600px) {
+    .tldr__row {
+      grid-template-columns: 7.25rem minmax(0, 1fr);
+      gap: 1rem;
+      align-items: baseline;
+    }
+  }
+
+</style>

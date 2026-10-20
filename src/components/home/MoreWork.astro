@@ -1,0 +1,206 @@
+---
+/**
+ * MoreWork (DESIGN §5.14, content plan §2.5), id="more-work" (target of the S3
+ * statement pill). Compact table-like rows, no detail pages:
+ *
+ *   2026 │ Fly navigation in NeuroMechFly           │ CoBAR course    │ PYTHON · MUJOCO │ —
+ *        │ one line …                               │ Team of 3       │                 │
+ *
+ * Desktop: the row follows the SectionHead grid (year under "03 / MORE WORK"
+ * in cols 1–3, title + line under the h2 from col 4). Rows with a thumbnail
+ * get a preview card pinned in the year column, beside the row (CursorPreview,
+ * data-preview-*). Phones: stacked, no previews.
+ * Links: only when the item has one (private / teammate repos never do).
+ */
+import Icon from '../global/Icon.astro';
+import Segments from '../global/Segments.astro';
+import { site } from '../../data/site';
+import SectionHead from './SectionHead.astro';
+
+const items = site.moreWork;
+const anyLink = items.some((item) => item.link);
+// "2026 · CoBAR course · Team of 3" → the year has its own column.
+const contextOf = (context: string, year: string) => context.replace(new RegExp(`^${year}\\s*·\\s*`), '');
+---
+
+<section class:list={['more container', anyLink && 'more--links']} id="more-work" aria-labelledby="more-title">
+  <SectionHead index="03" label="More work" id="more-title" title="Smaller and *earlier* work" size="sm" />
+
+  <ol class="more__list" role="list">
+    {
+      items.map((item) => (
+        <li
+          class:list={['more__row', item.thumb && 'has-preview']}
+          data-preview-src={item.thumb}
+          data-preview-label={item.thumb ? item.title : undefined}
+          data-preview-variant={item.thumb ? 'card' : undefined}
+        >
+          <p class="more__year">{item.year}</p>
+          <div class="more__main">
+            <h3 class="more__title">{item.title}</h3>
+            <p class="more__line">{item.line}</p>
+          </div>
+          <p class="more__context"><Segments text={contextOf(item.context, item.year)} /></p>
+          <p class="more__stack">{item.stack}</p>
+          {anyLink && <p class="more__link">
+            {item.link ? (
+              <a
+                class="link-hl"
+                href={item.link.href}
+                target={item.link.external ? '_blank' : undefined}
+                rel={item.link.external ? 'noopener' : undefined}
+              >
+                {item.link.label}
+                {item.link.external && <Icon name="arrow-up-right" />}
+                {item.link.external && <span class="sr-only"> (opens in a new tab)</span>}
+              </a>
+            ) : (
+              <span class="more__nolink">
+                <span aria-hidden="true">—</span>
+                <span class="sr-only">No public link</span>
+              </span>
+            )}
+          </p>}
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .more {
+    display: grid;
+    gap: clamp(0.75rem, 1.5vw, 1.25rem);
+    padding-block: 0 var(--home-gap, var(--section-sm));
+  }
+
+  .more__list {
+    margin: 0;
+    padding: 0;
+    border-bottom: var(--hairline);
+  }
+
+  .more__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
+    padding-block: 1rem 1.1rem;
+    border-top: var(--hairline);
+  }
+
+  .more__year,
+  .more__context,
+  .more__stack,
+  .more__link {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: 1.45;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+  }
+
+  .more__year {
+    color: var(--accent-ink);
+  }
+
+  .more__title {
+    font-size: clamp(1.375rem, 1.15rem + 0.6vw, 1.75rem);
+    line-height: 1.1;
+  }
+
+  .more__line {
+    margin-top: 0.35rem;
+    max-width: 68ch;
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+  }
+
+  .more__link :global(a) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    min-height: 44px;
+  }
+
+  .more__nolink {
+    opacity: 0.6;
+  }
+
+  /* Desktop: the SectionHead grid (label cols 1–3, title from col 4); the
+     hover fill wipes in from the left. */
+  @media (min-width: 1024px) {
+    .more__row {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gap);
+      align-items: baseline;
+      padding-block: 1.1rem 1.2rem;
+      isolation: isolate;
+    }
+
+    .more__row::before {
+      content: '';
+      position: absolute;
+      inset: 0 calc(-1 * var(--pad) / 2);
+      z-index: -1;
+      background: var(--paper-2);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.45s var(--ease-out-quart);
+    }
+
+    .more__row:hover::before {
+      transform: scaleX(1);
+    }
+
+    .more__row.has-preview {
+      cursor: default;
+    }
+
+    .more__year {
+      grid-column: 1 / span 3;
+    }
+
+    .more__main {
+      grid-column: 4 / span 5;
+    }
+
+    .more__context {
+      grid-column: 9 / span 2;
+    }
+
+    .more__stack {
+      grid-column: 11 / span 2;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .more--links .more__main {
+      grid-column: 4 / span 4;
+    }
+
+    .more--links .more__context {
+      grid-column: 8 / span 2;
+    }
+
+    .more--links .more__stack {
+      grid-column: 10 / span 2;
+      justify-self: start;
+      text-align: left;
+    }
+
+    .more__link {
+      grid-column: 12 / span 1;
+      justify-self: end;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .more__row::before {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,214 @@
+---
+/**
+ * Experience (DESIGN §5.15, content plan §2.6), id="experience".
+ * Table-like rows (semantic ordered lists), experience first, then education:
+ *
+ *   JUL 2026 – NOW   Graduate Research Assistant · BioRob, EPFL
+ *                    one line (CV wording) …
+ *
+ * Layout: designed to work full width AND in the 7-column half of the
+ * desktop "Experience | Toolbox" band (pages/index.astro), so rows are a
+ * simple two-column grid (dates | content) rather than a 12-column table.
+ * The parent provides the container / column; this section adds no gutters.
+ *
+ * Desktop hover: rows with an `image` (site.ts ExperienceItem.image, a key into
+ * src/assets/me/) get a small tilted preview card pinned in the dates column,
+ * just under the dates, so it never covers the text being read (CursorPreview,
+ * data-preview-*). Rows without one get nothing (no
+ * placeholders on the home page). Today only the EPFL AI Team row has approved
+ * media: the guide-dog robot photo also used in the Now card.
+ */
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import type { HTMLAttributes } from 'astro/types';
+import { site, type ExperienceItem } from '../../data/site';
+import SectionHead from './SectionHead.astro';
+
+interface Props extends HTMLAttributes<'section'> {
+  /** Stack the heading (when the section shares a row with another one). */
+  stackHead?: boolean;
+  class?: string;
+}
+
+const { stackHead = false, class: className, ...rest } = Astro.props;
+
+// Preview images by key (glob: a missing file just means no preview). The
+// pattern lists only files in use: every image a glob matches is emitted.
+const me = import.meta.glob<{ default: ImageMetadata }>('/src/assets/me/guide-dog.jpg', { eager: true });
+const IMAGE_FILES: Record<NonNullable<ExperienceItem['image']>, string> = {
+  'guide-dog': '/src/assets/me/guide-dog.jpg',
+};
+
+const previews = new Map<ExperienceItem, { src: string; label: string }>();
+for (const item of [...site.experience, ...site.education]) {
+  const src = item.image ? me[IMAGE_FILES[item.image]]?.default : undefined;
+  if (!src) continue;
+  const img = await getImage({ src, width: 420, format: 'webp' });
+  previews.set(item, { src: img.src, label: item.imageLabel ?? `${item.role} · ${item.org}` });
+}
+
+const groups: { key: string; label: string; items: ExperienceItem[] }[] = [
+  { key: 'work', label: 'Experience', items: site.experience },
+  { key: 'edu', label: 'Education', items: site.education },
+];
+---
+
+<section class:list={['xp', className]} id="experience" aria-labelledby="experience-title" {...rest}>
+  <SectionHead index="04" label="Experience" id="experience-title" title="Experience & *education*" stack={stackHead} />
+
+  {
+    groups.map((group) => (
+      <div class="xp__group">
+        <h3 class="xp__group-label">{group.label}</h3>
+        <ol class="xp__list" role="list">
+          {group.items.map((item) => {
+            const preview = previews.get(item);
+            return (
+              <li
+                class:list={['xp__row', preview && 'has-preview']}
+                data-preview-src={preview?.src}
+                data-preview-label={preview?.label}
+                data-preview-variant={preview ? 'card' : undefined}
+              >
+                <p class="xp__when">{item.when}</p>
+                <div class="xp__main">
+                  <p class="xp__role">
+                    <span class="xp__role-title">{item.role}</span>
+                    <span class="xp__org">{item.org}</span>
+                  </p>
+                  <p class="xp__line">{item.line}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  .xp {
+    display: grid;
+    align-content: start;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .xp__group {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .xp__group-label {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .xp__list {
+    margin: 0;
+    padding: 0;
+    border-bottom: var(--hairline);
+  }
+
+  .xp__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+    padding-block: clamp(0.8rem, 1.2vw, 0.9rem) clamp(0.85rem, 1.3vw, 1rem);
+    border-top: var(--hairline);
+  }
+
+  .xp__when {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: 1.45;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-ink);
+  }
+
+  .xp__role {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.1rem 0.5rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1.375rem, 1.2rem + 0.5vw, 1.625rem);
+    line-height: 1.1;
+  }
+
+  .xp__org {
+    font-family: var(--font-sans);
+    font-size: var(--fs-small);
+    line-height: 1.3;
+    color: var(--ink-2);
+  }
+
+  .xp__org::before {
+    content: '· ';
+  }
+
+  .xp__line {
+    margin-top: 0.35rem;
+    max-width: 68ch;
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+  }
+
+  /* Phones: the org gets its own line (no orphaned "· Mediacom EPFL"), and the
+     description is a touch larger (multi-line text, read on a small screen). */
+  @media (max-width: 599.98px) {
+    .xp__org {
+      flex-basis: 100%;
+    }
+
+    .xp__org::before {
+      content: none;
+    }
+
+    .xp__line {
+      font-size: 0.9375rem;
+    }
+  }
+
+  /* ≥ 600px: dates | content. The hover fill wipes in from the left. */
+  @media (min-width: 600px) {
+    .xp__row {
+      grid-template-columns: 9.5rem minmax(0, 1fr);
+      column-gap: var(--gap);
+      align-items: baseline;
+      isolation: isolate;
+    }
+
+    .xp__row::before {
+      content: '';
+      position: absolute;
+      inset: 0 -0.75rem;
+      z-index: -1;
+      background: var(--paper-2);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.45s var(--ease-out-quart);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (min-width: 600px) {
+    .xp__row:hover::before {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .xp__row::before {
+      transition: none;
+    }
+  }
+</style>

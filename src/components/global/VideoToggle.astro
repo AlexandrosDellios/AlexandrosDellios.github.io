@@ -1,0 +1,44 @@
+---
+/**
+ * VideoToggle: the visible play/pause control required for looping video
+ * (WCAG 2.2.2). LoopVideo renders one automatically; render it yourself when
+ * the video sits inside a link (a <button> may not live inside <a>):
+ *
+ *   <div class="tile">                       (position: relative)
+ *     <a href=...><LoopVideo id="vid-uno" controls={false} .../></a>
+ *     <VideoToggle target="vid-uno" label="Uno sim-to-real" class="tile__toggle" />
+ *   </div>
+ *
+ * scripts/core/video.ts finds it via [data-video-toggle="<video id>"] and keeps
+ * data-state ("playing" | "paused") and the aria-label in sync.
+ * Hidden when JS is off (.js-only). Styles: components.css (.video-toggle).
+ */
+import Icon from './Icon.astro';
+
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'button'> {
+  /** id of the <video data-loop-video> it controls. */
+  target: string;
+  /** Short human name of the video, used in the button label. */
+  label: string;
+  class?: string;
+}
+
+const { target, label, class: className, ...rest } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={['video-toggle', 'js-only', className]}
+  data-video-toggle={target}
+  data-state="paused"
+  aria-controls={target}
+  aria-label={`Play video: ${label}`}
+  data-label-play={`Play video: ${label}`}
+  data-label-pause={`Pause video: ${label}`}
+  {...rest}
+>
+  <Icon name="play" class="video-toggle__icon video-toggle__icon--play" />
+  <Icon name="pause" class="video-toggle__icon video-toggle__icon--pause" />
+</button>

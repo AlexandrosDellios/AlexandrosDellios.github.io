@@ -1,0 +1,34 @@
+---
+/**
+ * /cv/ -> the CV PDF. A meta refresh (works on static GitHub Pages), plus a
+ * visible on-brand fallback with a link in case the refresh is blocked.
+ * Excluded from the sitemap (astro.config.mjs) and marked noindex.
+ */
+import PillButton from '../components/global/PillButton.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout title="CV" description={`Download the CV of ${site.name} (PDF).`} noindex pageClass="has-header-line">
+  <Fragment slot="head">
+    <meta http-equiv="refresh" content={`0; url=${site.cv}`} />
+  </Fragment>
+
+  <section class="cv-redirect container" aria-labelledby="cv-title">
+    <p class="eyebrow">Redirecting · PDF</p>
+    <h1 id="cv-title" class="t-h2">Opening the <em>CV</em>…</h1>
+    <p class="t-lead muted">If nothing happens, use the button below.</p>
+    <p>
+      <PillButton href={site.cv} icon="download" download>Download CV (PDF)</PillButton>
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .cv-redirect {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+    padding-block: var(--section);
+  }
+</style>

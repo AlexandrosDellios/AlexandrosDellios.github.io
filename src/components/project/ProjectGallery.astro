@@ -1,0 +1,124 @@
+---
+/**
+ * ProjectGallery: the "Footage & figures" grid of a project page.
+ *
+ *   <ProjectGallery data={entry.data} showSoon />
+ *
+ * Items, in this order: extra videos (footage first, it is the quickest proof),
+ * figures, then a slim "Coming soon" band for data.mediaNeeded when the hero
+ * did not already use it (DECISIONS: placeholders stay visible). A trailing
+ * production spec in that label (" · 16:9") is dropped: visitors see
+ * "Rocket landing screen recording", docs/MEDIA.md keeps the spec.
+ *
+ * Layout without reordering anything (DOM order = visual order):
+ *   - items at least 2.4:1 span the whole gallery ("wide"; ~2:1 plots pair up);
+ *   - the "Coming soon" band is always wide;
+ *   - two consecutive narrower items share a row ("half");
+ *   - a lone narrower item spans the row with its caption beside it ("side"),
+ *     so small sources (e.g. a 584px plot) are never stretched to full width;
+ *     a lone item of 2:1 or wider gets the full row instead (as "side" it
+ *     would be a thin strip with unreadable labels).
+ * Renders nothing when there is nothing to show.
+ */
+import FigureCard, { type GalleryItem, type GalleryLayout } from './FigureCard.astro';
+import { publicLabel, publicImageSize, ratioOf, type ProjectData } from './projects';
+
+interface Props {
+  data: ProjectData;
+  /** Show data.mediaNeeded as a "coming soon" card (false when the hero is the placeholder). */
+  showSoon?: boolean;
+  class?: string;
+}
+
+const { data, showSoon = true, class: className } = Astro.props;
+
+const WIDE = 2.4; // aspect ratio from which an item spans the full gallery width
+const LONE_WIDE = 2; // a lone item at least this wide also takes the full width
+
+const items: GalleryItem[] = [
+  ...data.extraVideos.map(
+    (v): GalleryItem => ({ type: 'video', ...v, ratio: ratioOf(publicImageSize(v.poster)) }),
+  ),
+  ...data.figures.map(
+    (f): GalleryItem => ({
+      type: 'figure',
+      ...f,
+      ratio: ratioOf({ width: f.src.width, height: f.src.height }),
+    }),
+  ),
+  ...(showSoon && data.mediaNeeded
+    ? [{ type: 'soon', label: publicLabel(data.mediaNeeded), ratio: { css: 'auto', n: Infinity } } as GalleryItem]
+    : []),
+];
+
+// Numbering per kind: "Clip 01", "Fig. 01".
+let clips = 0;
+let figs = 0;
+const numbered = items.map((item) => {
+  if (item.type === 'video') return { item, number: `Clip ${String(++clips).padStart(2, '0')}` };
+  if (item.type === 'figure') return { item, number: `Fig. ${String(++figs).padStart(2, '0')}` };
+  return { item, number: 'Soon' };
+});
+
+// Pair consecutive narrow items; everything else gets its own row.
+type Placed = { item: GalleryItem; number: string; layout: GalleryLayout };
+const placed: Placed[] = [];
+const lone = (entry: (typeof numbered)[number]): Placed => ({
+  ...entry,
+  layout: entry.item.ratio.n >= LONE_WIDE ? 'wide' : 'side',
+});
+let pending: (typeof numbered)[number] | null = null;
+for (const entry of numbered) {
+  const wide = entry.item.ratio.n >= WIDE;
+  if (wide) {
+    if (pending) placed.push(lone(pending));
+    pending = null;
+    placed.push({ ...entry, layout: 'wide' });
+  } else if (pending) {
+    placed.push({ ...pending, layout: 'half' }, { ...entry, layout: 'half' });
+    pending = null;
+  } else {
+    pending = entry;
+  }
+}
+if (pending) placed.push(lone(pending));
+---
+
+{
+  placed.length > 0 && (
+    <div class:list={['gallery', className]}>
+      {placed.map((p) => (
+        <FigureCard item={p.item} layout={p.layout} number={p.number} />
+      ))}
+    </div>
+  )
+}
+
+<style>
+  /* Cards in a row share one height (FigureCard keeps align-content: start,
+     so the extra height goes under the caption): mats end on one line. */
+  .gallery {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(0.75rem, 1.6vw, 1.5rem);
+    align-items: stretch;
+  }
+
+  @media (min-width: 600px) {
+    .gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gallery > :global(.fig--wide),
+    .gallery > :global(.fig--side) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Phones: full-bleed cards sit flush, a hairline of paper between them. */
+  @media (max-width: 599.98px) {
+    .gallery {
+      gap: 0.5rem;
+    }
+  }
+</style>

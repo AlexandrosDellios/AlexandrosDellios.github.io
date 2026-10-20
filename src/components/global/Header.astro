@@ -1,0 +1,348 @@
+---
+/**
+ * Header (DESIGN §5.1, §4, §8): sticky site header, used by BaseLayout.
+ *
+ *   >= 1024px  AD monogram · email (copy) · status · [gait metronome] · Work⁰⁶ Experience Toolbox Contact · CV↓
+ *   600–1023   AD · status dot · [gait metronome] · CV↓ · Menu
+ *   < 600      AD · status dot · CV↓ · Menu
+ *
+ * Script hooks (scripts/core/header.ts):
+ *   [data-site-header]   gets .is-scrolled after 10px of scroll (paper 90% + blur)
+ *   2px accent underline = ::after scaled by the custom property --header-line (0..1).
+ *     - Page scripts: setHeaderLine(progress | boolean) from scripts/core/motion.ts
+ *     - CSS only:     add class "has-header-line" to <html> (BaseLayout pageClass)
+ * The mobile menu lives in MobileMenu.astro (rendered right after the header).
+ */
+import { getCollection } from 'astro:content';
+import { site } from '../../data/site';
+import CopyEmail from './CopyEmail.astro';
+import GaitMetronome from './GaitMetronome.astro';
+import Icon from './Icon.astro';
+import MobileMenu from './MobileMenu.astro';
+import PillButton from './PillButton.astro';
+import StatusBadge from './StatusBadge.astro';
+import type { NavItem } from './types';
+
+const projects = await getCollection('projects');
+
+const nav: NavItem[] = [
+  { label: 'Work', href: '/#work', count: projects.length, countLabel: 'projects' },
+  { label: 'Experience', href: '/#experience' },
+  { label: 'Toolbox', href: '/#toolbox' },
+  { label: 'Contact', href: '#contact' },
+];
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const menuId = 'site-menu';
+---
+
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <div class="site-header__start">
+      <a class="site-header__logo" href="/" aria-label={`${site.name}, home`}>AD</a>
+      <CopyEmail class="site-header__email" />
+      <StatusBadge class="site-header__status" />
+    </div>
+
+    <div class="site-header__center">
+      <GaitMetronome />
+    </div>
+
+    <div class="site-header__end">
+      <nav class="site-nav" aria-label="Main">
+        <ul class="site-nav__list" role="list">
+          {
+            nav.map((item) => (
+              <li>
+                <a class="site-nav__link" href={item.href}>
+                  {item.label}
+                  {item.count !== undefined && (
+                    <>
+                      <sup class="site-nav__count" aria-hidden="true">
+                        {pad2(item.count)}
+                      </sup>
+                      <span class="sr-only">
+                        , {item.count} {item.countLabel}
+                      </span>
+                    </>
+                  )}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <PillButton
+        href={site.cv}
+        size="sm"
+        icon="arrow-down"
+        download
+        class="site-header__cv"
+        aria-label="Download CV (PDF)"
+      >
+        CV
+      </PillButton>
+
+      <button
+        type="button"
+        class="menu-toggle"
+        popovertarget={menuId}
+        aria-controls={menuId}
+        aria-haspopup="dialog"
+        data-menu-toggle
+      >
+        <span class="menu-toggle__label">Menu</span>
+        <Icon name="menu" class="menu-toggle__icon" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<MobileMenu id={menuId} nav={nav} />
+
+<style>
+  .site-header {
+    /* 0 = hidden underline, 1 = full width. Driven by page scripts or classes. */
+    --header-line: 0;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    height: var(--header-h);
+    background-color: var(--paper);
+    view-transition-name: site-header;
+    transition:
+      background-color var(--dur-ui) ease,
+      backdrop-filter var(--dur-ui) ease;
+  }
+
+  /* After 10px of scroll: translucent paper + blur. */
+  .site-header.is-scrolled {
+    background-color: color-mix(in srgb, var(--paper) 90%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  /* 2px accent underline that wipes in from the left. */
+  .site-header::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(var(--header-line));
+    transform-origin: left center;
+    transition: transform var(--dur-m) var(--ease-out-quart);
+    pointer-events: none;
+  }
+
+  /* While a script scrubs --header-line every frame, skip the transition. */
+  .site-header[data-line-scrub]::after {
+    transition: none;
+  }
+
+  .site-header.is-lined,
+  :global(html.has-header-line) .site-header {
+    --header-line: 1;
+  }
+
+  .site-header__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding-inline: var(--pad);
+  }
+
+  .site-header__start,
+  .site-header__end {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .site-header__start {
+    gap: clamp(0.75rem, 1.4vw, 1.5rem);
+  }
+
+  .site-header__end {
+    justify-content: flex-end;
+    gap: clamp(0.75rem, 1.6vw, 1.75rem);
+  }
+
+  .site-header__center {
+    justify-self: center;
+  }
+
+  /* ---- Monogram ---------------------------------------------------------- */
+  .site-header__logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.1rem;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 0.9;
+    letter-spacing: 0.01em;
+    color: var(--accent);
+    text-decoration: none;
+    transition: color var(--dur-ui) ease;
+  }
+
+  .site-header__logo:hover {
+    color: var(--ink);
+  }
+
+  /* ---- Email + status ---------------------------------------------------- */
+  .site-header__email {
+    display: none;
+  }
+
+  .site-header__email :global(.copy-email__btn) {
+    font-size: 1.125rem;
+  }
+
+  /* Below 1280px the status shows only its dot (label stays for screen readers). */
+  .site-header__status :global(.status__text) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ---- Nav ---------------------------------------------------------------- */
+  .site-nav {
+    display: none;
+  }
+
+  .site-nav__list {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 1.8vw, 1.75rem);
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-nav__link {
+    position: relative;
+    display: inline-flex;
+    align-items: flex-start;
+    min-height: 44px;
+    padding-block: 0.6rem;
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.2;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  /* Underline that wipes in from the left on hover/focus. */
+  .site-nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.55rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform var(--dur-ui) var(--ease-out-quart);
+  }
+
+  .site-nav__link:hover::after,
+  .site-nav__link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+
+  .site-nav__link:focus-visible {
+    background: var(--highlight);
+  }
+
+  .site-nav__count {
+    margin-left: 0.2em;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--accent-ink);
+    vertical-align: 0;
+    position: relative;
+    top: 0.1em;
+  }
+
+  /* ---- Menu toggle (below 1024px) ----------------------------------------- */
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 0.15rem 0 0.4rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .menu-toggle__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* ---- Breakpoints --------------------------------------------------------- */
+  @media (max-width: 599.98px) {
+    /* No metronome: let the end group take the free space. */
+    .site-header__inner {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .site-header__center {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .site-header__email {
+      display: inline-flex;
+    }
+
+    .site-nav {
+      display: block;
+    }
+
+    .menu-toggle {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .site-header__status :global(.status__text) {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+    }
+  }
+
+  /* The "· ~6 months" detail only fits from 1440px (still read by screen readers). */
+  @media (max-width: 1439.98px) {
+    .site-header__status :global(.status__detail) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+</style>

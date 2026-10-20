@@ -1,0 +1,125 @@
+---
+/**
+ * MetaRow (DESIGN §5.18, content plan §3.2): the project's "spec sheet" in
+ * the mono telemetry voice. Year · Context · Team · My part · Links.
+ *
+ *   <MetaRow data={entry.data} />
+ *
+ * Links rule (docs/DECISIONS.md): "Code ↗" only for PUBLIC repos owned by
+ * Alexandros (`links.code`) with nothing in them that must not be published
+ * (report PDFs with student IDs); `privateRepo` says "Code: on request"
+ * (linking to the contact block); teammate-owned repos get nothing.
+ *
+ * Team: the label is for screen readers only ("Team of 3" already says it;
+ * a visible "TEAM Team of 3" reads twice).
+ *
+ * Semantics: a <dl>; each pair is wrapped in a <div> (allowed in <dl>).
+ */
+import PillButton from '../global/PillButton.astro';
+import type { ProjectData } from './projects';
+
+interface Props {
+  data: Pick<ProjectData, 'year' | 'context' | 'team' | 'myPart' | 'links' | 'privateRepo'>;
+  class?: string;
+}
+
+const { data, class: className } = Astro.props;
+
+const items: { label: string; value: string; srLabel?: boolean }[] = [
+  { label: 'Year', value: data.year },
+  { label: 'Context', value: data.context },
+  { label: 'Team', value: data.team, srLabel: true },
+  ...(data.myPart ? [{ label: 'My part', value: data.myPart }] : []),
+];
+const code = data.links?.code;
+---
+
+<dl class:list={['meta', className]}>
+  {
+    items.map((item) => (
+      <div class="meta__item">
+        <dt class:list={['meta__label', item.srLabel && 'sr-only']}>{item.label}</dt>
+        <dd class="meta__value">{item.value}</dd>
+      </div>
+    ))
+  }
+  {
+    code ? (
+      <div class="meta__item meta__item--link">
+        <dt class="sr-only">Links</dt>
+        <dd class="meta__value">
+          <PillButton href={code} variant="secondary" size="sm" class="meta__pill">
+            Code
+          </PillButton>
+        </dd>
+      </div>
+    ) : data.privateRepo ? (
+      <div class="meta__item">
+        <dt class="meta__label">Code</dt>
+        <dd class="meta__value">
+          <a class="meta__request" href="#contact">on request</a>
+        </dd>
+      </div>
+    ) : null
+  }
+</dl>
+
+<style>
+  /* Wrapped row of label/value pairs: "YEAR 2025", "TEAM Team of 3", … */
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 1.25rem;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .meta__item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55em;
+    min-width: 0;
+  }
+
+  .meta__label {
+    color: var(--ink-2);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .meta__value {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    letter-spacing: 0;
+  }
+
+  /* The Code pill keeps the hard shadow visible (shadow points down-left). */
+  .meta__item--link {
+    padding-left: 3px;
+    align-self: center;
+  }
+
+  .meta__pill {
+    font-family: var(--font-sans);
+  }
+
+  /* 44px-tall hit area for the one-line link, without changing the row. */
+  .meta__request {
+    padding-block: 0.8rem;
+    background-origin: content-box;
+    background-clip: content-box;
+  }
+
+  @media (min-width: 600px) {
+    .meta {
+      gap: 0.6rem 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,60 @@
+---
+/**
+ * 404 (GitHub Pages serves dist/404.html for unknown paths).
+ * Giant "404" strip (decorative), a serif line with one italic phrase, and
+ * the three ways back: home, selected work, CV.
+ */
+import NameStrip from '../components/global/NameStrip.astro';
+import PillButton from '../components/global/PillButton.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="This page does not exist. Head back to the portfolio of Alexandros Dellios."
+  noindex
+>
+  <NameStrip text="404" copies={8} ariaHidden intro class="nf-strip" />
+
+  <section class="nf container" aria-labelledby="nf-title">
+    <p class="eyebrow nf__code">Error 404 · Pose unknown</p>
+    <h1 id="nf-title" class="t-display nf__title">This page <em>lost localization</em>.</h1>
+    <p class="t-lead muted measure-lead">
+      The link may be outdated, or the page moved. Everything worth seeing is one click away.
+    </p>
+    <ul class="nf__actions" role="list">
+      <li><PillButton href="/" icon="arrow-right">Back home</PillButton></li>
+      <li><PillButton href="/#work" variant="secondary">Selected work</PillButton></li>
+      <li>
+        <PillButton href={site.cv} variant="secondary" icon="download" download>Download CV</PillButton>
+      </li>
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf-strip {
+    margin-top: clamp(0.5rem, 2vw, 1.5rem);
+  }
+
+  .nf {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+    justify-items: start;
+    padding-block: clamp(2rem, 5vw, 4rem) var(--section);
+  }
+
+  .nf__title {
+    max-width: 14ch;
+  }
+
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding: 0 0 0 3px;
+    list-style: none;
+  }
+</style>

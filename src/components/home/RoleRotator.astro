@@ -1,0 +1,89 @@
+---
+/**
+ * RoleRotator (DESIGN §5.3, M3): two big serif lines, first one italic, that
+ * cycle through site.roles ("*Robot* / Learning", "*Legged* / Locomotion" …).
+ *
+ * Accessibility: purely visual (aria-hidden). The same roles are always
+ * visible as plain text in the hero's static roles line (site.rolesStatic),
+ * which is what screen readers read (browsability rule 8).
+ *
+ * Layout: every pair sits in the same grid cell, so the box is sized by the
+ * widest pair and never shifts. Without JS (or with reduced motion) only the
+ * first pair is visible. scripts/home/hero.ts animates [data-role-line] inside
+ * [data-role-pair] with GSAP (outgoing slides down, incoming drops in).
+ * Each line is its own vertical mask (overflow clip on the y axis only, so
+ * italic overhangs are never cut).
+ */
+import { site } from '../../data/site';
+
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'div'> {
+  class?: string;
+}
+
+const { class: className, ...rest } = Astro.props;
+const pairs = site.roles;
+---
+
+<div class:list={['role', className]} aria-hidden="true" data-role-rotator {...rest}>
+  {
+    pairs.map(([first, second], i) => (
+      <span class="role__pair" data-role-pair data-index={i}>
+        <span class="role__line">
+          <span class="role__txt" data-role-line>
+            <em>{first}</em>
+          </span>
+        </span>
+        <span class="role__line role__line--indent">
+          <span class="role__txt" data-role-line>
+            {second}
+          </span>
+        </span>
+      </span>
+    ))
+  }
+</div>
+
+<style>
+  .role {
+    display: grid;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: var(--role-size, var(--fs-display));
+    line-height: var(--lh-display);
+    letter-spacing: var(--track-serif);
+    color: var(--ink);
+  }
+
+  .role__pair {
+    grid-area: 1 / 1;
+    display: grid;
+  }
+
+  /* Only the first pair shows until the script takes over. */
+  .role__pair:not(:first-child) {
+    visibility: hidden;
+  }
+
+  .role__line {
+    display: block;
+    overflow: visible clip; /* mask vertically only */
+    padding-block: 0.04em 0.1em; /* room for descenders inside the mask */
+    white-space: nowrap;
+  }
+
+  .role__line--indent {
+    padding-left: 1.15em;
+  }
+
+  .role__txt {
+    display: inline-block;
+    will-change: transform;
+  }
+
+  .role em {
+    font-style: italic;
+    padding-right: 0.06em; /* italic overhang */
+  }
+</style>

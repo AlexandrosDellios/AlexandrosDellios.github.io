@@ -1,0 +1,246 @@
+---
+/**
+ * BaseLayout: every page renders inside this.
+ *
+ *   <BaseLayout title="Quadruped CPG + RL" description="…" accent="#E2A814" accentInk="#7A5800">
+ *     <Fragment slot="head"><link rel="preload" …></Fragment>   (optional extra <head> tags)
+ *     …page content…
+ *   </BaseLayout>
+ *
+ * Props
+ *   title        Page title. " · Alexandros Dellios" is appended unless the
+ *                title already contains the name.
+ *   description  Meta/OG description (defaults to site.metaDescription).
+ *   accent       Per-page fill accent (DESIGN §3.1), e.g. a project's color.
+ *   accentInk    Matching AA text color. Both go inline on <html>.
+ *   ogImage      Path or URL of the social image (default /og/default.png).
+ *   ogImageAlt   Its alt text (default: the page title).
+ *   ogType       Open Graph type: 'website' (default) or 'article' (project pages).
+ *   pageClass    Extra classes on <html>, e.g. "page-home" or "has-header-line".
+ *   noindex      Adds robots noindex (e.g. the /cv redirect).
+ *
+ * <head> inline script (runs before first paint) sets on <html>:
+ *   .js              JS is running: only then may animated elements start hidden
+ *   .reduced-motion  prefers-reduced-motion: reduce
+ *   .save-data       navigator.connection.saveData
+ *   .is-ready        fonts ready (after DOMContentLoaded), or at the latest 800 ms after
+ *                    the <head> is parsed, whatever the module scripts do (M1 intro trigger)
+ *
+ * A second inline <head> script filters view-transition names per navigation
+ * for every element with [data-vt-name] (see the comment in that script).
+ */
+import '../styles/global.css';
+// Preload only the two fonts used above the fold (DESIGN §3.2). `?url` gives
+// the hashed asset URL that the @font-face rules also point to.
+import antonWoff2 from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
+import geistWoff2 from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import Footer from '../components/global/Footer.astro';
+import Header from '../components/global/Header.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  accent?: string;
+  accentInk?: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: 'website' | 'article';
+  pageClass?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = site.metaDescription,
+  accent,
+  accentInk,
+  ogImage = '/og/default.png',
+  ogImageAlt,
+  ogType = 'website',
+  pageClass,
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title.includes(site.name) ? title : `${title} · ${site.name}`;
+const siteUrl = Astro.site ?? new URL(site.url);
+const canonical = new URL(Astro.url.pathname, siteUrl).href;
+const ogImageUrl = new URL(ogImage, siteUrl).href;
+
+// Only allow plain color values in the inline style (hex, rgb()/hsl()/oklch(), names).
+const safeColor = (value?: string) =>
+  value && /^[#a-z0-9(),.%\s/-]+$/i.test(value.trim()) ? value.trim() : undefined;
+const themeVars = [
+  safeColor(accent) && `--accent: ${safeColor(accent)}`,
+  safeColor(accentInk) && `--accent-ink: ${safeColor(accentInk)}`,
+]
+  .filter(Boolean)
+  .join('; ');
+
+// One Person node with a stable @id: project pages point their author at it.
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${site.url}/#person`,
+  name: site.name,
+  image: new URL('/og/default.png', siteUrl).href,
+  jobTitle: 'Robotics M.Sc. student',
+  affiliation: {
+    '@type': 'CollegeOrUniversity',
+    name: 'EPFL (École polytechnique fédérale de Lausanne)',
+    url: 'https://www.epfl.ch',
+  },
+  url: site.url,
+  email: `mailto:${site.email}`,
+  sameAs: [site.github, site.linkedin],
+  address: { '@type': 'PostalAddress', addressLocality: 'Lausanne', addressCountry: 'CH' },
+};
+---
+
+<!doctype html>
+<html lang="en" class={pageClass} style={themeVars || undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // Progressive-enhancement flags, set before first paint. Keep this tiny.
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        try {
+          if (matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('reduced-motion');
+        } catch (e) {}
+        var c = navigator.connection;
+        if (c && c.saveData) d.classList.add('save-data');
+        var ready = function () {
+          d.classList.add('is-ready');
+        };
+        // Hard cap from head-parse time: the intro never waits for module JS
+        // (DOMContentLoaded waits for it). ready() is idempotent.
+        setTimeout(ready, 800);
+        document.addEventListener('DOMContentLoaded', function () {
+          if (document.fonts && document.fonts.ready) document.fonts.ready.then(ready);
+        });
+      })();
+    </script>
+
+    <script is:inline>
+      // View-transition names, per navigation (DESIGN M8, view-transitions.css).
+      // Elements with [data-vt-name] carry that view-transition-name inline
+      // (home tiles, project hero + h1, prev/next tiles). Capturing every one
+      // of them would make off-screen boxes fly in from nowhere, so:
+      //   pageswap (leaving):   keep only visible elements; [data-vt-only=url]
+      //                         elements only when navigating TO that url;
+      //   pagereveal (arriving): drop off-screen elements; [data-vt-only=url]
+      //                         elements only when coming FROM that url
+      //                         (Navigation API; kept when it is unavailable);
+      //   afterwards (and on a back/forward-cache restore) names come back.
+      // Must be inline in <head>: pagereveal can fire before module scripts run.
+      (function () {
+        var named = function () {
+          return document.querySelectorAll('[data-vt-name]');
+        };
+        var visible = function (el) {
+          var r = el.getBoundingClientRect();
+          return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight - 64;
+        };
+        var path = function (url) {
+          try {
+            return new URL(url, location.href).pathname.replace(/\/+$/, '');
+          } catch (e) {
+            return '';
+          }
+        };
+        var restore = function () {
+          named().forEach(function (el) {
+            el.style.viewTransitionName = el.getAttribute('data-vt-name');
+          });
+        };
+        // A skipped transition (hidden tab, a second click…) rejects `ready`, and
+        // `finished` may reject too; nothing here needs the reason, so mark both
+        // as handled instead of logging "Uncaught (in promise) AbortError".
+        var settle = function (vt, done) {
+          var noop = function () {};
+          if (vt.ready) vt.ready.catch(noop);
+          vt.finished.then(done || noop, done || noop);
+        };
+        window.addEventListener('pagereveal', function (e) {
+          if (!e.viewTransition) return;
+          var act = window.navigation && window.navigation.activation;
+          var from = act && act.from && act.from.url ? path(act.from.url) : null;
+          named().forEach(function (el) {
+            var only = el.getAttribute('data-vt-only');
+            if (!visible(el) || (only && from !== null && path(only) !== from)) el.style.viewTransitionName = 'none';
+          });
+          settle(e.viewTransition, restore);
+        });
+        window.addEventListener('pageswap', function (e) {
+          if (!e.viewTransition) return;
+          settle(e.viewTransition);
+          var dest = e.activation && e.activation.entry ? path(e.activation.entry.url) : '';
+          named().forEach(function (el) {
+            var only = el.getAttribute('data-vt-only');
+            if (!visible(el) || (only && path(only) !== dest)) el.style.viewTransitionName = 'none';
+          });
+        });
+        window.addEventListener('pageshow', function (e) {
+          if (e.persisted) restore();
+        });
+      })();
+    </script>
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {/* A noindex page (404, /cv redirect) gets no canonical: the two would contradict each other. */}
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <meta name="author" content={site.name} />
+    <meta name="theme-color" content="#F4EFE6" />
+    <meta name="color-scheme" content="light" />
+    <meta name="generator" content={Astro.generator} />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <link rel="preload" href={antonWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistWoff2} as="font" type="font/woff2" crossorigin />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    {/* Same rule as the canonical: a noindex page (404, /cv) has no URL of its own to share. */}
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt ?? fullTitle} />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt ?? fullTitle} />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Single client entry for the shared behaviour (smooth scroll, header,
+      // menu, copy email, metronome, videos, heading reveals). Page scripts
+      // import helpers from the same module: see src/scripts/core/motion.ts.
+      import '../scripts/core/motion';
+    </script>
+  </body>
+</html>

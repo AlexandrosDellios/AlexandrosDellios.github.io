@@ -1,0 +1,50 @@
+---
+/**
+ * StatusBadge (DESIGN §5.8): pulsing 8px lime dot + mono label.
+ * The pulse is off under reduced motion.
+ *
+ *   <StatusBadge />                                  site.availability
+ *   <StatusBadge label="Available summer 2027" detail="~6 months" />
+ *   <StatusBadge dotOnly />                          dot visible, label sr-only
+ *
+ * By default the text of `label` is split at " · " into label + detail so a
+ * container can hide the detail when space is short: `.status__detail`.
+ * Styles: src/styles/components.css (.status*).
+ */
+import { site } from '../../data/site';
+
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'span'> {
+  label?: string;
+  detail?: string;
+  /** Visually show only the dot (label stays available to screen readers). */
+  dotOnly?: boolean;
+  /** Paper chip background (use on accent fills). */
+  chip?: boolean;
+  class?: string;
+}
+
+const { dotOnly = false, chip = false, class: className, label: _label, detail: _detail, ...rest } = Astro.props;
+let { label = site.availability, detail } = Astro.props;
+
+// "Available summer 2027 · ~6 months" -> label + detail
+if (detail === undefined && label.includes(' · ')) {
+  const [head, ...tail] = label.split(' · ');
+  label = head;
+  detail = tail.join(' · ');
+}
+---
+
+<span
+  class:list={['status', dotOnly && 'status--dot-only', chip && 'status--chip', className]}
+  title={dotOnly ? [label, detail].filter(Boolean).join(' · ') : undefined}
+  {...rest}
+>
+  <span class="status__dot" aria-hidden="true"></span>
+  <span class:list={['status__text', dotOnly && 'sr-only']}>
+    <span class="status__label">{label}</span>{
+      detail && <span class="status__detail"> · {detail}</span>
+    }
+  </span>
+</span>

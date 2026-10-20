@@ -1,0 +1,87 @@
+---
+/**
+ * PillButton (DESIGN §5.6): pill with a hard offset shadow that "presses" on
+ * hover/focus. Renders an <a> when `href` is set, otherwise a <button>.
+ *
+ *   <PillButton href={site.cv} download icon="download">Download CV</PillButton>
+ *   <PillButton href={site.github} variant="secondary">GitHub</PillButton>   (external: ↗ added)
+ *   <PillButton type="button" variant="secondary" data-x>Do thing</PillButton>
+ *
+ * Styles live in src/styles/components.css (.pill, .pill--secondary, .pill--sm)
+ * so the same classes can be used on raw markup too.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import Icon, { type IconName } from './Icon.astro';
+
+type Common = {
+  variant?: 'primary' | 'secondary';
+  size?: 'md' | 'sm';
+  /** Trailing icon. External links get 'arrow-up-right' automatically. */
+  icon?: IconName | false;
+  class?: string;
+};
+
+type LinkProps = Common &
+  Omit<HTMLAttributes<'a'>, 'class'> & {
+    href: string;
+    /** Force external treatment (new tab + ↗). Auto-detected for http(s) URLs. */
+    external?: boolean;
+    /** true or a file name: adds the download attribute (e.g. the CV PDF). */
+    download?: boolean | string;
+  };
+
+type ButtonProps = Common &
+  Omit<HTMLAttributes<'button'>, 'class'> & {
+    href?: undefined;
+    type?: 'button' | 'submit' | 'reset';
+  };
+
+type Props = LinkProps | ButtonProps;
+
+const props = Astro.props as Props;
+const { variant = 'primary', size = 'md', icon, class: className } = props;
+
+const classes = ['pill', variant === 'secondary' && 'pill--secondary', size === 'sm' && 'pill--sm', className];
+
+let isLink = false;
+let isExternal = false;
+let linkAttrs: Record<string, unknown> = {};
+let buttonAttrs: Record<string, unknown> = {};
+
+if (typeof props.href === 'string') {
+  isLink = true;
+  const { href, external, download, variant: _v, size: _s, icon: _i, class: _c, ...rest } = props as LinkProps;
+  isExternal = external ?? /^https?:\/\//.test(href);
+  linkAttrs = {
+    ...rest,
+    href,
+    ...(isExternal ? { target: '_blank', rel: 'noopener' } : {}),
+    // Files (the CV) are not pages: don't let hover-prefetch download them.
+    ...(download ? { download: download === true ? '' : download, 'data-astro-prefetch': 'false' } : {}),
+  };
+} else {
+  const { type = 'button', variant: _v, size: _s, icon: _i, class: _c, ...rest } = props as ButtonProps;
+  buttonAttrs = { ...rest, type };
+}
+
+const trailing: IconName | null = icon === false ? null : (icon ?? (isExternal ? 'arrow-up-right' : null));
+---
+
+{
+  isLink ? (
+    <a class:list={classes} {...linkAttrs}>
+      <span class="pill__label">
+        <slot />
+      </span>
+      {trailing && <Icon name={trailing} class={`pill__icon pill__icon--${trailing}`} />}
+      {isExternal && <span class="sr-only"> (opens in a new tab)</span>}
+    </a>
+  ) : (
+    <button class:list={classes} {...buttonAttrs}>
+      <span class="pill__label">
+        <slot />
+      </span>
+      {trailing && <Icon name={trailing} class={`pill__icon pill__icon--${trailing}`} />}
+    </button>
+  )
+}
