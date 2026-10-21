@@ -42,7 +42,7 @@
 
 **Bio** (62 words; the second sentence is the CV summary, verbatim):
 
-> I’m a Master’s student in Robotics at EPFL, focused on robot learning and manipulation. My research goal is to help robots make sense of unstructured, real-world information so they can better assist people in everyday tasks. Right now I research egocentric robot manipulation at BioRob, and I build an Isaac Lab training pipeline for a guide-dog quadruped with the EPFL AI Team.
+> I’m a Master’s student in Robotics at EPFL, focused on robot learning and manipulation. My research goal is to help robots make sense of unstructured, real-world information so they can better assist people in everyday tasks. Right now I research egocentric robot manipulation at BioRob, and I build an Isaac Lab training pipeline for a guide-dog quadruped with the EPFL Student AI Team.
 
 Sources: sentences 1–2 [CV summary]; sentence 3 [CV experience, condensed].
 
@@ -58,36 +58,36 @@ Header, CTA and sticker labels (Work, Experience, Toolbox, Contact, CV, Download
 |---|---|
 | Kicker | NOW · RESEARCH · JUL 2026 – |
 | Title | Robots that learn from *a human point of view* |
-| Role line | Graduate Research Assistant · BioRob, EPFL |
-| Tags | Robot learning · Egocentric data · Manipulation · Teleoperation |
+| Role line | Graduate Research Assistant · BioRob Lab, EPFL |
+| Tags | Robot learning · Egocentric data · Manipulation · Embodiment gap |
 | Footnote | Research in progress. Happy to talk about it in person. |
 | Media | Decorative illustration + chip `COMING SOON · Lab photo` (desktop/tablet only) |
 | Link | none |
 
-> At EPFL’s Biorobotics Laboratory (BioRob), I research egocentric, data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution. I’m developing foundation models that synthesize human egocentric data with physical robot teleoperation, to improve policy robustness in unstructured environments.
+> At EPFL’s Biorobotics Laboratory (BioRob Lab), I research egocentric, data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution.
 
 Phones (`bodyShort`, < 600px):
 
-> At EPFL’s Biorobotics Laboratory (BioRob), I research egocentric, data-driven robot manipulation: bridging the embodiment gap between human demonstrations and robotic execution.
+> At EPFL’s Biorobotics Laboratory (BioRob Lab), I research egocentric, data-driven robot manipulation: bridging the embodiment gap between human demonstrations and robotic execution.
 
-Source: [CV] BioRob entry, turned into first person. The title paraphrases "egocentric" [Edit]. Nothing beyond the CV.
+Source: [CV] BioRob entry, bullet 1 only, turned into first person. The title paraphrases "egocentric" [Edit]. The CV's second bullet (the method) stays off the site by decision (DECISIONS 2026-10-21).
 
-### 2.2 EPFL AI Team card (accent)
+### 2.2 EPFL Student AI Team card (accent)
 
 | Field | Copy |
 |---|---|
-| Kicker | NOW · EPFL AI TEAM · FEB 2026 – |
+| Kicker | NOW · EPFL STUDENT AI TEAM · FEB 2026 – |
 | Title | A guide-dog quadruped, *built from scratch* |
-| Role line | Machine Learning Engineer · EPFL AI Team |
-| Tags | Isaac Lab · Reinforcement learning · CAN bus · NVIDIA Jetson |
-| Media | `src/assets/me/guide-dog-cutout.png` (key `guide-dog`), alt: "The EPFL AI Team’s guide-dog quadruped prototype on its test stand" |
+| Role line | Machine Learning Engineer · EPFL Student AI Team |
+| Tags | Isaac Lab · Reinforcement learning · ROS 2 · C++ CAN bus · NVIDIA Jetson |
+| Media | `src/assets/me/guide-dog-cutout.png` (key `guide-dog`), alt: "The EPFL Student AI Team’s guide-dog quadruped prototype on its test stand" |
 | Link | none yet (team website: Q-B5) |
 
-> As a Machine Learning Engineer, I contribute to the ground-up design of a custom quadruped that will act as a guide dog for visually impaired people. I wrote the low-level CAN communication on the NVIDIA Jetson for fast, reliable motor response, and I’m building a simulation pipeline in NVIDIA Isaac Lab to train reinforcement-learning policies for varied terrain.
+> As a Machine Learning Engineer, I contribute to the ground-up design of a custom quadruped that will act as a guide dog for visually impaired people. I implemented a real-time ROS 2 pipeline and a custom C++ CAN bus interface on NVIDIA Jetson hardware for reliable motor control and state synchronization, and I’m building a simulation pipeline in NVIDIA Isaac Lab to train reinforcement-learning policies for varied terrain.
 
 Phones (`bodyShort`, < 600px):
 
-> I contribute to the ground-up design of a custom quadruped that will act as a guide dog for visually impaired people. I wrote its low-level CAN communication on the NVIDIA Jetson, and I’m building an Isaac Lab pipeline to train its RL policies.
+> I contribute to the ground-up design of a custom quadruped that will act as a guide dog for visually impaired people. I built its real-time ROS 2 pipeline and C++ CAN bus interface on NVIDIA Jetson, and I’m building an Isaac Lab pipeline to train its RL policies.
 
 Source: [CV] AI Team entry, first person.
 
@@ -154,11 +154,11 @@ Left out on purpose: graded homework, weekly course exercises, a forked detectio
 
 | When | Role · Org | Line | Hover media |
 |---|---|---|---|
-| Jul 2026 – now | Graduate Research Assistant · BioRob, EPFL | Researching egocentric data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution. Developing foundation models that synthesize human egocentric data with physical robot teleoperation, improving policy robustness in unstructured environments. | none (`mediaNeeded: Lab photo`, not drawn) |
-| Feb 2026 – now | Machine Learning Engineer · EPFL AI Team | Contributing to the ground-up design and build of a custom quadruped meant to act as a guide dog for the visually impaired. Wrote the low-level CAN communication on the NVIDIA Jetson for fast, reliable motor response; building an NVIDIA Isaac Lab pipeline to train RL policies for varied-terrain navigation. | `image: 'guide-dog'` (the approved guide-dog photo, desktop hover preview) |
+| Jul 2026 – now | Graduate Research Assistant · BioRob Lab, EPFL | Researching egocentric data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution. | none (`mediaNeeded: Lab photo`, not drawn) |
+| Feb 2026 – now | Machine Learning Engineer · EPFL Student AI Team | Contributing to the ground-up design and build of a custom quadruped meant to act as a guide dog for the visually impaired. Implemented a real-time ROS 2 pipeline and custom C++ CAN bus interface on NVIDIA Jetson hardware, achieving reliable motor control and state synchronization; building an NVIDIA Isaac Lab simulation pipeline to train RL policies for varied-terrain navigation. | `image: 'guide-dog'` (the approved guide-dog photo, desktop hover preview) |
 | Feb – Oct 2025 | Lead Design & Fabrication Engineer · Mediacom EPFL | Won a competitive design pitch for the official EPFL Doctor Honoris Causa Award out of 12 proposals and took full ownership from concept to physical fabrication, partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards. The award was presented to Marco Odermatt and others. | placeholder `Award photos · finished piece / CAD / fabrication` |
 
-Source: [CV], lightly condensed for one table row (the CV's "full ownership", "strict design standards", "contributed to" and outcome clauses are kept).
+Source: [CV, updated 2026-10-21], lightly condensed for one table row. The Mediacom role is no longer on the CV but stays on the site by decision (DECISIONS 2026-10-21) (the CV's "full ownership", "strict design standards", "contributed to" and outcome clauses are kept).
 
 On the home page only rows with an `image` get a hover preview; `mediaNeeded` labels are recorded in site.ts but not drawn there (no placeholders in the experience list).
 
@@ -179,8 +179,8 @@ Sources: degrees and dates [CV]; the course list comes from the projects on this
 |---|---|---|
 | Learning & vision | Reinforcement learning (PPO, SAC) · Domain randomization · Deep learning (data augmentation, debiasing) · PyTorch · JAX · TensorFlow · DeepSpeed · OpenCV | Quadruped · Glider · Uno |
 | Control & estimation | Model predictive control (linear, tube, nonlinear) · Extended Kalman filter · Central pattern generators · Hardware–software co-design · CasADi | Rocket · Thymio · Polymander · Glider |
-| Simulation & ROS | Isaac Lab · Isaac Gym · MuJoCo · PyBullet · ROS 2 Jazzy | Quadruped · Polymander |
-| Hardware & embedded | NVIDIA Jetson (Orin Nano) · CAN bus · STM32 · ESP32 · RTOS | (AI Team, no page) |
+| Simulation & ROS | Isaac Lab · Isaac Sim · MuJoCo · PyBullet · ROS 2 Jazzy | Quadruped · Polymander |
+| Hardware & embedded | NVIDIA Jetson (Orin Nano) · CAN bus · STM32 · ESP32 · RTOS | (Student AI Team, no page) |
 | CAD & fabrication | Fusion 360 · CATIA · KiCad · 3D printing · Machining (lathe, milling) | (Mediacom award, no page) |
 | Code & tools | Python · C++ · C · CUDA · Assembly · Linux · Git · Docker · HPC / GPU clusters | — |
 

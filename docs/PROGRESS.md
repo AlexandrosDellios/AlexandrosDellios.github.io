@@ -67,6 +67,8 @@
 - Alexandros bought **alexandrosdellios.com** (Cloudflare Registrar). Added the GitHub Pages DNS records with `cf dns records create` (all DNS only), set the Pages custom domain, and switched the site URL (astro.config.mjs, site.ts, robots.txt, OG cards regenerated, README/CLAUDE/DESIGN docs).
 - Added **Cloudflare Web Analytics** (cookieless beacon in BaseLayout, production only).
 - Kept on GitHub Pages for hosting (see DECISIONS).
+- HTTPS certificate issued (~2 min) and HTTPS enforced. Live checks: apex 200; `www`, `http://` and the old github.io URL all 301 to https://alexandrosdellios.com/; analytics beacon reports (204).
+- **New CV** (dropped into `public/` by Alexandros) published, and the site synced to it: BioRob Lab, EPFL Student AI Team, ROS 2 + C++ CAN bullet, Isaac Sim. Mediacom kept on the site; BioRob kept high-level (the CV's method bullet stays off the site).
 
 ## Next
 
