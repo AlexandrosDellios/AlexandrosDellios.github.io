@@ -63,6 +63,11 @@
 
 ## Next
 
+0. **Custom domain `alexandrosdellios.com`** (once Alexandros has bought it on Cloudflare):
+   - Add GitHub Pages A/AAAA records for the apex and `www` CNAME → `alexandrosdellios.github.io` with `cf`, all DNS-only.
+   - Set the Pages custom domain (`gh api -X PUT repos/AlexandrosDellios/AlexandrosDellios.github.io/pages -f cname=alexandrosdellios.com`) and enforce HTTPS once the certificate is issued.
+   - Switch `site` in astro.config.mjs, `site.url` in src/data/site.ts, `public/robots.txt`, README and docs to the new URL.
+   - Verify the domain in GitHub account settings (TXT record).
 1. Get Alexandros's answers to docs/QUESTIONS.md (local file): "my part" per team project, Uno solo/team + course, glider report/plots, Marco Odermatt mention, research-card illustration, spoken languages, CV PDF metadata, teammates' names in his repo READMEs.
 2. Swap placeholders for real media as it arrives in `Images/` (MEDIA.md §3: BioRob photo, award photos, glider plots/clip, rocket landing recording, Uno overlay, hi-res quadruped/Thymio videos, hi-res guide-dog photo). Re-run `python3 scripts/og/make_og_images.py <slug>` when a project's poster, title or metric changes.
 3. A quick real-device pass with **reduced motion**, **JavaScript off** and a **touch phone**, which the automated checks could not emulate.
