@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase:** 6 → 7. **Live at https://alexandrosdellios.github.io** (deployed 2026-10-20). Next: answers to docs/QUESTIONS.md and the user's real media (MEDIA.md §3).
+**Phase:** 6 → 7. **Live at https://alexandrosdellios.com** (custom domain since 2026-10-21; first deployed 2026-10-20 at alexandrosdellios.github.io, which now redirects). Next: answers to docs/QUESTIONS.md and the user's real media (MEDIA.md §3).
 
 ## Roadmap
 
@@ -61,13 +61,15 @@
 - **Deploy:** created the public repo `AlexandrosDellios/AlexandrosDellios.github.io`, enabled Pages with `build_type=workflow` (via `gh api`), and pushed `main`. The "Deploy to GitHub Pages" run succeeded (build + deploy). Live checks: `/`, the project pages, `/cv/`, the CV PDF, OG images and videos return 200, unknown paths get the custom 404, the live page has no console errors, and all fonts load.
 - **Folder move (approved):** the project moves from `~/Documents/Portfolio` (iCloud-synced) to **`~/Developer/Portfolio`** at the end of this session. Claude memory notes were copied to the new path's project memory.
 
+### 2026-10-21: Session 2, domain + analytics
+
+- Installed Cloudflare's agent setup: the `cloudflare` Claude Code plugin (skills + MCP server) and the `cf` CLI (beta), logged in as the user's Cloudflare account. Added a one-line rule to `~/.claude/CLAUDE.md`: use `cf` for Cloudflare.
+- Alexandros bought **alexandrosdellios.com** (Cloudflare Registrar). Added the GitHub Pages DNS records with `cf dns records create` (all DNS only), set the Pages custom domain, and switched the site URL (astro.config.mjs, site.ts, robots.txt, OG cards regenerated, README/CLAUDE/DESIGN docs).
+- Added **Cloudflare Web Analytics** (cookieless beacon in BaseLayout, production only).
+- Kept on GitHub Pages for hosting (see DECISIONS).
+
 ## Next
 
-0. **Custom domain `alexandrosdellios.com`** (once Alexandros has bought it on Cloudflare):
-   - Add GitHub Pages A/AAAA records for the apex and `www` CNAME → `alexandrosdellios.github.io` with `cf`, all DNS-only.
-   - Set the Pages custom domain (`gh api -X PUT repos/AlexandrosDellios/AlexandrosDellios.github.io/pages -f cname=alexandrosdellios.com`) and enforce HTTPS once the certificate is issued.
-   - Switch `site` in astro.config.mjs, `site.url` in src/data/site.ts, `public/robots.txt`, README and docs to the new URL.
-   - Verify the domain in GitHub account settings (TXT record).
 1. Get Alexandros's answers to docs/QUESTIONS.md (local file): "my part" per team project, Uno solo/team + course, glider report/plots, Marco Odermatt mention, research-card illustration, spoken languages, CV PDF metadata, teammates' names in his repo READMEs.
 2. Swap placeholders for real media as it arrives in `Images/` (MEDIA.md §3: BioRob photo, award photos, glider plots/clip, rocket landing recording, Uno overlay, hi-res quadruped/Thymio videos, hi-res guide-dog photo). Re-run `python3 scripts/og/make_og_images.py <slug>` when a project's poster, title or metric changes.
 3. A quick real-device pass with **reduced motion**, **JavaScript off** and a **touch phone**, which the automated checks could not emulate.

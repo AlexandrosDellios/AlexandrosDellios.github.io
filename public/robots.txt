@@ -1,5 +1,5 @@
-# https://alexandrosdellios.github.io
+# https://alexandrosdellios.com
 User-agent: *
 Allow: /
 
-Sitemap: https://alexandrosdellios.github.io/sitemap-index.xml
+Sitemap: https://alexandrosdellios.com/sitemap-index.xml

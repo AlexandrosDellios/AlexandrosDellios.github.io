@@ -303,7 +303,7 @@ Encoding recipes (ffmpeg is installed at /opt/homebrew/bin/ffmpeg):
 - Poster: `-frames:v 1 out.png`, then Astro converts it to AVIF/WebP.
 
 ## 10. Implementation notes (Astro)
-- **Config:** `astro.config.mjs` sets `site: 'https://alexandrosdellios.github.io'` with no `base`. Static output. Deployed with the GitHub Pages workflow (`withastro/action`).
+- **Config:** `astro.config.mjs` sets `site: 'https://alexandrosdellios.com'` (custom domain, since 2026-10-21) with no `base`. Static output. Deployed with the GitHub Pages workflow (`withastro/action`).
 - **Content collection** `src/content/projects/*.md`, zod schema:
 
 ```

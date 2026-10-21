@@ -1,7 +1,7 @@
 # Portfolio: Alexandros Dellios
 
 Personal portfolio website for Alexandros Dellios (Robotics M.Sc. student at EPFL), used for internship and lab applications.
-It will be deployed to GitHub Pages at **https://alexandrosdellios.github.io** (repo `AlexandrosDellios/AlexandrosDellios.github.io`).
+Live at **https://alexandrosdellios.com**: GitHub Pages (repo `AlexandrosDellios/AlexandrosDellios.github.io`) on a custom domain whose DNS is on Cloudflare (DNS only, not proxied; managed with the `cf` CLI). Visitor stats: Cloudflare Web Analytics (cookieless beacon in BaseLayout, production builds only).
 
 ## Start here (future conversations)
 

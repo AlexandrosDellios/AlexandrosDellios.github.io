@@ -1,10 +1,11 @@
 // @ts-check
-// Astro config for https://alexandrosdellios.github.io (GitHub Pages *user* site, so no `base`).
+// Astro config for https://alexandrosdellios.com: a GitHub Pages *user* site on a custom domain, so no `base`.
+// The custom domain is set in the repo's Pages settings (Actions deploys need no CNAME file).
 // Docs: https://docs.astro.build/en/reference/configuration-reference/
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-const SITE = 'https://alexandrosdellios.github.io';
+const SITE = 'https://alexandrosdellios.com';
 
 export default defineConfig({
   site: SITE,

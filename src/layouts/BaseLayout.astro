@@ -226,6 +226,16 @@ const personJsonLd = {
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
 
+    {/* Cloudflare Web Analytics: cookieless visitor stats, production builds only (never in `npm run dev`). */}
+    {import.meta.env.PROD && site.cfAnalyticsToken && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: site.cfAnalyticsToken })}
+      ></script>
+    )}
+
     <slot name="head" />
   </head>
   <body>

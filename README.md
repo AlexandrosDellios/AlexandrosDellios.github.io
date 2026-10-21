@@ -1,7 +1,7 @@
 # alexandrosdellios.github.io
 
 Personal portfolio of **Alexandros Dellios**, Robotics M.Sc. student at EPFL.
-Live at **https://alexandrosdellios.github.io**.
+Live at **https://alexandrosdellios.com** (GitHub Pages, custom domain; https://alexandrosdellios.github.io redirects there).
 
 A static site: a short home page (selected work, experience, toolbox, contact) and one page per project.
 The design direction is "Lab Poster": warm paper, ink, one bold accent per page, a giant condensed

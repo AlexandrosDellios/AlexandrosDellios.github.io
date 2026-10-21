@@ -66,11 +66,16 @@ export const site = {
   // ---- identity -------------------------------------------------------------
   name: 'Alexandros Dellios',
   firstName: 'Alexandros',
-  url: 'https://alexandrosdellios.github.io',
+  url: 'https://alexandrosdellios.com',
   email: 'alexandrosdellios@icloud.com',
   cv: '/CV-Alexandros-Dellios.pdf',
   github: 'https://github.com/AlexandrosDellios',
   linkedin: 'https://www.linkedin.com/in/alexandros-dellios',
+  // Cloudflare Web Analytics (cookieless, no personal data, so no consent banner needed).
+  // The beacon token is public by design: it only identifies the site in the dashboard
+  // (Cloudflare → Analytics & Logs → Web Analytics → alexandrosdellios.com).
+  // Loaded in production builds only (see BaseLayout.astro). Set to '' to disable.
+  cfAnalyticsToken: '4517e59f413849888e38bce3f9143aff',
   location: 'Lausanne, Switzerland',
   availability: 'Available summer 2027 · ~6 months',
   eyebrow: 'Robotics M.Sc. · EPFL · Lausanne',
