@@ -9,7 +9,8 @@
  *   └─────────────────┘  ■ ROBOT LEARNING · MANIPULATION · …  (static roles line)
  *        (ring sticker)  Bio …
  *                        [Download CV] [Copy email] [GitHub ↗] [LinkedIn ↗]
- *   stickers: tag (top right), ring (on the arch), lime "available" seal
+ *   stickers: tag (top right), ring + lime "available" seal on the arch's right
+ *   edge (desktop: anchored to the arch, never over the text column)
  *
  * First viewport (browsability rule 2, 1440×900 and 390×844): name, eyebrow,
  * static roles line, availability (header + lime sticker), the email address
@@ -361,6 +362,12 @@ import Sticker from './Sticker.astro';
          --arch-w is the width a 5:6 arch of that height would have; the arch
          itself is square here, so it is 1.2 × --arch-w wide and tall. */
       --arch-w: max(17rem, calc((100svh - var(--header-h) - var(--strip-h) - 8.5rem) / 1.2));
+      /* The arch's right edge, from the left of this box (the stickers' containing
+         block, so % = its width): the arch bleeds over the left padding (-pad)
+         and is as wide as cols 1–5 + pad, or 1.2 × --arch-w if that is smaller.
+         The text column starts one --gap further right. */
+      --art-col: calc((100% - 2 * var(--pad) - 11 * var(--gap)) * 5 / 12 + 4 * var(--gap));
+      --arch-right: min(var(--art-col) + var(--pad), var(--arch-w) * 1.2);
       padding-block: 0.25rem 1.5rem;
       align-items: end;
     }
@@ -401,48 +408,37 @@ import Sticker from './Sticker.astro';
       display: block;
     }
 
+    /* Narrow enough to clear the longest role line ("Model Predictive"). */
     .hero__sticker--tag {
       --tilt: -6deg;
       top: clamp(0.5rem, 3vh, 2.5rem);
       right: calc(var(--pad) + 1vw);
-      width: clamp(10rem, 14vw, 15rem);
+      width: clamp(9.5rem, 12vw, 13rem);
     }
 
+    /* Ring and lime seal sit ON the arch: their right edge stops just inside
+       the arch's right edge, so they can never reach the text column. */
     .hero__sticker--ring {
       --tilt: 8deg;
+      --w: clamp(7.5rem, 9.5vw, 9.25rem);
       bottom: clamp(0.5rem, 3vh, 2rem);
-      left: calc(min(100% * 5 / 12, var(--arch-w) * 1.2) - 5.5rem);
-      width: clamp(7.5rem, 9.5vw, 9.25rem);
+      left: calc(var(--arch-right) - var(--w) * 1.04);
+      width: var(--w);
     }
 
     .hero__sticker--lime {
       --tilt: 12deg;
-      top: auto;
-      left: auto;
-      right: calc(var(--pad) + 1.5vw);
-      bottom: clamp(1.5rem, 6vh, 3.5rem);
-      width: clamp(8rem, 10.5vw, 10.5rem);
+      --w: clamp(7.5rem, 9.5vw, 10rem);
+      top: clamp(0.5rem, 3vh, 2rem);
+      left: calc(var(--arch-right) - var(--w) * 1.08);
+      width: var(--w);
     }
   }
 
-  /* Between 1024 and 1279 the text column is narrow: keep stickers off the copy. */
+  /* Between 1024 and 1279 the text column is narrow: no tag sticker. */
   @media (min-width: 1024px) and (max-width: 1279.98px) {
-    .hero__sticker--lime {
-      bottom: auto;
-      top: clamp(0.5rem, 3vh, 2rem);
-      right: auto;
-      left: calc(min(100% * 5 / 12, var(--arch-w) * 1.2) - 7rem);
-    }
-
     .hero__sticker--tag {
       display: none;
-    }
-  }
-
-  /* 1280–1439: the lime seal sits beside the bio; keep the lines short of it. */
-  @media (min-width: 1280px) and (max-width: 1439.98px) {
-    .hero__bio {
-      max-width: 44ch;
     }
   }
 

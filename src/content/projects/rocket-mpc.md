@@ -1,15 +1,16 @@
 ---
-# Featured project 3 · copy mirrored in docs/CONTENT.md (keep both in sync).
+# More projects, row 2 · copy mirrored in docs/CONTENT.md (keep both in sync).
 # Sources: CV "MPC Rocket Landing Controller" (claims, used as written: PID + MPC,
 # drag, wind) + the team's course report via private/research/repo_MPC-Rocket.json (method, numbers).
 title: "Landing a 6-DOF rocket with robust & nonlinear MPC"
 shortTitle: "Rocket MPC"
 shortWord: "ROCKET"
-order: 3
+order: 2
+section: "more"
 year: "2025"
 context: "EPFL · Model Predictive Control course"
 team: "Team of 3"
-oneLiner: "A dual-layer PID + MPC flight controller, topped by a custom nonlinear MPC, lands a simulated 6-DOF rocket through orientation errors and wind disturbances."
+oneLiner: "A dual-layer PID + MPC flight controller, topped by a custom nonlinear MPC, lands a simulated 6-\u2060DOF rocket through orientation errors and wind disturbances."
 metric: "30° ROLL → LANDED < 4 S"
 tags: ["MPC", "Nonlinear MPC", "Tube MPC", "CasADi"]
 accent: "#B8418E" # magenta

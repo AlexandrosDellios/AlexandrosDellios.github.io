@@ -497,6 +497,59 @@
   border-bottom-width: 1px;
 }
 
+/* Drawing above the tag (card), or beside it (band). */
+.media-ph__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.5rem, 3%, 1rem);
+  max-width: 100%;
+}
+
+/* Card: the drawing is sized from the placeholder's width (the inner box spans it). */
+.media-ph--card .media-ph__inner {
+  width: 100%;
+}
+
+.media-ph__art {
+  display: block;
+  width: clamp(4.5rem, 36%, 11rem);
+}
+
+.media-ph--band .media-ph__inner {
+  flex-direction: row;
+}
+
+.media-ph--band .media-ph__art {
+  width: 4.5rem;
+  flex: none;
+}
+
+.media-ph__sketch {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.media-ph__sketch g {
+  stroke: var(--ink);
+}
+
+.media-ph__sketch .acc {
+  fill: var(--accent);
+}
+
+.media-ph__sketch .acc-stroke {
+  stroke: var(--accent);
+}
+
+/* The play-head knob is filled with paper so the line passes behind it. */
+.media-ph__sketch circle[fill='#F4EFE6'] {
+  fill: var(--paper);
+}
+
 .media-ph__label {
   display: inline-flex;
   flex-direction: column;

@@ -1,8 +1,10 @@
 ---
 /**
- * /work/<id>/ : one page per featured project (src/content/projects/<id>.md).
- * Ids starting with "_" are stubs and get no page. Prev/next follow the grid
- * order (data.order) and wrap around. Everything else lives in ProjectLayout.
+ * /work/<id>/ : one page per project (src/content/projects/<id>.md, kind "project"):
+ * the Selected-work tiles and the More-projects rows. Ids starting with "_" are
+ * stubs and get no page. Prev/next follow the home order (Selected work, then
+ * More projects) and wrap around. Everything else lives in ProjectLayout.
+ * The role pages (kind "role") live at /experience/<id>/.
  */
 import type { InferGetStaticPropsType } from 'astro';
 import { getProjects } from '../../components/project/projects';

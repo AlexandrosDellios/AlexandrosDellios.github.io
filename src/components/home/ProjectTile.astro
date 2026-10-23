@@ -3,12 +3,12 @@
  * ProjectTile (DESIGN §5.11, M5, M6, M7): one featured project in the
  * Selected-work grid. The whole card is ONE link to /work/<id>/.
  *
- *   ┌ media box (4:3, project accent) ──────────┐  one SHARP corner (`corner`),
- *   │ [METRIC CHIP]  (in the sharp corner)       │  the other three round
- *   │ (▶ toggle under the chip, video tiles)      │  (r-tile; 45% on hover, M6)
- *   │          duotone poster / loop video        │
- *   │             A1 QUADRUPED (outlined word)    │
- *   └────────────────────────────────────────────┘
+ *   ┌ media box (4:3, project accent) ──────────┐  "print card": 2px ink border,
+ *   │ [METRIC CHIP]                         (▶)  │  near-square corners (--r-print),
+ *   │          duotone poster / loop video        │  hard ink shadow (--shadow-print);
+ *   │             A1 QUADRUPED (outlined word)    │  on hover it lifts up-right while
+ *   └────────────────────────────────────────────┘█ the shadow grows (M6)
+ *    ██████████████████████████████████████████████
  *   Title (serif) →                                 always visible (rule 4); the arrow
  *                                                   follows the last word inline
  *   One-liner
@@ -21,10 +21,8 @@
  *   full colour on hover / keyboard focus (anywhere in the tile, including its
  *   play button). Touch screens always show colour.
  * - Image: `tilePoster` (a label-free crop for drawings) or else `poster`.
- * - Bottom-left sharp corner (tile--bl): chips and the outlined word share
- *   one flex row, so a long metric chip never runs under the word.
  * - Video: LoopVideo with controls={false} (no <button> inside <a>); the
- *   VideoToggle sits outside the link, in the sharp corner. [data-video-hover]
+ *   VideoToggle sits outside the link, top right. [data-video-hover]
  *   on the tile makes scripts/core/video.ts play on hover/focus (fine pointer);
  *   touch screens autoplay the most visible clip (M7).
  * - View transitions: media box `media-<id>` + title `title-<id>` (same names
@@ -45,16 +43,12 @@ import MediaPlaceholder from '../global/MediaPlaceholder.astro';
 import VideoToggle from '../global/VideoToggle.astro';
 import { vtNames, vtStyle } from '../project/projects';
 
-export type TileCorner = 'tl' | 'tr' | 'bl';
-
 interface Props extends HTMLAttributes<'article'> {
   project: CollectionEntry<'projects'>;
-  /** The exposed (sharp) corner. Chips and the play toggle live there. */
-  corner: TileCorner;
   class?: string;
 }
 
-const { project, corner, class: className, ...rest } = Astro.props;
+const { project, class: className, ...rest } = Astro.props;
 const { id, data } = project;
 
 const href = `/work/${id}/`;
@@ -86,7 +80,7 @@ const posterWidths = tileImage
 ---
 
 <article
-  class:list={['tile', `tile--${corner}`, data.video && 'tile--video', className]}
+  class:list={['tile', data.video && 'tile--video', className]}
   style={accentStyle}
   data-video-hover={data.video ? '' : undefined}
   data-enter
@@ -167,8 +161,6 @@ const posterWidths = tileImage
   /* ---- Card + subgrid ------------------------------------------------------------ */
   .tile {
     --chip-inset: 0.75rem;
-    --radius: var(--r-tile);
-    --radius-hover: 45%;
     position: relative;
     display: grid;
     grid-row: span 5;
@@ -199,9 +191,12 @@ const posterWidths = tileImage
     }
   }
 
-  /* ---- Media box -------------------------------------------------------------------- */
+  /* ---- Media box: a print card ------------------------------------------------------ */
   .tile__frame {
     position: relative;
+    /* Room for the hard shadow (down-left), so it never touches the title. */
+    margin: 0 0 6px 6px;
+    transition: translate 0.35s var(--ease-out-quart);
   }
 
   .tile__media {
@@ -210,21 +205,10 @@ const posterWidths = tileImage
     overflow: hidden;
     isolation: isolate; /* keeps the multiply overlay inside the box */
     background: var(--accent);
-    border-radius: var(--radius);
-    transition: border-radius 0.4s 0.1s var(--ease-out-quart);
-  }
-
-  /* The exposed corner rotates TL → TR → BL with the grid position. */
-  .tile--tl .tile__media {
-    border-top-left-radius: 0;
-  }
-
-  .tile--tr .tile__media {
-    border-top-right-radius: 0;
-  }
-
-  .tile--bl .tile__media {
-    border-bottom-left-radius: 0;
+    border: var(--border-2);
+    border-radius: var(--r-print);
+    box-shadow: var(--shadow-print) var(--ink);
+    transition: box-shadow 0.35s var(--ease-out-quart);
   }
 
   .tile__media :global(.tile__video),
@@ -232,6 +216,7 @@ const posterWidths = tileImage
     position: absolute;
     inset: 0;
     height: 100%;
+    border: 0;
     border-radius: 0;
   }
 
@@ -244,7 +229,7 @@ const posterWidths = tileImage
     object-fit: cover;
   }
 
-  /* ---- Overlay: chips in the sharp corner, outlined word on the opposite edge ------ */
+  /* ---- Overlay: chips top left, outlined word along the bottom -------------------- */
   .tile__overlay {
     position: absolute;
     inset: 0;
@@ -253,39 +238,13 @@ const posterWidths = tileImage
 
   .tile__chips {
     position: absolute;
+    top: var(--chip-inset);
+    left: var(--chip-inset);
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
-    max-width: calc(100% - 2 * var(--chip-inset));
-  }
-
-  .tile--tl .tile__chips {
-    top: var(--chip-inset);
-    left: var(--chip-inset);
-  }
-
-  .tile--tr .tile__chips {
-    top: var(--chip-inset);
-    right: var(--chip-inset);
-    justify-content: flex-end;
-  }
-
-  /* Sharp corner bottom-left: chips and word share the bottom edge as one flex
-     row (the chips wrap in the space left of the word, never under it). */
-  .tile--bl .tile__overlay {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: var(--chip-inset) clamp(1.25rem, 2.6vw, 2rem) var(--chip-inset) var(--chip-inset);
-  }
-
-  .tile--bl .tile__chips {
-    position: static;
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: none;
-    flex-wrap: wrap-reverse;
+    /* Leave the top-right corner to the play toggle. */
+    max-width: calc(100% - 2 * var(--chip-inset) - 3rem);
   }
 
   .tile__chips :global(.tile__kind) {
@@ -304,27 +263,14 @@ const posterWidths = tileImage
     transition: translate 0.45s var(--ease-out-quart);
   }
 
-  .tile--bl .tile__word {
-    position: static;
-    flex: none;
-    max-width: none;
-    margin-bottom: calc(clamp(1rem, 2vw, 1.5rem) - var(--chip-inset));
-    translate: 0 0;
-  }
-
-  /* Play/pause (outside the link): in the sharp corner, under the chips. */
+  /* Play/pause (outside the link), in the top-right corner of the print. */
   .tile__toggle {
     position: absolute;
     z-index: 3;
-    top: calc(var(--chip-inset) + 2.35rem);
-  }
-
-  .tile--tl .tile__toggle {
-    left: var(--chip-inset);
-  }
-
-  .tile--tr .tile__toggle {
+    top: var(--chip-inset);
+    /* The frame is inset 6px on the left for the shadow; the toggle sits inside its right edge. */
     right: var(--chip-inset);
+    transition: translate 0.35s var(--ease-out-quart);
   }
 
   /* ---- Text --------------------------------------------------------------------------- */
@@ -416,24 +362,17 @@ const posterWidths = tileImage
       transform: translateX(-8px);
     }
 
+    /* The print lifts up and to the right; its shadow grows, so it stays where it was. */
+    .tile:hover .tile__frame,
+    .tile:has(:focus-visible) .tile__frame,
+    .tile:hover .tile__toggle,
+    .tile:has(:focus-visible) .tile__toggle {
+      translate: 4px -4px;
+    }
+
     .tile:hover .tile__media,
     .tile:has(:focus-visible) .tile__media {
-      border-radius: var(--radius-hover);
-    }
-
-    .tile--tl:hover .tile__media,
-    .tile--tl:has(:focus-visible) .tile__media {
-      border-top-left-radius: 0;
-    }
-
-    .tile--tr:hover .tile__media,
-    .tile--tr:has(:focus-visible) .tile__media {
-      border-top-right-radius: 0;
-    }
-
-    .tile--bl:hover .tile__media,
-    .tile--bl:has(:focus-visible) .tile__media {
-      border-bottom-left-radius: 0;
+      box-shadow: var(--shadow-lift) var(--ink);
     }
 
     .tile:hover .tile__media::after,
@@ -452,8 +391,8 @@ const posterWidths = tileImage
       transform: none;
     }
 
-    .tile:not(.tile--bl):hover .tile__word,
-    .tile:not(.tile--bl):has(:focus-visible) .tile__word {
+    .tile:hover .tile__word,
+    .tile:has(:focus-visible) .tile__word {
       translate: -50% -0.4rem;
     }
 
@@ -468,7 +407,9 @@ const posterWidths = tileImage
     /* The play toggle shows while the clip plays, or when the tile is hovered/focused. */
     .tile__toggle {
       opacity: 0;
-      transition: opacity var(--dur-ui) ease;
+      transition:
+        opacity var(--dur-ui) ease,
+        translate 0.35s var(--ease-out-quart);
     }
 
     .tile:hover .tile__toggle,
@@ -478,17 +419,22 @@ const posterWidths = tileImage
     }
   }
 
-  /* Reduced motion: colour still changes on hover, but shapes and tags stay put. */
+  /* Reduced motion: colour and shadow still change on hover, nothing moves. */
   @media (prefers-reduced-motion: reduce) {
-    .tile {
-      --radius-hover: var(--radius);
-    }
-
+    .tile__frame,
     .tile__media,
     .tile__word,
     .tile__arrow,
+    .tile__toggle,
     .tile__tags :global(.tile__tag) {
       transition: none;
+    }
+
+    .tile:hover .tile__frame,
+    .tile:has(:focus-visible) .tile__frame,
+    .tile:hover .tile__toggle,
+    .tile:has(:focus-visible) .tile__toggle {
+      translate: none;
     }
 
     .tile:hover :global(.tile__tag),
@@ -496,8 +442,8 @@ const posterWidths = tileImage
       transform: none;
     }
 
-    .tile:not(.tile--bl):hover .tile__word,
-    .tile:not(.tile--bl):has(:focus-visible) .tile__word {
+    .tile:hover .tile__word,
+    .tile:has(:focus-visible) .tile__word {
       translate: -50% 0;
     }
   }

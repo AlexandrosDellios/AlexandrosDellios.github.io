@@ -17,8 +17,10 @@
  *   --k   right inset of the D, fraction of the width (16% at rest; the home
  *         script scrubs it to 0 while the name strip collapses, M2)
  * The D's right side is a half circle of radius (1 - t)·H / 2. The photo uses a
- * union of three mask layers: everything above the circle's centre line, the
- * rectangle left of the centre, and the circle itself.
+ * union of three mask layers: everything above the circle's centre line (but
+ * not right of the D's widest point, 1 - k: the shoulder just above the centre
+ * line would otherwise poke out past the curve), the rectangle left of the
+ * centre, and the circle itself.
  *
  * Image: src/assets/me/portrait-cutout.png (produced by the media pass). Only
  * that file is imported, so the uncut photo is never published. Falls back to
@@ -107,7 +109,7 @@ const sizes = '(min-width: 1024px) 32vw, (min-width: 600px) 48vw, 60vw';
   /* Head breaks out above the shape; shoulders follow the D's curve. */
   .arch__cutout {
     -webkit-mask:
-      linear-gradient(#000 0 0) 0 0 / 100% calc(var(--cy) * 100%) no-repeat,
+      linear-gradient(#000 0 0) 0 0 / calc((1 - var(--k)) * 100%) calc(var(--cy) * 100%) no-repeat,
       linear-gradient(#000 0 0) 0 0 / calc(var(--cx) * 100%) 100% no-repeat,
       radial-gradient(
           calc(var(--rw) * 100%) calc(var(--rh) * 100%) at calc(var(--cx) * 100%) calc(var(--cy) * 100%),
@@ -116,7 +118,7 @@ const sizes = '(min-width: 1024px) 32vw, (min-width: 600px) 48vw, 60vw';
         )
         0 0 / 100% 100% no-repeat;
     mask:
-      linear-gradient(#000 0 0) 0 0 / 100% calc(var(--cy) * 100%) no-repeat,
+      linear-gradient(#000 0 0) 0 0 / calc((1 - var(--k)) * 100%) calc(var(--cy) * 100%) no-repeat,
       linear-gradient(#000 0 0) 0 0 / calc(var(--cx) * 100%) 100% no-repeat,
       radial-gradient(
           calc(var(--rw) * 100%) calc(var(--rh) * 100%) at calc(var(--cx) * 100%) calc(var(--cy) * 100%),

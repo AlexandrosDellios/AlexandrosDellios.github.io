@@ -3,9 +3,10 @@
  * Home page (DESIGN §2, §4; content plan §2). One scroll, six sections:
  *
  *   Hero          name strip (h1) · portrait arch · roles · bio · CTAs · stickers
- *   01 Now        research card (dark) + EPFL Student AI Team card (accent)
- *   02 Work       6 project tiles + 3 statement cells        id="work"
- *   03 More work  compact rows                               id="more-work"
+ *   01 Now        research card (dark) + EPFL Student AI Team card (accent),
+ *                 each linking to its role page (/experience/<id>/)
+ *   02 Work       4 project tiles + 2 statement cells        id="work"
+ *   03 More work  "More projects": one linked row per project id="more-work"
  *   04 Experience experience + education rows                id="experience"
  *   05 Toolbox    skill groups with "seen in" links          id="toolbox"
  *                 (04 and 05 share one band on desktop: 7 + 5 columns, which
@@ -15,7 +16,6 @@
  * Components: src/components/home/. Client code: src/scripts/home/ (imported
  * below; the shared core is booted by BaseLayout).
  */
-import { getCollection } from 'astro:content';
 import CursorPreview from '../components/home/CursorPreview.astro';
 import Experience from '../components/home/Experience.astro';
 import Hero from '../components/home/Hero.astro';
@@ -23,23 +23,26 @@ import MoreWork from '../components/home/MoreWork.astro';
 import NowSection from '../components/home/NowSection.astro';
 import Toolbox from '../components/home/Toolbox.astro';
 import WorkSection from '../components/home/WorkSection.astro';
+import { getProjects, getRoles } from '../components/project/projects';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../data/site';
 
-// Featured projects in grid order. Ids starting with "_" are content stubs.
-const projects = (await getCollection('projects', ({ id }) => !id.startsWith('_'))).sort(
-  (a, b) => a.data.order - b.data.order,
-);
+// Projects in home order (Selected work, then More projects) and the role pages.
+// Ids starting with "_" are content stubs (skipped by the helpers).
+const projects = await getProjects();
+const featured = projects.filter((p) => p.data.section === 'featured');
+const more = projects.filter((p) => p.data.section === 'more');
+const pages = [...projects, ...(await getRoles())];
 ---
 
 <BaseLayout title={`${site.name} · Robotics M.Sc. student at EPFL`} pageClass="page-home">
   <Hero />
   <NowSection />
-  <WorkSection projects={projects} />
-  <MoreWork />
+  <WorkSection projects={featured} all={projects} />
+  <MoreWork projects={more} />
   <div class="home-band container">
     <Experience stackHead class="home-band__xp" />
-    <Toolbox projects={projects} stackHead class="home-band__tb" />
+    <Toolbox pages={pages} stackHead class="home-band__tb" />
   </div>
   <CursorPreview />
 </BaseLayout>

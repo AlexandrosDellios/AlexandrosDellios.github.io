@@ -1,11 +1,12 @@
 ---
-# Featured project 2 · copy mirrored in docs/CONTENT.md (keep both in sync).
+# More projects, row 1 · copy mirrored in docs/CONTENT.md (keep both in sync).
 # Not on the CV. Sources: the team's course report and code via
 # private/research/repo_Classes-MA2-2026.json. The repo is private and teammate-owned: never link it.
 title: "Polymander: a salamander robot that swims and walks"
 shortTitle: "Polymander"
 shortWord: "POLYMANDER"
-order: 2
+order: 1
+section: "more"
 year: "2026"
 context: "EPFL · Computational Motor Control course"
 team: "Team of 3"

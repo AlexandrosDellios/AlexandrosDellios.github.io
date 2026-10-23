@@ -1,22 +1,22 @@
 # CONTENT.md: every word on the site, and where it comes from
 
 > **What this is.** A readable mirror of all site copy, so Alexandros (or a future session) can review and edit wording without opening code. The copy itself lives in two places, and those files are what the site renders:
-> - `src/data/site.ts`: identity, hero, Now cards, statements, More work, Experience, Education, Toolbox, footer line.
-> - `src/content/projects/<slug>.md`: one file per featured project (tile, page, media). Schema: `src/content.config.ts`.
+> - `src/data/site.ts`: identity, hero, Now cards, statements, Experience, Education, Toolbox, footer line.
+> - `src/content/projects/<slug>.md`: one file per detail page (schema: `src/content.config.ts`). `kind: project` files are the Selected-work tiles (`section: featured`) and the More-projects rows (`section: more`), with pages at `/work/<slug>/`; `kind: role` files are the BioRob, AI Team and Mediacom pages at `/experience/<slug>/` (§9).
 >
 > **Keep them in sync.** When you change copy in a source file, change it here too (and the other way round).
 >
-> Last full pass: 2026-10-20 (QA fixes applied the same day). Open questions for Alexandros: [docs/QUESTIONS.md](QUESTIONS.md) (local only, gitignored).
+> Last full pass: 2026-10-23 (role pages, fly page, home restructure). Open questions for Alexandros: [docs/QUESTIONS.md](QUESTIONS.md) (local only, gitignored).
 
 ## 0. Rules the copy follows
 
 1. **The CV is the source of truth.** Wherever the CV makes a claim (numbers included), the site uses the CV wording as written. Alexandros confirmed every CV claim is backed by his reports (docs/DECISIONS.md). Repo and report details are added only where they don't contradict the CV.
 2. **No people's names.** Teammates, professors and supervisors are never named: "Team of 3", "a teammate". The one exception is Marco Odermatt in the Mediacom line, because Alexandros's CV names him (open question Q-B3).
-3. **No links to private or teammate-owned repos, and none to repos holding report PDFs or student ID numbers** (history included). Linked today: Legged-Robot (quadruped), MPC-Rocket (rocket) and Autonomous-Thymio. The report PDFs were purged from the first two on 2026-10-20. The C++ simulator repo is public but not linked until it is cleaned up.
+3. **No links to private or teammate-owned repos, and none to repos holding report PDFs or student ID numbers** (history included). Linked today: Legged-Robot (quadruped), MPC-Rocket (rocket) and Autonomous-Thymio. The report PDFs were purged from the first two on 2026-10-20. Other public links: the EPFL Student AI Team's project documentation (bark-documentation.readthedocs.io, given by Alexandros) and, in the footer, the design credit to cydstumpel.nl.
 4. **BioRob stays at CV level.** Only the CV's wording; no methods, models, equipment, partners or publication plans.
 5. **No report PDFs.** Figures are shown individually with captions; the reports themselves are not linked.
 6. **Voice.** First person, "we" for team work. Concise and concrete, no hype words. Serif titles and leads mark exactly **one** italic phrase with `*asterisks*`.
-7. **"My part"** is stated only where it is documented. Today: Thymio (state estimation) and the fly-navigation project. Everywhere else it waits for Alexandros (Q-A1).
+7. **"My part"** is stated only where it is documented. Today: Thymio (state estimation) and the fly-navigation project. Everywhere else it waits for Alexandros (Q-A1). Role pages show the CV role title instead.
 
 **Source tags used below**
 - **[CV]**: wording or number from the CV.
@@ -50,7 +50,9 @@ Header, CTA and sticker labels (Work, Experience, Toolbox, Contact, CV, Download
 
 ---
 
-## 2. Now (two cards, no detail pages)
+## 2. Now (two cards, each linking to its role page)
+
+Each card is one link (its title, stretched over the card) to its role page: the research card → `/experience/biorob/`, the AI Team card → `/experience/ai-team/` (§9). A mono "Read more →" cue closes the text.
 
 ### 2.1 Research card (dark)
 
@@ -62,7 +64,7 @@ Header, CTA and sticker labels (Work, Experience, Toolbox, Contact, CV, Download
 | Tags | Robot learning · Egocentric data · Manipulation · Embodiment gap |
 | Footnote | Research in progress. Happy to talk about it in person. |
 | Media | Decorative illustration + chip `COMING SOON · Lab photo` (desktop/tablet only) |
-| Link | none |
+| Link | the whole card → `/experience/biorob/` |
 
 > At EPFL’s Biorobotics Laboratory (BioRob Lab), I research egocentric, data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution.
 
@@ -81,7 +83,7 @@ Source: [CV] BioRob entry, bullet 1 only, turned into first person. The title pa
 | Role line | Machine Learning Engineer · EPFL Student AI Team |
 | Tags | Isaac Lab · Reinforcement learning · ROS 2 · C++ CAN bus · NVIDIA Jetson |
 | Media | `src/assets/me/guide-dog-cutout.png` (key `guide-dog`), alt: "The EPFL Student AI Team’s guide-dog quadruped prototype on its test stand" |
-| Link | none yet (team website: Q-B5) |
+| Link | the whole card → `/experience/ai-team/` (the team's project docs are linked from that page) |
 
 > As a Machine Learning Engineer, I contribute to the ground-up design of a custom quadruped that will act as a guide dog for visually impaired people. I implemented a real-time ROS 2 pipeline and a custom C++ CAN bus interface on NVIDIA Jetson hardware for reliable motor control and state synchronization, and I’m building a simulation pipeline in NVIDIA Isaac Lab to train reinforcement-learning policies for varied terrain.
 
@@ -99,11 +101,13 @@ Written in the home components (src/components/home/), not in site.ts. Each seri
 
 | Section | Heading | Mono aside (hidden on phones) |
 |---|---|---|
-| 01 Now | What I’m doing *now* | Research · robot learning · Lausanne |
-| 02 Selected work | Selected *work* | 06 projects · 2025–26 (built from the collection), plus " · hover to play" for mouse users only |
-| 03 More work | Smaller and *earlier* work | none |
+| 01 Now | What I’m doing *now* | Research & prototyping |
+| 02 Selected work | Selected *work* | hover to play (mouse users only) |
+| 03 More projects | More *projects* | none |
 | 04 Experience | Experience & *education* | none |
-| 05 Toolbox | The *toolbox* | From the CV and projects · linked to proof |
+| 05 Toolbox | The *toolbox* | none |
+
+The header's Work link has no project count.
 
 Hero stickers (decorative, `aria-hidden`; the same facts are in the visible text):
 - ink tag: `EPFL ✦ ROBOTICS`;
@@ -112,16 +116,14 @@ Hero stickers (decorative, `aria-hidden`; the same facts are in the visible text
 
 ## 3. Selected work
 
-Six tiles plus three serif statement cells (3 × 3 grid on desktop). Tile order is the `order` field in each project file:
+Four tiles plus two serif statement cells (3 × 2 grid on desktop: tile, tile, S1 / tile, S2, tile). The order was set by Alexandros (2026-10-23); it is the `order` field of the files with `section: featured`:
 
-| # | Tile | Metric chip | Why here |
-|---|---|---|---|
-| 1 | Quadruped locomotion with CPGs + deep RL | `29% INCLINE · ≈16°` | On the CV, public repo, real footage, leads into BioRob |
-| 2 | Polymander: a salamander robot that swims and walks | `+20% SPEED · −16% CoT` | Best footage, clear measured gains |
-| 3 | Landing a 6-DOF rocket with robust & nonlinear MPC | `30° ROLL → LANDED < 4 S` | On the CV, rigorous control |
-| 4 | Reading an Uno table from a single photo | `75% ACCURACY · 12M PARAMS` | On the CV, perception and sim-to-real |
-| 5 | Autonomous Thymio: localization that survives a blindfold | `BLACKOUT ✓ · KIDNAP ✓` | The only real robot with recorded demos |
-| 6 | Glider perching with wing co-design | `29.7% FASTER CONVERGENCE` | On the CV, but no real media yet. Move it up once plots or a clip arrive |
+| # | Tile | Metric chip |
+|---|---|---|
+| 1 | Quadruped locomotion with CPGs + deep RL | `29% INCLINE · ≈16°` |
+| 2 | Glider perching with wing co-design | `29.7% FASTER CONVERGENCE` |
+| 3 | Reading an Uno table from a single photo | `75% ACCURACY · 12M PARAMS` |
+| 4 | Autonomous Thymio: localization that survives a blindfold | `BLACKOUT ✓ · KIDNAP ✓` |
 
 Every tile always shows: title, one-liner, metric chip, tags, and `year · context · team`. The full tile copy is in §8.
 
@@ -129,22 +131,23 @@ Every tile always shows: title, one-liner, metric chip, tags, and `year · conte
 
 - **S1:** "I teach [legged robots](/work/quadruped-cpg-rl/) to walk with reinforcement learning, write [controllers that land rockets](/work/rocket-mpc/), and train networks to [read a cluttered table](/work/uno-sim2real/)." Pill: **GitHub ↗**
 - **S2:** "I like controllers that hold up when things go wrong: [sensory feedback](/work/polymander/) that keeps a robot swimming through neural damage, a glider that [lands precisely in the wind](/work/glider-codesign/), and a robot that keeps its bearings [when its camera goes dark](/work/thymio-ekf/)." Pill: **Download CV**
-- **S3:** "Also on the bench: a simulated fruit fly that follows a smell past obstacles, and a C++ simulator for a fleet of cleanup robots." Pill: **More work ↓** (links to `#more-work`)
 
 Source: [Edit], each phrase backed by its project page (S2 glider phrase: [CV] "wind disturbances").
 
 ---
 
-## 4. More work (compact list, no detail pages, no links)
+## 4. More projects (one linked row per project)
 
-| Title | Line | Context | Stack | Thumbnail |
-|---|---|---|---|---|
-| Fly navigation in NeuroMechFly | A hierarchical controller steers a simulated fruit fly to an odor source past obstacles, wind, hills and a predator, using simulated vision and smell. My part: posture correction, odor attraction and the movement logic for the first two levels. | 2026 · CoBAR course · Team of 3 | Python · MuJoCo · flygym | `/media/more/fly-navigation.jpg` (a hover loop `fly-navigation.mp4/.webm` also exists) |
-| Multi-robot cleanup simulator | A base station deploys robots with limited turning rates to decontaminate a hazardous zone. I wrote the robot motion controllers, collision geometry and rendering. | 2023 · B.Sc. C++ course · Team of 2 | C++17 · GTKmm 4 · Cairo | none |
+Every project that is not a Selected-work tile (`section: more`) gets a row that links to its page: year | title →, one-liner and tags | course and team. Desktop rows show the poster as a hover preview card. Order (the `order` field):
 
-Sources: [Report] course code. "My part" comes from the commit history (fly) and the per-file contribution split in the code (C++). Neither is on the CV.
-Why no links: the fly code lives in a teammate-owned repo; the C++ repo needs a clean-up first (Q-C1).
-Left out on purpose: graded homework, weekly course exercises, a forked detection framework, and an off-topic NLP course project.
+| # | Row | Page |
+|---|---|---|
+| 1 | Polymander: a salamander robot that swims and walks | `/work/polymander/` (§8.2) |
+| 2 | Landing a 6-DOF rocket with robust & nonlinear MPC | `/work/rocket-mpc/` (§8.3) |
+| 3 | Fly navigation in NeuroMechFly | `/work/fly-navigation/` (§8.7) |
+
+The rows show each project's `title`, `oneLiner`, `tags`, `year`, `context` (without "EPFL ·") and `team`.
+Left out on purpose: the B.Sc. C++ multi-robot cleanup simulator (removed 2026-10-23: an old, simple project), graded homework, weekly course exercises, a forked detection framework, and an off-topic NLP course project.
 
 ---
 
@@ -152,15 +155,15 @@ Left out on purpose: graded homework, weekly course exercises, a forked detectio
 
 ### Experience (CV wording)
 
-| When | Role · Org | Line | Hover media |
-|---|---|---|---|
-| Jul 2026 – now | Graduate Research Assistant · BioRob Lab, EPFL | Researching egocentric data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution. | none (`mediaNeeded: Lab photo`, not drawn) |
-| Feb 2026 – now | Machine Learning Engineer · EPFL Student AI Team | Contributing to the ground-up design and build of a custom quadruped meant to act as a guide dog for the visually impaired. Implemented a real-time ROS 2 pipeline and custom C++ CAN bus interface on NVIDIA Jetson hardware, achieving reliable motor control and state synchronization; building an NVIDIA Isaac Lab simulation pipeline to train RL policies for varied-terrain navigation. | `image: 'guide-dog'` (the approved guide-dog photo, desktop hover preview) |
-| Feb – Oct 2025 | Lead Design & Fabrication Engineer · Mediacom EPFL | Won a competitive design pitch for the official EPFL Doctor Honoris Causa Award out of 12 proposals and took full ownership from concept to physical fabrication, partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards. The award was presented to Marco Odermatt and others. | placeholder `Award photos · finished piece / CAD / fabrication` |
+| When | Role · Org | Line | Page | Hover preview (desktop) |
+|---|---|---|---|---|
+| Jul 2026 – now | Graduate Research Assistant · BioRob Lab, EPFL | Researching egocentric data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution. | `/experience/biorob/` | drawn placeholder (robot arm), "Coming soon · Lab photo" |
+| Feb 2026 – now | Machine Learning Engineer · EPFL Student AI Team | Contributing to the ground-up design and build of a custom quadruped meant to act as a guide dog for the visually impaired. Implemented a real-time ROS 2 pipeline and custom C++ CAN bus interface on NVIDIA Jetson hardware, achieving reliable motor control and state synchronization; building an NVIDIA Isaac Lab simulation pipeline to train RL policies for varied-terrain navigation. | `/experience/ai-team/` | the approved guide-dog photo, "Byte, the guide-dog quadruped" |
+| Feb – Oct 2025 | Lead Design & Fabrication Engineer · Mediacom EPFL | Won a competitive design pitch for the official EPFL Doctor Honoris Causa Award out of 12 proposals and took full ownership from concept to physical fabrication, partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards. The award was presented to Marco Odermatt and others. | `/experience/mediacom/` | drawn placeholder (award), "Coming soon · Award photos" |
 
 Source: [CV, updated 2026-10-21], lightly condensed for one table row. The Mediacom role is no longer on the CV but stays on the site by decision (DECISIONS 2026-10-21) (the CV's "full ownership", "strict design standards", "contributed to" and outcome clauses are kept).
 
-On the home page only rows with an `image` get a hover preview; `mediaNeeded` labels are recorded in site.ts but not drawn there (no placeholders in the experience list).
+Each row's role title links to its page (§9) and the link covers the whole row. Rows with an `image` show that photo as the hover preview; rows with `mediaNeeded` + `sketch` show the drawn placeholder (src/assets/sketches/).
 
 ### Education
 
@@ -179,9 +182,9 @@ Sources: degrees and dates [CV]; the course list comes from the projects on this
 |---|---|---|
 | Learning & vision | Reinforcement learning (PPO, SAC) · Domain randomization · Deep learning (data augmentation, debiasing) · PyTorch · JAX · TensorFlow · DeepSpeed · OpenCV | Quadruped · Glider · Uno |
 | Control & estimation | Model predictive control (linear, tube, nonlinear) · Extended Kalman filter · Central pattern generators · Hardware–software co-design · CasADi | Rocket · Thymio · Polymander · Glider |
-| Simulation & ROS | Isaac Lab · Isaac Sim · MuJoCo · PyBullet · ROS 2 Jazzy | Quadruped · Polymander |
-| Hardware & embedded | NVIDIA Jetson (Orin Nano) · CAN bus · STM32 · ESP32 · RTOS | (Student AI Team, no page) |
-| CAD & fabrication | Fusion 360 · CATIA · KiCad · 3D printing · Machining (lathe, milling) | (Mediacom award, no page) |
+| Simulation & ROS | Isaac Lab · Isaac Sim · MuJoCo · PyBullet · ROS 2 Jazzy | AI Team · Quadruped · Polymander |
+| Hardware & embedded | NVIDIA Jetson (Orin Nano) · CAN bus · STM32 · ESP32 · RTOS | AI Team |
+| CAD & fabrication | Fusion 360 · CATIA · KiCad · 3D printing · Machining (lathe, milling) | Mediacom award |
 | Code & tools | Python · C++ · C · CUDA · Assembly · Linux · Git · Docker · HPC / GPU clusters | — |
 
 Sources: every item is on the CV, except "Central pattern generators" and the MPC variants in brackets, which come from the Quadruped, Polymander and Rocket projects [Report]. Spoken languages are not listed yet (Q-B7).
@@ -196,6 +199,7 @@ Sources: every item is on the CV, except "Central pattern generators" and the MP
 | Status · location | Available summer 2027 · ~6 months · Lausanne, Switzerland |
 | Contact | email with copy button · Download CV · GitHub · LinkedIn |
 | Ticker | ALEXANDROS DELLIOS ✦ (looping) |
+| Bottom line | © 2026 Alexandros Dellios · Built with Astro · Inspired by [cydstumpel.nl](https://cydstumpel.nl) (the portfolio this design is modelled on) |
 
 ---
 
@@ -205,7 +209,7 @@ Each page shows, in order: title strip (outlined word), meta row (year · contex
 
 ### 8.1 Quadruped locomotion with CPGs + deep RL
 
-`src/content/projects/quadruped-cpg-rl.md` · page `/work/quadruped-cpg-rl/`
+`src/content/projects/quadruped-cpg-rl.md` · page `/work/quadruped-cpg-rl/` · Selected work, tile 1
 
 | Field | Copy |
 |---|---|
@@ -267,7 +271,7 @@ The Unitree A1 simulation environment, motor model and CPG skeleton came from th
 
 ### 8.2 Polymander: a salamander robot that swims and walks
 
-`src/content/projects/polymander.md` · page `/work/polymander/`
+`src/content/projects/polymander.md` · page `/work/polymander/` · More projects, row 1 (`section: more`)
 
 | Field | Copy |
 |---|---|
@@ -328,7 +332,7 @@ The Polymander robot model, the simulation setup and the salamander X-ray record
 
 ### 8.3 Landing a 6-DOF rocket with robust & nonlinear MPC
 
-`src/content/projects/rocket-mpc.md` · page `/work/rocket-mpc/`
+`src/content/projects/rocket-mpc.md` · page `/work/rocket-mpc/` · More projects, row 2 (`section: more`)
 
 | Field | Copy |
 |---|---|
@@ -336,7 +340,7 @@ The Polymander robot model, the simulation setup and the salamander X-ray record
 | Short title | Rocket MPC |
 | Outlined word | ROCKET |
 | Meta | 2025 · EPFL · Model Predictive Control course · Team of 3 |
-| One-liner | A dual-layer PID + MPC flight controller, topped by a custom nonlinear MPC, lands a simulated 6-DOF rocket through orientation errors and wind disturbances. |
+| One-liner | A dual-layer PID + MPC flight controller, topped by a custom nonlinear MPC, lands a simulated 6-DOF rocket through orientation errors and wind disturbances. (the file writes `6-\u2060DOF`: a word joiner keeps "6-DOF" on one line) |
 | Metric chip | `30° ROLL → LANDED < 4 S` |
 | Tags | `MPC` · `Nonlinear MPC` · `Tube MPC` · `CasADi` |
 | Accent | `#B8418E` fill / `#8E2C6B` text |
@@ -386,7 +390,7 @@ The rocket model, simulator and 3D visualizer were provided by the course. We cl
 
 ### 8.4 Reading an Uno table from a single photo
 
-`src/content/projects/uno-sim2real.md` · page `/work/uno-sim2real/`
+`src/content/projects/uno-sim2real.md` · page `/work/uno-sim2real/` · Selected work, tile 3
 
 | Field | Copy |
 |---|---|
@@ -442,7 +446,7 @@ This was a course competition. The table photos and labels belong to the course,
 
 ### 8.5 Autonomous Thymio: localization that survives a blindfold
 
-`src/content/projects/thymio-ekf.md` · page `/work/thymio-ekf/`
+`src/content/projects/thymio-ekf.md` · page `/work/thymio-ekf/` · Selected work, tile 4
 
 | Field | Copy |
 |---|---|
@@ -500,7 +504,7 @@ Team of 4 with one module each: global navigation and motion control, local navi
 
 ### 8.6 Glider perching with wing co-design
 
-`src/content/projects/glider-codesign.md` · page `/work/glider-codesign/`
+`src/content/projects/glider-codesign.md` · page `/work/glider-codesign/` · Selected work, tile 2
 
 | Field | Copy |
 |---|---|
@@ -515,7 +519,7 @@ Team of 4 with one module each: global navigation and motion control, local navi
 | Code link | none |
 | On the CV | yes |
 | Poster alt | Illustration: a NACA 4412 airfoil outline morphing into a more cambered co-designed wing section |
-| Placeholder | One line at the end of the Notes: "Coming soon: Convergence plot, learned airfoil vs NACA 4412 and a perching evaluation clip." (no Figures section while it is the only item) |
+| Coming soon (gallery) | Drawn cards (`soon`): Convergence plot · Learned airfoil vs NACA 4412 plot · Perching evaluation clip |
 | Tile poster | `poster-tile.png`: the airfoil outlines only, without labels |
 
 **Lead:** What if a robot could *redesign its own wing* while learning to fly?
@@ -550,11 +554,153 @@ The image at the top is an illustration (a NACA 4412 baseline morphing toward a 
 - [CV] "RL-Driven Glider Co-Design": highly precise landings, outperforming optimal control methods, robustness to unpredictable wind disturbances and varying starting speeds, simultaneous wing-shape redesign while learning to fly, success convergence accelerated by 29.7%.
 - [Report] (the team's code) NeuralFoil aerodynamics, PPO on 4,096 parallel GPU environments for 200M timesteps, four-stage curriculum down to 0.05 m at under 1 m/s, 18-D airfoil shape with REINFORCE and a design critic, cross-entropy-method search (8 × 24), NACA 4412 baseline.
 - The code is in a teammate's repository, so there is no link. Alexandros's own part is not documented yet (Q-A1).
-- Media: the poster is an **illustration** (exact NACA 4412 outline, invented target shape) and its alt text says so. Placeholder: `Convergence plot + learned airfoil vs NACA 4412 · perching evaluation clip` (Q-A4).
+- Media: the poster is an **illustration** (exact NACA 4412 outline, invented target shape) and its alt text says so. Still to come: three drawn "Coming soon" cards in the gallery (Q-A4).
+
+### 8.7 Fly navigation in NeuroMechFly
+
+`src/content/projects/fly-navigation.md` · page `/work/fly-navigation/` · More projects, row 3 (`section: more`)
+
+| Field | Copy |
+|---|---|
+| Title | Fly navigation in NeuroMechFly |
+| Short title | Fly navigation |
+| Outlined word | FLY |
+| Meta | 2026 · EPFL · Controlling Behavior in Animals and Robots course · Team of 3 · My part: Posture correction, odor attraction, level 1–2 movement logic |
+| One-liner | A hierarchical controller steers a simulated fruit fly to an odor source past obstacles, wind, hills and a predator, using its eyes, antennae and smell. (≤ 160 characters: it is also the meta description) |
+| Metric chip | `4 SENSES · 5 LEVELS` |
+| Tags | `Bio-inspired control` · `Sensor fusion` · `MuJoCo (flygym)` · `Python` |
+| Accent | `#7BAE2F` fill / `#456A13` text (grass green from the arena) |
+| Code link | none (teammate-owned repo) |
+| On the CV | no |
+| Poster alt | Chase-camera view of the simulated fruit fly walking between green grass obstacles in MuJoCo |
+
+**Lead:** How do you walk a simulated fly to its food when *every sense tells a different story*?
+
+**TL;DR**
+- **Problem:** Walk a simulated fruit fly to an attractive odor source through five levels of rising difficulty (obstacles, wind, hilly terrain, a predator), using only its on-board senses.
+- **What we built:** A priority-based controller on top of a CPG walking model: escape the predator, avoid obstacles, turn toward the odor, then track it, with posture correction throughout.
+- **Result:** One controller that fuses compound-eye vision, smell, antenna wind sensing and body tilt, built to handle all five levels.
+- **Stack:** Python, NumPy/SciPy, MuJoCo, flygym (NeuroMechFly v2)
+
+#### The *approach*
+
+1. **Walking.** flygym’s CPG-based walking model turns two descending signals, a left and a right drive, into a six-legged gait. The controller only decides those two drives.
+2. **Escape first.** The predator shows up as red pixels in the compound eyes, and the fly sprints away from it.
+3. **Avoid obstacles.** Green-pixel density in the upper field of each eye flags grass ahead. The turn direction accounts for the wind, sensed as antenna deflection against a calibrated baseline, and for the hill tilt, read from the body’s roll and pitch.
+4. **Find the food.** Two olfactory sensors first turn the fly in place toward the odor, with a smooth fade-out, then keep it on course with a left/right steering bias.
+5. **Stay upright.** A pitch and roll posture correction is added on top of the drives the whole time.
+
+#### What it *achieved*
+
+- **Four senses, one controller.** Compound-eye vision, smell, antenna wind sensing and body orientation feed a single priority-based decision tree.
+- **Five levels.** Odor tracking, grass obstacles, wind, hilly terrain and a dragonfly predator, all handled by the same controller.
+- **My part:** the pitch and roll posture correction, the odor-attraction module, and the movement logic for the first two levels.
+
+#### *Notes*
+
+NeuroMechFly, its CPG walking model, the arenas and the simulated senses come from the course framework (flygym). We wrote the controller as a team of 3. The code lives in a teammate’s repository.
+
+**Videos**
+- Page hero: `/media/fly-navigation/loop.mp4` (chase camera, level 2).
+
+**Sources**
+- Not on the CV. [Report] the team's controller code and commit history: the four-priority decision tree, the senses used, the five levels, and Alexandros's commits (posture correction, odor attraction, level 1–2 movement logic).
+- No quantitative evaluation exists (no success rates or times), so the page describes the controller and makes no performance claim.
+- Credits: NeuroMechFly and flygym come from the course; the code is in a teammate's repository, so there is no link.
 
 ---
 
-## 9. How to add a new project
+## 9. Role pages (`/experience/<slug>/`)
+
+Files with `kind: role`. They use the project template with role wording: the meta row reads dates · organisation · Role, the TL;DR lines are **Mission / My role / Status / Tools** (Tools is optional), and prev/next cycle through the three roles ("All experience" → `/#experience`). The home page's Now cards (BioRob, AI Team) and Experience rows (all three) link here. `year` holds the dates, `context` the organisation and `myPart` the role title; `team` is a short descriptor printed only on the social card. The `oneLiner` is also the meta description (≤ 160 characters). Media still to come shows as drawn "Coming soon" placeholders: the hero (`mediaNeeded` + `sketch`) and gallery cards (`soon`).
+
+### 9.1 BioRob Lab
+
+`src/content/projects/biorob.md` · page `/experience/biorob/`. **CV level only** (DECISIONS 2026-10-21): the CV's first bullet, nothing about methods.
+
+| Field | Copy |
+|---|---|
+| Title (h1) | Robots that learn from a human point of view |
+| Short title / word | BioRob Lab / BIOROB |
+| Meta | Jul 2026 – now · BioRob Lab, EPFL · Role: Graduate Research Assistant |
+| One-liner | At EPFL’s BioRob Lab, I research egocentric, data-driven robot manipulation: bridging the embodiment gap between human demonstrations and robotic execution. |
+| Team (social card only) | Research lab |
+| Metric chip | `RESEARCH IN PROGRESS` |
+| Tags | `Robot learning` · `Egocentric data` · `Manipulation` · `Embodiment gap` |
+| Accent | `#E5501D` / `#B23A12` (the site orange) |
+| Hero | drawn placeholder (robot arm), "Coming soon · Lab photo" |
+
+**Lead:** Teaching robots to learn manipulation from *a human point of view*.
+
+**TL;DR** — Mission: Bridge the embodiment gap between human demonstrations and robotic execution. · My role: Graduate Research Assistant at EPFL’s Biorobotics Laboratory (BioRob Lab), researching egocentric, data-driven robot manipulation. · Status: Research in progress since July 2026.
+
+**The *research*:** At EPFL’s Biorobotics Laboratory (BioRob Lab), I research egocentric, data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution.
+
+***Notes*:** Research in progress. Happy to talk about it in person.
+
+Source: [CV] BioRob entry, bullet 1.
+
+### 9.2 EPFL Student AI Team
+
+`src/content/projects/ai-team.md` · page `/experience/ai-team/`
+
+| Field | Copy |
+|---|---|
+| Title (h1) | Byte, a guide-dog quadruped built from scratch |
+| Short title / word | EPFL Student AI Team / BYTE |
+| Meta | Feb 2026 – now · EPFL Student AI Team · Role: Machine Learning Engineer · **Project docs ↗** (https://bark-documentation.readthedocs.io/en/latest/) |
+| One-liner | Byte is a quadruped built to guide visually impaired people. I built its ROS 2 pipeline and C++ CAN bus interface, and I’m building its Isaac Lab RL pipeline. |
+| Team (social card only) | Student team |
+| Metric chip | `ROS 2 · CAN BUS · ISAAC LAB` |
+| Tags | `Isaac Lab` · `Reinforcement learning` · `ROS 2` · `C++ CAN bus` · `NVIDIA Jetson` |
+| Accent | `#1F9E8F` / `#0D6A60` (teal) |
+| Hero | `src/assets/me/guide-dog.jpg`, alt: "Byte, the EPFL Student AI Team’s guide-dog quadruped prototype, on its test stand" |
+| Coming soon (gallery) | Walking video · Isaac Lab training clip · Build photos |
+
+**Lead:** What does it take to build a robot dog that *people can trust to guide them*?
+
+**TL;DR** — Mission: Design and build Byte, a custom quadruped that will act as a guide dog for visually impaired people. · My role: Machine Learning Engineer: a real-time ROS 2 pipeline and a custom C++ CAN bus interface on NVIDIA Jetson, and an Isaac Lab simulation pipeline to train RL policies. · Status: Reliable motor control and state synchronization on the robot; the Isaac Lab training pipeline for varied terrain is in progress. · Tools: ROS 2, C++, CAN bus, NVIDIA Jetson, NVIDIA Isaac Lab
+
+**The *project*:** The EPFL Student AI Team is designing and building Byte from the ground up: a custom quadruped meant to act as a guide dog for visually impaired people. The project documentation is public (Project docs, above).
+
+**My *part*:**
+1. **ROS 2 and CAN bus.** A real-time ROS 2 pipeline and a custom C++ CAN bus interface on NVIDIA Jetson hardware, for reliable motor control and state synchronization.
+2. **Isaac Lab.** A simulation pipeline in NVIDIA Isaac Lab to train reinforcement-learning policies for varied-terrain navigation (in progress).
+
+Sources: [CV] AI Team entry. The robot's name (Byte) and the documentation link: Alexandros, 2026-10-23.
+
+### 9.3 Mediacom award
+
+`src/content/projects/mediacom.md` · page `/experience/mediacom/`
+
+| Field | Copy |
+|---|---|
+| Title (h1) | EPFL’s Doctor Honoris Causa award, from pitch to piece |
+| Short title / word | Mediacom award / AWARD |
+| Meta | Feb – Oct 2025 · Mediacom EPFL · Role: Lead Design & Fabrication Engineer |
+| One-liner | I won the design pitch for EPFL’s official Doctor Honoris Causa award, out of 12 proposals, and took it from concept to physical fabrication. |
+| Team (social card only) | With PhD researchers |
+| Metric chip | `CHOSEN FROM 12 PROPOSALS` |
+| Tags | `Design pitch` · `CAD` · `Fabrication` |
+| Accent | `#C4893A` / `#7A5016` (bronze) |
+| Hero | drawn placeholder (award), "Coming soon · Photo of the finished award" |
+| Coming soon (gallery) | CAD render · Fabrication photos |
+
+**Lead:** Designing the piece EPFL hands to its *honorary doctors*.
+
+**TL;DR** — Mission: Design and build EPFL’s official Doctor Honoris Causa award. · My role: Lead Design & Fabrication Engineer: I won the design pitch out of 12 proposals and took full ownership from concept to physical fabrication. · Status: The award was presented to Marco Odermatt and others.
+
+**How it *came together*:**
+1. **Pitch.** A competitive design pitch for the official EPFL Doctor Honoris Causa Award, won out of 12 proposals.
+2. **Ownership.** Full ownership of the award, from concept to physical fabrication.
+3. **Standards.** Partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards.
+4. **Outcome.** The award was presented to Marco Odermatt and others.
+
+Source: [CV] Mediacom entry (older CV; kept by decision). Marco Odermatt: open question Q-B3.
+
+---
+
+## 10. How to add a new project
 
 1. **Copy a project file.** Duplicate the closest match in `src/content/projects/` (for example `thymio-ekf.md` for a real-robot project) and rename it to the new slug: lowercase, hyphens, short (`guide-dog-rl.md`). The slug becomes the URL `/work/<slug>/`.
 2. **Add the media** (see docs/MEDIA.md §4 for the processing recipes):
@@ -564,35 +710,41 @@ The image at the top is an illustration (a NACA 4412 baseline morphing toward a 
 
 | Field | Required | What to write |
 |---|---|---|
-| `title` | yes | Full title, shown on the tile and the page: "Landing a 6-DOF rocket with robust & nonlinear MPC" |
+| `kind` | no | `project` (default) or `role` (an Experience page at `/experience/<slug>/`, §9) |
+| `section` | no | Projects: `featured` (default, a Selected-work tile) or `more` (a More-projects row) |
+| `title` | yes | Full title, shown on the tile and the page: "Landing a 6-DOF rocket with robust & nonlinear MPC" (no asterisks: prev/next and the social card print it as is) |
 | `shortTitle` | yes | Short label for `<title>` and navigation: "Rocket MPC" |
 | `shortWord` | yes | One or two uppercase words for the giant outlined word: "ROCKET" |
-| `order` | yes | Position in the Selected-work grid (1 = first). Renumber the others if needed. |
+| `order` | yes | Position within its section (Selected work, More projects) or among the roles (1 = first). Renumber the others if needed. |
 | `year` | yes | "2026" |
 | `context` | yes | "EPFL · <course name> course", or the lab or team |
-| `team` | yes | "Solo" or "Team of N". **Never names.** |
+| `team` | yes | "Solo" or "Team of N". **Never names.** (Roles: a short descriptor, shown only on the social card) |
 | `myPart` | no | Only when Alexandros has confirmed it: "State estimation (EKF)" |
-| `oneLiner` | yes | One sentence with the outcome. It is always visible on the tile. |
+| `oneLiner` | yes | One sentence with the outcome. It is always visible on the tile and is the page's meta description, so keep it ≤ 160 characters. |
 | `metric` | yes | Short uppercase telemetry chip with units: "30° ROLL → LANDED < 4 S" |
 | `tags` | yes | 2–5 short tags (3–4 is best): `["MPC", "CasADi"]` |
 | `accent` / `accentInk` | yes | Fill colour (large shapes only) and a darker text colour with at least 4.5:1 contrast on paper `#F4EFE6`. Sample the fill from the project's own footage. |
 | `cvMatch` | no | `true` if the project is on the CV |
 | `links.code` | no | Only a **public repo owned by Alexandros**, with no report PDF or student IDs in it (history included). Never private or teammate-owned repos. |
 | `privateRepo` | no | `true` shows "Code: on request" (links to the contact block) instead of a link |
+| `links.website` / `links.websiteLabel` | no | A public project or team website, shown as a pill ("Project docs ↗"); label defaults to "Website" |
 | `poster` | no | Path relative to the .md file: `../../assets/projects/<slug>/poster.jpg` |
 | `tilePoster` | no | Tile-only still for drawings whose labels are illegible at tile size (a crop or label-free version of the poster) |
 | `posterAlt` | yes | What the poster shows, in plain words. Say "Illustration" if it is not real data. |
 | `focus` | no | `object-position` for the 4:3 crop, default "50% 50%" |
 | `video` | no | `mp4`, `webm`, `poster` as public URLs: `/media/<slug>/loop.mp4` |
 | `mediaNeeded` | no | Visitor-facing label for a visible "Coming soon" placeholder while media is missing: "Rocket landing screen recording". Keep specs (16:9, sizes) in docs/MEDIA.md §3. |
+| `sketch` | no | Drawing for the `mediaNeeded` placeholder (the hero when there is no poster, otherwise the gallery band) and the social card of a page without a poster: `photo`, `video`, `plot`, `arm`, `quadruped`, `award` (default: picked from the label; `soon` cards always pick from their own label) |
+| `soon` | no | Media still to come, as drawn "Coming soon" cards in the gallery: `["Walking video", "Build photos"]` (a label with "video"/"clip" gets a 16:9 video drawing) |
 | `figures` | no | List of `src` (relative path), `alt`, `caption`, optional `credit` ("Team figure · course report") |
 | `extraVideos` | no | List of `mp4`, `webm`, `poster`, `caption`, optional `clickToPlay: true` (never starts by itself: for longer clips that tell a story) |
 | `lead` | yes | One sentence with exactly **one** `*italic phrase*` |
-| `tldr` | yes | `problem`, `built`, `result`, `stack`: one line each, no asterisks |
+| `tldr` | yes | `problem`, `built`, `result`, `stack` (optional): one line each, no asterisks. Roles read them as Mission / My role / Status / Tools |
 
 4. **Write the body** in Markdown: `## The *approach*` (≤ 5 numbered steps, bold lead-in words), `## What it *achieved*` (3–5 bullets, each with a number), optional `## *Notes*` (what the course or team provided, no names). projects.ts recognises the sections by the words approach / achieved (or highlights, results) / notes.
    In Highlights, start each bullet with a **bold lead-in that is a complete phrase ending in a period or colon** (`**29% slopes (≈16°).** The adaptive curriculum…`). The page sets it as a serif metric on its own line; a lead-in without that punctuation stays an inline bold phrase.
 5. **Check the claims.** If the project is on the CV, use the CV wording for anything the CV states. Credit course-provided code and teammates' modules. No report PDFs, student ID numbers, names or private links.
 6. **Link it from the home page (optional):** a statement segment or a Toolbox "seen in" entry in `src/data/site.ts` (`slug` must match the file name).
 7. **Validate:** `npx astro sync` must finish without errors. Then preview with `npm run dev`.
-8. **Mirror it here** in §8, with a short **Sources** note.
+8. **Mirror it here** in §8 (projects) or §9 (roles), with a short **Sources** note.
+9. **Social card:** `python3 scripts/og/make_og_images.py <slug>` writes `public/og/<slug>.png`.

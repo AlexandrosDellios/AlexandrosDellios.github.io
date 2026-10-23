@@ -15,7 +15,7 @@ Live at **https://alexandrosdellios.com**: GitHub Pages (repo `AlexandrosDellios
 ## Ground rules
 
 - **Stack: Astro 7 (static output)**, GSAP + Lenis for motion, Fontsource fonts. Node v26 via Homebrew. Commands are in README.md: `npm run dev` / `build` / `preview` / `check` (`astro check`, keep it at 0 errors). Deployment: `.github/workflows/deploy.yml` builds and publishes to GitHub Pages on push to `main`.
-- **Where things live:** project copy in `src/content/projects/<slug>.md` (schema: `src/content.config.ts`), all other copy in `src/data/site.ts`. Keep docs/CONTENT.md in sync with both.
+- **Where things live:** page copy in `src/content/projects/<slug>.md` (schema: `src/content.config.ts`): `kind: project` pages at `/work/<slug>/` (`section: featured` = Selected-work tile, `more` = More-projects row) and `kind: role` pages at `/experience/<slug>/` (BioRob, AI Team, Mediacom). All other copy is in `src/data/site.ts`. Keep docs/CONTENT.md in sync with both.
 - The **CV is the source of truth** for claims and numbers. The published copy is `public/CV-Alexandros-Dellios.pdf` (`/cv/` redirects to it).
 - **Private repos** (listed in the local `private/research/`) can be described and their visuals used, but **never link to them**. BioRob research stays high-level, with nothing unpublished. **No people's names** (say "Team of 3"), no teammate-owned repo links, no SCIPER numbers or report PDFs, and no links to repos that still contain them (`links.code` only for a clean public repo; otherwise `privateRepo: true` → "Code: on request").
 - **Committed docs hold rules, never findings about specific repos or courses** (those go in `private/` or the gitignored docs/QUESTIONS.md). The repo is public.

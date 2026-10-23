@@ -5,8 +5,9 @@
  *   <ProjectGallery data={entry.data} showSoon />
  *
  * Items, in this order: extra videos (footage first, it is the quickest proof),
- * figures, then a slim "Coming soon" band for data.mediaNeeded when the hero
- * did not already use it (DECISIONS: placeholders stay visible). A trailing
+ * figures, then drawn "Coming soon" cards for data.soon (media still to come,
+ * 4:3, or 16:9 for clips), then a slim "Coming soon" band for data.mediaNeeded
+ * when the hero did not already use it (DECISIONS: placeholders stay visible). A trailing
  * production spec in that label (" · 16:9") is dropped: visitors see
  * "Rocket landing screen recording", docs/MEDIA.md keeps the spec.
  *
@@ -21,6 +22,7 @@
  * Renders nothing when there is nothing to show.
  */
 import FigureCard, { type GalleryItem, type GalleryLayout } from './FigureCard.astro';
+import { sketchFor } from '../global/sketches';
 import { publicLabel, publicImageSize, ratioOf, type ProjectData } from './projects';
 
 interface Props {
@@ -46,8 +48,20 @@ const items: GalleryItem[] = [
       ratio: ratioOf({ width: f.src.width, height: f.src.height }),
     }),
   ),
+  ...data.soon.map((label): GalleryItem => {
+    const sketch = sketchFor(label);
+    const ratio = sketch === 'video' ? { css: '16 / 9', n: 16 / 9 } : { css: '4 / 3', n: 4 / 3 };
+    return { type: 'soon', card: true, label: publicLabel(label), sketch, ratio };
+  }),
   ...(showSoon && data.mediaNeeded
-    ? [{ type: 'soon', label: publicLabel(data.mediaNeeded), ratio: { css: 'auto', n: Infinity } } as GalleryItem]
+    ? [
+        {
+          type: 'soon',
+          label: publicLabel(data.mediaNeeded),
+          sketch: data.sketch,
+          ratio: { css: 'auto', n: Infinity },
+        } as GalleryItem,
+      ]
     : []),
 ];
 
@@ -63,9 +77,10 @@ const numbered = items.map((item) => {
 // Pair consecutive narrow items; everything else gets its own row.
 type Placed = { item: GalleryItem; number: string; layout: GalleryLayout };
 const placed: Placed[] = [];
+// A drawn "Coming soon" card has no caption to put beside it: it stays a half-width card.
 const lone = (entry: (typeof numbered)[number]): Placed => ({
   ...entry,
-  layout: entry.item.ratio.n >= LONE_WIDE ? 'wide' : 'side',
+  layout: entry.item.type === 'soon' && entry.item.card ? 'half' : entry.item.ratio.n >= LONE_WIDE ? 'wide' : 'side',
 });
 let pending: (typeof numbered)[number] | null = null;
 for (const entry of numbered) {

@@ -6,8 +6,10 @@
  *   <Segments parts={[year, context, team]} />
  *   <Segments text="06 projects · 2025–26" />      (split at " · ")
  *
- * Each part is an inline-block .seg (base.css); the separator is glued to the
- * part before it with a no-break space, so no line ever starts with "·".
+ * Each part is an inline-block .seg (base.css) that carries its own trailing
+ * " ·" (no-break space + dot), and the only break opportunity is the plain
+ * space between segments, so no line ever starts with "·". (A no-break space
+ * placed after an inline-block does not stop Chrome from breaking there.)
  * Renders inline content only: put it inside the element that styles the line.
  */
 interface Props {
@@ -19,4 +21,4 @@ const { parts, text } = Astro.props;
 const list = (parts ?? text?.split(' · ') ?? []).filter((p): p is string => Boolean(p && p.trim()));
 ---
 
-{list.map((part, i) => [i > 0 ? ' · ' : '', <span class="seg">{part}</span>])}
+{list.map((part, i) => [i > 0 && ' ', <span class="seg">{part}{i < list.length - 1 && '\u00a0·'}</span>])}

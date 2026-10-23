@@ -2,7 +2,7 @@
 /**
  * Header (DESIGN §5.1, §4, §8): sticky site header, used by BaseLayout.
  *
- *   >= 1024px  AD monogram · email (copy) · status · [gait metronome] · Work⁰⁶ Experience Toolbox Contact · CV↓
+ *   >= 1024px  AD monogram · email (copy) · status · [gait metronome] · Work Experience Toolbox Contact · CV↓
  *   600–1023   AD · status dot · [gait metronome] · CV↓ · Menu
  *   < 600      AD · status dot · CV↓ · Menu
  *
@@ -13,7 +13,6 @@
  *     - CSS only:     add class "has-header-line" to <html> (BaseLayout pageClass)
  * The mobile menu lives in MobileMenu.astro (rendered right after the header).
  */
-import { getCollection } from 'astro:content';
 import { site } from '../../data/site';
 import CopyEmail from './CopyEmail.astro';
 import GaitMetronome from './GaitMetronome.astro';
@@ -23,10 +22,8 @@ import PillButton from './PillButton.astro';
 import StatusBadge from './StatusBadge.astro';
 import type { NavItem } from './types';
 
-const projects = await getCollection('projects');
-
 const nav: NavItem[] = [
-  { label: 'Work', href: '/#work', count: projects.length, countLabel: 'projects' },
+  { label: 'Work', href: '/#work' },
   { label: 'Experience', href: '/#experience' },
   { label: 'Toolbox', href: '/#toolbox' },
   { label: 'Contact', href: '#contact' },

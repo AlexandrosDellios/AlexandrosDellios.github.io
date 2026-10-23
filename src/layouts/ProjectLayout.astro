@@ -1,7 +1,9 @@
 ---
 /**
- * ProjectLayout: the /work/<id>/ page template (DESIGN §4 project row, §5.18,
- * content plan §3). Used by src/pages/work/[slug].astro.
+ * ProjectLayout: the detail-page template (DESIGN §4 project row, §5.18,
+ * content plan §3). Used by src/pages/work/[slug].astro (projects) and
+ * src/pages/experience/[slug].astro (roles: same layout, role wording in the
+ * meta row, TL;DR labels and prev/next).
  *
  *   <ProjectLayout entry={entry} prev={prevEntry} next={nextEntry} />
  *
@@ -39,7 +41,7 @@ import ProjectHero from '../components/project/ProjectHero.astro';
 import ReadingProgress from '../components/project/ReadingProgress.astro';
 import TitleStrip from '../components/project/TitleStrip.astro';
 import Tldr from '../components/project/Tldr.astro';
-import { projectHref, vtNames, vtStyle, type Project } from '../components/project/projects';
+import { pageHref, vtNames, vtStyle, type Project } from '../components/project/projects';
 import { site } from '../data/site';
 import BaseLayout from './BaseLayout.astro';
 
@@ -51,6 +53,7 @@ interface Props {
 
 const { entry, prev, next } = Astro.props;
 const { id, data } = entry;
+const isRole = data.kind === 'role';
 const vt = vtNames(id);
 
 const heroIsPlaceholder = !data.video && !data.poster;
@@ -58,20 +61,32 @@ const heroIsPlaceholder = !data.video && !data.poster;
 // Per-project social image if one was generated (public/og/<id>.png), else the default.
 const ogImage = existsSync(join(process.cwd(), 'public', 'og', `${id}.png`)) ? `/og/${id}.png` : undefined;
 
-const pageUrl = new URL(projectHref(id), Astro.site ?? site.url).href;
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'CreativeWork',
-  name: data.title,
-  headline: data.title,
-  description: data.oneLiner,
-  dateCreated: data.year,
-  keywords: data.tags.join(', '),
-  url: pageUrl,
-  image: new URL(ogImage ?? '/og/default.png', Astro.site ?? site.url).href,
-  // The Person node every page carries (BaseLayout), by @id.
-  author: { '@type': 'Person', '@id': `${site.url}/#person`, name: site.name, url: site.url },
-};
+const pageUrl = new URL(pageHref(entry), Astro.site ?? site.url).href;
+const imageUrl = new URL(ogImage ?? '/og/default.png', Astro.site ?? site.url).href;
+// The Person node every page carries (BaseLayout), by @id.
+const person = { '@type': 'Person', '@id': `${site.url}/#person`, name: site.name, url: site.url };
+const jsonLd = isRole
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: `${data.myPart ?? data.shortTitle} · ${data.context}`,
+      description: data.oneLiner,
+      url: pageUrl,
+      image: imageUrl,
+      about: person,
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'CreativeWork',
+      name: data.title,
+      headline: data.title,
+      description: data.oneLiner,
+      dateCreated: data.year,
+      keywords: data.tags.join(', '),
+      url: pageUrl,
+      image: imageUrl,
+      author: person,
+    };
 
 // `blocking` is a valid <link> attribute that Astro's JSX types don't list yet:
 // typed as {} so the spread type-checks, while the attribute is still rendered.
@@ -84,7 +99,7 @@ const renderBlocking = { blocking: 'render' } as {};
   accent={data.accent}
   accentInk={data.accentInk}
   ogImage={ogImage}
-  ogImageAlt={`Project card: ${data.title} (${data.metric})`}
+  ogImageAlt={`${isRole ? 'Card' : 'Project card'}: ${data.title} (${data.metric})`}
   ogType="article"
   pageClass="page-project"
 >
@@ -112,7 +127,7 @@ const renderBlocking = { blocking: 'render' } as {};
           <MetaRow data={data} class="project__meta" />
         </div>
 
-        <Tldr class="project__tldr" tldr={data.tldr} solo={/^solo$/i.test(data.team)} />
+        <Tldr class="project__tldr" tldr={data.tldr} solo={/^solo$/i.test(data.team)} kind={data.kind} />
 
         <p class="project__lead serif"><Emph text={data.lead} /></p>
 

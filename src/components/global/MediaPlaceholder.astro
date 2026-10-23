@@ -2,32 +2,62 @@
 /**
  * MediaPlaceholder (DESIGN §5.19): visible stand-in until Alexandros provides
  * the real photo/video (docs/DECISIONS.md: placeholders stay visible).
- * Dashed ink border, 45° accent hatching, mono label "MEDIA NEEDED · <label>".
+ * Dashed ink border, 45° accent hatching, a line drawing of what is coming
+ * (src/assets/sketches/<sketch>.svg, inlined so its accent parts follow the
+ * page accent) and a mono tag "COMING SOON · <label>".
  *
- *   <MediaPlaceholder label="Guide-dog walking video · landscape ≥1600px" />
- *   <MediaPlaceholder label="Lab photo" aspect="16/9" />
- *   <MediaPlaceholder label="Portrait" aspect="3/4" class="my-arch" />
+ *   <MediaPlaceholder label="Lab photo" />                       (drawing picked from the label)
+ *   <MediaPlaceholder label="Walking video" aspect="16/9" />      (→ the video drawing)
+ *   <MediaPlaceholder label="Award photos" sketch="award" />
+ *   <MediaPlaceholder label="Rocket landing recording" variant="band" />   (slim gallery band)
  *
  * `aspect` is any CSS aspect-ratio value. Pass aspect="auto" to fill a parent
- * that already has a size. The hatching uses the nearest --accent, so it
- * follows per-tile accents too.
+ * that already has a size. `variant="band"` puts a small drawing beside the
+ * tag (for short, wide boxes). `sketch={false}` drops the drawing. The
+ * hatching uses the nearest --accent, so it follows per-tile accents too.
  * Styles: src/styles/components.css (.media-ph*).
  */
 import type { HTMLAttributes } from 'astro/types';
+import { sketchFor, type Sketch } from './sketches';
 
 interface Props extends HTMLAttributes<'div'> {
   label: string;
   aspect?: string;
   /** Prefix of the label. */
   kicker?: string;
+  /** Line drawing; default: picked from the label (video / plot / photo). */
+  sketch?: Sketch | false;
+  variant?: 'card' | 'band';
   class?: string;
 }
 
-const { label, aspect = '4/3', kicker = 'Media needed', class: className, ...rest } = Astro.props;
+const {
+  label,
+  aspect = '4/3',
+  kicker = 'Coming soon',
+  sketch,
+  variant = 'card',
+  class: className,
+  ...rest
+} = Astro.props;
+
+const drawings = import.meta.glob<string>('/src/assets/sketches/*.svg', { query: '?raw', import: 'default', eager: true });
+const name = sketch === false ? null : (sketch ?? sketchFor(label));
+// Inline the drawing: drop the file comment and the root's fixed size (the
+// shapes keep theirs), mark it decorative.
+const svg = name
+  ? drawings[`/src/assets/sketches/${name}.svg`]
+      ?.replace(/<!--[\s\S]*?-->\s*/g, '')
+      .replace(/<svg\b[^>]*>/, (tag) =>
+        tag
+          .replace(/\s(width|height)="\d+"/g, '')
+          .replace('<svg ', '<svg class="media-ph__sketch" aria-hidden="true" focusable="false" '),
+      )
+  : undefined;
 ---
 
 <div
-  class:list={['media-ph', className]}
+  class:list={['media-ph', `media-ph--${variant}`, className]}
   style={`--aspect: ${aspect}`}
   role="img"
   aria-label={`Placeholder: ${kicker.toLowerCase()}, ${label}`}
@@ -35,9 +65,12 @@ const { label, aspect = '4/3', kicker = 'Media needed', class: className, ...res
 >
   <span class="media-ph__corner media-ph__corner--tl" aria-hidden="true"></span>
   <span class="media-ph__corner media-ph__corner--br" aria-hidden="true"></span>
-  <span class="media-ph__label" aria-hidden="true">
-    <span class="media-ph__kicker">{kicker}</span>
-    <span class="media-ph__sep">·</span>
-    <span class="media-ph__text">{label}</span>
+  <span class="media-ph__inner" aria-hidden="true">
+    {svg && <span class="media-ph__art" set:html={svg} />}
+    <span class="media-ph__label">
+      <span class="media-ph__kicker">{kicker}</span>
+      <span class="media-ph__sep">·</span>
+      <span class="media-ph__text">{label}</span>
+    </span>
   </span>
 </div>

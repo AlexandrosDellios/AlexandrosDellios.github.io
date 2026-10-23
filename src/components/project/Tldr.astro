@@ -6,7 +6,10 @@
  * screen on phones. The values are 15px at every width: this is the text a
  * skim reads, so it is never smaller on the small screen.
  *
- *   <Tldr tldr={data.tldr} solo={data.team === 'Solo'} />
+ *   <Tldr tldr={data.tldr} solo={data.team === 'Solo'} kind={data.kind} />
+ *
+ * Role pages (kind "role") label the same four lines Mission / My role /
+ * Status / Tools. A line without a value (e.g. no Stack) is left out.
  */
 import type { ProjectData } from './projects';
 
@@ -14,23 +17,25 @@ interface Props {
   tldr: ProjectData['tldr'];
   /** Solo projects say "What I built". */
   solo?: boolean;
+  kind?: ProjectData['kind'];
   class?: string;
 }
 
-const { tldr, solo = false, class: className } = Astro.props;
+const { tldr, solo = false, kind = 'project', class: className } = Astro.props;
+const role = kind === 'role';
 
 const rows = [
-  { label: 'Problem', value: tldr.problem },
-  { label: solo ? 'What I built' : 'What we built', value: tldr.built },
-  { label: 'Result', value: tldr.result, result: true },
-  { label: 'Stack', value: tldr.stack, mono: true },
-];
+  { label: role ? 'Mission' : 'Problem', value: tldr.problem },
+  { label: role ? 'My role' : solo ? 'What I built' : 'What we built', value: tldr.built },
+  { label: role ? 'Status' : 'Result', value: tldr.result, result: true },
+  { label: role ? 'Tools' : 'Stack', value: tldr.stack, mono: true },
+].filter((row) => row.value);
 ---
 
 <section class:list={['tldr', className]} aria-labelledby="tldr-title">
   <h2 id="tldr-title" class="tldr__title">
     <span>TL;DR</span>
-    <span class="tldr__count" aria-hidden="true">4 lines</span>
+    <span class="tldr__count" aria-hidden="true">{rows.length} lines</span>
   </h2>
   <dl class="tldr__list">
     {

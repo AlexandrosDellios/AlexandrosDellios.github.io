@@ -4,34 +4,36 @@
  * Group grid: 2 columns from 600px (also inside the 5-column right half of
  * the desktop "Experience | Toolbox" band, see pages/index.astro), 1 on
  * phones. Each group: mono label, the items as a flowing list, and
- * "Seen in →" links to the project pages that prove it (only slugs that
- * exist in the collection). No skill bars or percentages (DESIGN §11).
+ * "Seen in →" links to the project or role pages that prove it (only slugs
+ * that exist in the collection). No skill bars or percentages (DESIGN §11).
  * The parent provides the container / column; this section adds no gutters.
  */
 import type { CollectionEntry } from 'astro:content';
 import type { HTMLAttributes } from 'astro/types';
 import { site } from '../../data/site';
+import { pageHref } from '../project/projects';
 import SectionHead from './SectionHead.astro';
 
 interface Props extends HTMLAttributes<'section'> {
-  projects: CollectionEntry<'projects'>[];
+  /** Every project and role page ("seen in" may link to either). */
+  pages: CollectionEntry<'projects'>[];
   /** Stack the heading (when the section shares a row with another one). */
   stackHead?: boolean;
   class?: string;
 }
 
-const { projects, stackHead = false, class: className, ...rest } = Astro.props;
-const known = new Set(projects.map((p) => p.id));
+const { pages, stackHead = false, class: className, ...rest } = Astro.props;
+const hrefs = new Map(pages.map((p) => [p.id, pageHref(p)]));
 const pad2 = (n: number) => String(n).padStart(2, '0');
 ---
 
 <section class:list={['tb', className]} id="toolbox" aria-labelledby="toolbox-title" {...rest}>
-  <SectionHead index="05" label="Toolbox" id="toolbox-title" title="The *toolbox*" aside="From the CV and projects · linked to proof" stack={stackHead} />
+  <SectionHead index="05" label="Toolbox" id="toolbox-title" title="The *toolbox*" stack={stackHead} />
 
   <ul class="tb__grid" role="list">
     {
       site.toolbox.map((group, i) => {
-        const seen = (group.seenIn ?? []).filter((s) => known.has(s.slug));
+        const seen = (group.seenIn ?? []).filter((s) => hrefs.has(s.slug));
         return (
           <li class="tb__group">
             <h3 class="tb__label">
@@ -46,7 +48,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
               <p class="tb__seen">
                 <span class="tb__seen-label">Seen in</span>{' '}<span class="tb__seen-arrow" aria-hidden="true">→</span>{' '}
                 {seen.map((s, j) => [
-                  <a class="link-hl tb__seen-link" href={`/work/${s.slug}/`}>{s.label}</a>,
+                  <a class="link-hl tb__seen-link" href={hrefs.get(s.slug)}>{s.label}</a>,
                   j < seen.length - 1 ? ', ' : '',
                 ])}
               </p>

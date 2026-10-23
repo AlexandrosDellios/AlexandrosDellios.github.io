@@ -1,5 +1,5 @@
 ---
-# Featured project 1 · copy mirrored in docs/CONTENT.md (keep both in sync).
+# Selected work, tile 1 · copy mirrored in docs/CONTENT.md (keep both in sync).
 # Sources: CV "Deep-RL Quadruped Locomotion Controller" (claims, used as written)
 # + the team's course report via private/research/repo_Legged-Robot.json (method, numbers).
 title: "Quadruped locomotion with CPGs + deep RL"

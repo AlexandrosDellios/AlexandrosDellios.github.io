@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120">
+  <!-- Placeholder line drawing (docs/MEDIA.md, "Coming soon" sketches). Ink lines; the .acc parts take the page accent when inlined. Video frame with a play button and timeline. -->
+  <g fill="none" stroke="#151412" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="24" y="20" width="112" height="68" rx="6"/>
+    <path class="acc" d="M72 40v30l25-15z" fill="#E5501D" stroke="none"/>
+    <path d="M72 40v30l25-15z"/>
+    <path d="M24 103h112" stroke-opacity=".35"/>
+    <path class="acc-stroke" d="M24 103h44" stroke="#E5501D" stroke-width="4"/>
+    <circle cx="68" cy="103" r="4.5" fill="#F4EFE6"/>
+  </g>
+</svg>

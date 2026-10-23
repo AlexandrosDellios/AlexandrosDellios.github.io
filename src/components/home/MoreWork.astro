@@ -1,66 +1,72 @@
 ---
 /**
- * MoreWork (DESIGN §5.14, content plan §2.5), id="more-work" (target of the S3
- * statement pill). Compact table-like rows, no detail pages:
+ * MoreWork (DESIGN §5.14, content plan §2.5), id="more-work": "More projects",
+ * the projects that are not in Selected work (section "more" in their
+ * frontmatter). One table-like row per project, each linking to its page:
  *
- *   2026 │ Fly navigation in NeuroMechFly           │ CoBAR course    │ PYTHON · MUJOCO │ —
- *        │ one line …                               │ Team of 3       │                 │
+ *   2026 │ Polymander: a salamander robot that swims and walks →  │ COMPUTATIONAL MOTOR
+ *        │ one-liner …                                             │ CONTROL COURSE
+ *        │ [CPG] [SENSORY FEEDBACK] [MUJOCO (FARMS)]               │ TEAM OF 3
  *
- * Desktop: the row follows the SectionHead grid (year under "03 / MORE WORK"
- * in cols 1–3, title + line under the h2 from col 4). Rows with a thumbnail
- * get a preview card pinned in the year column, beside the row (CursorPreview,
- * data-preview-*). Phones: stacked, no previews.
- * Links: only when the item has one (private / teammate repos never do).
+ * Desktop: the row follows the SectionHead grid (year under "03 / MORE
+ * PROJECTS" in cols 1–3, title + line + tags under the h2 from col 4, the
+ * course and team on the right). The title link stretches over the whole row.
+ * Rows get a preview card of the project's poster pinned in the year column
+ * (CursorPreview, data-preview-*). Phones: stacked, no previews.
  */
+import type { CollectionEntry } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Chip from '../global/Chip.astro';
 import Icon from '../global/Icon.astro';
-import Segments from '../global/Segments.astro';
-import { site } from '../../data/site';
+import { projectHref } from '../project/projects';
 import SectionHead from './SectionHead.astro';
 
-const items = site.moreWork;
-const anyLink = items.some((item) => item.link);
-// "2026 · CoBAR course · Team of 3" → the year has its own column.
-const contextOf = (context: string, year: string) => context.replace(new RegExp(`^${year}\\s*·\\s*`), '');
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+}
+
+const { projects } = Astro.props;
+
+const rows = await Promise.all(
+  projects.map(async (p) => {
+    const still = p.data.tilePoster ?? p.data.poster;
+    const preview = still ? (await getImage({ src: still, width: 320, format: 'webp' })).src : undefined;
+    // Every project is at EPFL (the hero says so): "EPFL · CoBAR course" → "CoBAR course".
+    const context = p.data.context.replace(/^EPFL\s*·\s*/i, '');
+    return { p, preview, meta: [context, p.data.team] };
+  }),
+);
 ---
 
-<section class:list={['more container', anyLink && 'more--links']} id="more-work" aria-labelledby="more-title">
-  <SectionHead index="03" label="More work" id="more-title" title="Smaller and *earlier* work" size="sm" />
+<section class="more container" id="more-work" aria-labelledby="more-title">
+  <SectionHead index="03" label="More projects" id="more-title" title="More *projects*" size="sm" />
 
   <ol class="more__list" role="list">
     {
-      items.map((item) => (
+      rows.map(({ p, preview, meta }) => (
         <li
-          class:list={['more__row', item.thumb && 'has-preview']}
-          data-preview-src={item.thumb}
-          data-preview-label={item.thumb ? item.title : undefined}
-          data-preview-variant={item.thumb ? 'card' : undefined}
+          class:list={['more__row', preview && 'has-preview']}
+          data-preview-src={preview}
+          data-preview-label={preview ? p.data.shortTitle : undefined}
+          data-preview-variant={preview ? 'card' : undefined}
+          style={`--accent: ${p.data.accent}; --accent-ink: ${p.data.accentInk}`}
         >
-          <p class="more__year">{item.year}</p>
+          <p class="more__year">{p.data.year}</p>
           <div class="more__main">
-            <h3 class="more__title">{item.title}</h3>
-            <p class="more__line">{item.line}</p>
-          </div>
-          <p class="more__context"><Segments text={contextOf(item.context, item.year)} /></p>
-          <p class="more__stack">{item.stack}</p>
-          {anyLink && <p class="more__link">
-            {item.link ? (
-              <a
-                class="link-hl"
-                href={item.link.href}
-                target={item.link.external ? '_blank' : undefined}
-                rel={item.link.external ? 'noopener' : undefined}
-              >
-                {item.link.label}
-                {item.link.external && <Icon name="arrow-up-right" />}
-                {item.link.external && <span class="sr-only"> (opens in a new tab)</span>}
+            <h3 class="more__title">
+              <a class="more__link" href={projectHref(p.id)}>
+                {p.data.title}
+                <Icon name="arrow-right" class="more__arrow" />
               </a>
-            ) : (
-              <span class="more__nolink">
-                <span aria-hidden="true">—</span>
-                <span class="sr-only">No public link</span>
-              </span>
-            )}
-          </p>}
+            </h3>
+            <p class="more__line">{p.data.oneLiner}</p>
+            <ul class="more__tags cluster" role="list" aria-label="Topics">
+              {p.data.tags.map((tag) => <Chip as="li" text={tag} />)}
+            </ul>
+          </div>
+          <p class="more__context">
+            {meta.map((part, i) => [i > 0 && ' ', <span class="more__context-line">{part}</span>])}
+          </p>
         </li>
       ))
     }
@@ -90,9 +96,7 @@ const contextOf = (context: string, year: string) => context.replace(new RegExp(
   }
 
   .more__year,
-  .more__context,
-  .more__stack,
-  .more__link {
+  .more__context {
     font-family: var(--font-mono);
     font-weight: 500;
     font-size: var(--fs-label);
@@ -107,9 +111,65 @@ const contextOf = (context: string, year: string) => context.replace(new RegExp(
     color: var(--accent-ink);
   }
 
+  /* Course and team on their own lines (no " · " that could start a line). */
+  .more__context-line {
+    display: block;
+  }
+
+  /* Stacked rows (< 1024px): one meta line, "Course · Team of 3". Each part is
+     an unbreakable box and the dot is glued to the part before it, so a line
+     never starts with "·" and "Team of 3" never splits. */
+  @media (max-width: 1023.98px) {
+    .more__context-line {
+      display: inline-block;
+    }
+
+    .more__context-line:not(:last-child)::after {
+      content: '\a0·';
+    }
+  }
+
   .more__title {
     font-size: clamp(1.375rem, 1.15rem + 0.6vw, 1.75rem);
     line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  /* The title link covers the whole row (one link per row, its name is the title). */
+  .more__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .more__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .more__link:focus-visible {
+    outline: none;
+  }
+
+  .more__row:has(.more__link:focus-visible) {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .more__link :global(.more__arrow) {
+    display: inline-block;
+    width: 0.7em;
+    height: 0.7em;
+    margin-left: 0.3em;
+    vertical-align: -0.02em;
+    color: var(--accent-ink);
+    transition: transform 0.4s var(--ease-out-quart);
+  }
+
+  .more__row:hover :global(.more__arrow),
+  .more__row:has(.more__link:focus-visible) :global(.more__arrow) {
+    transform: translateX(4px);
   }
 
   .more__line {
@@ -119,15 +179,11 @@ const contextOf = (context: string, year: string) => context.replace(new RegExp(
     line-height: var(--lh-small);
   }
 
-  .more__link :global(a) {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-    min-height: 44px;
-  }
-
-  .more__nolink {
-    opacity: 0.6;
+  .more__tags {
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+    --cluster-gap: 0.35rem;
   }
 
   /* Desktop: the SectionHead grid (label cols 1–3, title from col 4); the
@@ -156,50 +212,25 @@ const contextOf = (context: string, year: string) => context.replace(new RegExp(
       transform: scaleX(1);
     }
 
-    .more__row.has-preview {
-      cursor: default;
-    }
-
     .more__year {
       grid-column: 1 / span 3;
     }
 
     .more__main {
-      grid-column: 4 / span 5;
+      grid-column: 4 / span 6;
     }
 
     .more__context {
-      grid-column: 9 / span 2;
-    }
-
-    .more__stack {
-      grid-column: 11 / span 2;
+      grid-column: 10 / -1;
       justify-self: end;
+      max-width: 22ch;
       text-align: right;
-    }
-
-    .more--links .more__main {
-      grid-column: 4 / span 4;
-    }
-
-    .more--links .more__context {
-      grid-column: 8 / span 2;
-    }
-
-    .more--links .more__stack {
-      grid-column: 10 / span 2;
-      justify-self: start;
-      text-align: left;
-    }
-
-    .more__link {
-      grid-column: 12 / span 1;
-      justify-self: end;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .more__row::before {
+    .more__row::before,
+    .more__link :global(.more__arrow) {
       transition: none;
     }
   }

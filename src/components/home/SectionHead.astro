@@ -3,19 +3,20 @@
  * SectionHead: the heading row every home section starts with.
  *
  *   ─────────────────────────────────────────────────────────────── hairline
- *   02 / WORK            Selected *work*                 6 projects · 2025–26
+ *   01 / NOW             What I’m doing *now*           RESEARCH & PROTOTYPING
  *   (mono label)         (serif h2, M4 line reveal)      (optional mono aside)
  *
- *   <SectionHead index="02" label="Work" id="work-title" title="Selected *work*" aside="6 projects" />
+ *   <SectionHead index="01" label="Now" id="now-title" title="What I’m doing *now*" aside="Research & prototyping" />
  *
  * - `title` follows the site convention: ONE phrase wrapped in *asterisks*
  *   renders as the serif italic (Emph.astro).
  * - The h2 carries data-reveal="lines" (M4, wired by scripts/core/reveal.ts);
  *   keep it to section headings only (≤ 8 per page).
  * - `aside` breaks only between its " · " segments (Segments.astro).
- * - `hint` is an extra aside segment for mouse users only ("hover to play"):
- *   shown under (hover: hover) and (pointer: fine), so touch screens never
- *   see an instruction they can't follow.
+ * - `hint` is a mono note for mouse users only ("hover to play"), on its own
+ *   line (under the aside, if there is one): shown under (hover: hover) and
+ *   (pointer: fine) from 600px, so touch screens never see an instruction
+ *   they can't follow.
  * - `size="sm"` is a quieter variant for secondary sections (More work).
  * - `stack` keeps label / title / aside stacked at every width (for sections
  *   that share a row with another section, e.g. Experience | Toolbox).
@@ -58,7 +59,13 @@ const { index, label, id, title, aside, hint, size = 'lg', stack = false, class:
     aside && (
       <p class="sh__aside">
         <Segments text={aside} />
-        {hint && <span class="sh__hint">{'\u00a0· '}<span class="seg">{hint}</span></span>}
+      </p>
+    )
+  }
+  {
+    hint && (
+      <p class="sh__aside sh__hint">
+        <span class="seg">{hint}</span>
       </p>
     )
   }
@@ -139,9 +146,10 @@ const { index, label, id, title, aside, hint, size = 'lg', stack = false, class:
     display: none;
   }
 
-  @media (hover: hover) and (pointer: fine) {
+  /* Hidden below 600px like every aside. */
+  @media (hover: hover) and (pointer: fine) and (min-width: 600px) {
     .sh__hint {
-      display: inline;
+      display: block;
     }
   }
 
@@ -178,12 +186,13 @@ const { index, label, id, title, aside, hint, size = 'lg', stack = false, class:
     }
 
     .sh:not(.sh--stack) .sh__title {
-      grid-column: 4 / span 7;
+      grid-column: 4 / span 6;
       max-width: none;
     }
 
+    /* Three columns: a short aside ("Research & prototyping") stays on one line. */
     .sh:not(.sh--stack) .sh__aside {
-      grid-column: 11 / -1;
+      grid-column: 10 / -1;
       align-self: end;
       justify-self: end;
       max-width: 30ch;

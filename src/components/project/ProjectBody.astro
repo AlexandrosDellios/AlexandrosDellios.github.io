@@ -21,13 +21,15 @@
  *   Notes  quieter credits text
  * If the body has no <h2> (or no pre-rendered HTML), it renders as one block.
  *
- * Media still to come (data.mediaNeeded): a slim band in the gallery. When
- * that would be the gallery's ONLY item, there is no numbered "Figures"
- * section at all: one "Coming soon: …" line closes the Notes instead.
+ * Media still to come: drawn "Coming soon" cards (data.soon) and a slim drawn
+ * band (data.mediaNeeded, unless the hero already shows it) in the gallery,
+ * which then exists even when it holds nothing else (DECISIONS 2026-10-23:
+ * every missing picture gets a drawn placeholder).
  */
 import { render } from 'astro:content';
 import ProjectGallery from './ProjectGallery.astro';
-import { publicLabel, splitSections, type Project } from './projects';
+import { sketchFor } from '../global/sketches';
+import { splitSections, type Project } from './projects';
 
 interface Props {
   entry: Project;
@@ -49,14 +51,28 @@ const insertAt = notesAt === -1 ? sections.length : notesAt;
 
 const hasVideos = data.extraVideos.length > 0;
 const hasFigures = data.figures.length > 0;
+const hasSoonCards = data.soon.length > 0;
 const hasSoon = showSoon && Boolean(data.mediaNeeded);
-// Only a placeholder to show: a line under the Notes, not a whole section.
-const soonOnly = hasSoon && !hasVideos && !hasFigures;
-const hasGallery = hasVideos || hasFigures;
-const soonLine = soonOnly && data.mediaNeeded ? `Coming soon: ${publicLabel(data.mediaNeeded)}.` : null;
-const lastIndex = sections.length - 1;
+const hasGallery = hasVideos || hasFigures || hasSoonCards || hasSoon;
 // One italic phrase per heading, like the Markdown sections (The *approach*, *Notes*).
-const galleryTitle = hasVideos ? (hasFigures ? 'Footage & *figures*' : '*Footage*') : '*Figures*';
+// Named after what the gallery holds, "Coming soon" placeholders included
+// (their drawing says what they are: a clip, a plot or a photo).
+const soonKinds = [
+  ...data.soon.map(sketchFor),
+  ...(hasSoon && data.mediaNeeded ? [data.sketch ?? sketchFor(data.mediaNeeded)] : []),
+];
+const clips = hasVideos || soonKinds.includes('video');
+const figs = hasFigures || soonKinds.includes('plot');
+const photos = soonKinds.some((k) => k !== 'video' && k !== 'plot');
+const galleryTitle = clips
+  ? figs
+    ? 'Footage & *figures*'
+    : photos
+      ? 'Photos & *footage*'
+      : '*Footage*'
+  : figs
+    ? '*Figures*'
+    : '*Photos*';
 const [galleryLead, galleryEm] = galleryTitle.split('*');
 ---
 
@@ -97,27 +113,16 @@ const [galleryLead, galleryEm] = galleryTitle.split('*');
   }
 
   {
-    sections.slice(insertAt).map((s, i) => (
+    sections.slice(insertAt).map((s) => (
       <section class:list={['pj-sec', `pj-sec--${s.kind}`]} aria-labelledby={s.id}>
         <div class="pj-sec__head">
           <h2 id={s.id} class="pj-sec__title" data-reveal="lines" set:html={s.titleHtml} />
         </div>
         <div class="pj-sec__body">
           <div class="pj-prose" set:html={s.html} />
-          {soonLine && insertAt + i === lastIndex && <p class="pj-soon">{soonLine}</p>}
         </div>
       </section>
     ))
-  }
-
-  {
-    soonLine && insertAt === sections.length && (
-      <div class="pj-sec pj-sec--intro">
-        <div class="pj-sec__body">
-          <p class="pj-soon">{soonLine}</p>
-        </div>
-      </div>
-    )
   }
 
   {
@@ -371,23 +376,4 @@ const [galleryLead, galleryEm] = galleryTitle.split('*');
     color: var(--ink-2);
   }
 
-  /* "Coming soon: …" (media still to come) at the end of the Notes. */
-  .pj-soon {
-    max-width: var(--measure);
-    margin-top: 1em;
-    padding: 0.6em 0.8em 0.55em;
-    border: 1px dashed var(--ink);
-    border-radius: var(--r-xs);
-    background: repeating-linear-gradient(
-      45deg,
-      color-mix(in srgb, var(--accent) 14%, transparent) 0 7px,
-      transparent 7px 16px
-    );
-    font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: var(--fs-label);
-    line-height: 1.5;
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
-  }
 </style>

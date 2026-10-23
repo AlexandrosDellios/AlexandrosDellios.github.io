@@ -14,14 +14,16 @@
  *   - names are only set when prev and next are different projects;
  *   - `data-vt-only` tells the view-transition script (BaseLayout) to drop a tile's
  *     names unless the navigation goes to that tile's page.
- * Phones: stacked full-width tiles. Hover/focus: the media corner morphs and
- * the arrow nudges (motion is decoration only; everything is always visible).
+ * Phones: stacked full-width tiles. Hover/focus: the card presses into its
+ * shadow and the arrow nudges (motion is decoration only; everything is
+ * always visible). The thumbnail is a small print (ink border, --r-print),
+ * like the home tiles.
  */
 import { Picture } from 'astro:assets';
 import Icon from '../global/Icon.astro';
 import {
   accentStyle,
-  projectHref,
+  pageHref,
   vtNames,
   vtStyle,
   widthsFor,
@@ -37,6 +39,11 @@ interface Props {
 
 const { prev, next, current } = Astro.props;
 
+// Role pages (BioRob, AI Team, Mediacom) cycle through each other and point back to Experience.
+const role = prev.data.kind === 'role' || next.data.kind === 'role';
+const noun = role ? 'role' : 'project';
+const all = role ? { href: '/#experience', label: 'All experience' } : { href: '/#work', label: 'All projects' };
+
 const distinct = prev.id !== next.id && prev.id !== current && next.id !== current;
 const tiles = (
   distinct ? [{ dir: 'prev' as const, entry: prev }, { dir: 'next' as const, entry: next }] : [{ dir: 'next' as const, entry: next }]
@@ -48,14 +55,14 @@ const tiles = (
     <nav class="pn" aria-labelledby="pn-title">
       <div class="pn__head">
         <h2 id="pn-title" class="pn__title">Keep browsing</h2>
-        <a class="pn__all link-hl" href="/#work">
-          All projects
+        <a class="pn__all link-hl" href={all.href}>
+          {all.label}
         </a>
       </div>
 
       <ul class="pn__list" role="list">
         {tiles.map(({ dir, entry }) => {
-          const href = projectHref(entry.id);
+          const href = pageHref(entry);
           const vt = vtNames(entry.id);
           const poster = entry.data.poster;
           return (
@@ -89,7 +96,7 @@ const tiles = (
                 <span class="pn-tile__body">
                   <span class="pn-tile__dir">
                     <Icon name="arrow-right" class="pn-tile__arrow" />
-                    {dir === 'prev' ? 'Previous project' : 'Next project'}
+                    {dir === 'prev' ? `Previous ${noun}` : `Next ${noun}`}
                   </span>
                   <span
                     class="pn-tile__title"
@@ -163,7 +170,6 @@ const tiles = (
 
   /* ---- Tile ------------------------------------------------------------------ */
   .pn-tile {
-    --tile-r: clamp(1rem, 2.6vw, 2rem);
     display: grid;
     grid-template-columns: minmax(6.5rem, 38%) minmax(0, 1fr);
     gap: clamp(0.875rem, 2vw, 1.5rem);
@@ -171,7 +177,7 @@ const tiles = (
     height: 100%;
     padding: clamp(0.625rem, 1.2vw, 0.875rem);
     border: 1px solid var(--ink);
-    border-radius: var(--tile-r) var(--tile-r) var(--tile-r) 0;
+    border-radius: var(--r-sm);
     background: var(--paper-2);
     color: var(--ink);
     text-decoration: none;
@@ -180,10 +186,6 @@ const tiles = (
       transform var(--dur-ui) ease,
       box-shadow var(--dur-ui) ease,
       background-color var(--dur-ui) ease;
-  }
-
-  .pn-tile--next {
-    border-radius: var(--tile-r) var(--tile-r) 0 var(--tile-r);
   }
 
   .pn-tile:hover,
@@ -199,21 +201,15 @@ const tiles = (
     place-items: center;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    border-radius: calc(var(--tile-r) * 0.6) calc(var(--tile-r) * 0.6) calc(var(--tile-r) * 0.6) 0;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--r-print);
     background: var(--accent);
-    transition: border-radius 0.4s 0.05s var(--ease-out-quart);
   }
 
   .pn-tile__media :global(.pn-tile__img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  /* M6-style corner morph on hover / focus. */
-  .pn-tile:hover .pn-tile__media,
-  .pn-tile:focus-visible .pn-tile__media {
-    border-radius: 0 45% 45% 45%;
   }
 
   .pn-tile__word {
@@ -282,18 +278,11 @@ const tiles = (
 
     .pn-tile--next .pn-tile__media {
       order: 2;
-      border-radius: calc(var(--tile-r) * 0.6) calc(var(--tile-r) * 0.6) 0 calc(var(--tile-r) * 0.6);
-    }
-
-    .pn-tile--next:hover .pn-tile__media,
-    .pn-tile--next:focus-visible .pn-tile__media {
-      border-radius: 45% 0 45% 45%;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pn-tile,
-    .pn-tile__media {
+    .pn-tile {
       transition-duration: 0.01s;
     }
   }

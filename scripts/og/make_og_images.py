@@ -6,7 +6,8 @@ Per-project social preview images (og:image / twitter:image), 1200x630.
     python3 scripts/og/make_og_images.py polymander # one project
     python3 scripts/og/make_og_images.py default    # the site-wide card only
 
-Writes public/og/<slug>.png for every src/content/projects/<slug>.md, and
+Writes public/og/<slug>.png for every src/content/projects/<slug>.md (projects
+and the role pages), and
 public/og/default.png (home and every page without its own card): the giant
 two-line name in orange, the byline, and the focus areas (FOCUS below; keep
 them in step with site.rolesStatic in src/data/site.ts).
@@ -19,8 +20,10 @@ Look (same family as public/og/default.png, "Lab Poster"):
     the site URL and the 2x2 gait mark top right;
   - the project title in Instrument Serif, the metric as a mono chip and the
     year · team line on the left;
-  - the poster on the right, cropped to 4:3 with the project's `focus`, three
-    round corners and one sharp corner (like the home tiles);
+  - the poster on the right, cropped to 4:3 with the project's `focus`, as a
+    "print card" (2px ink border, hard ink shadow down-left, like the home
+    tiles); a page without a poster shows its `sketch` drawing there instead
+    (src/assets/sketches/, rendered with scripts/media/render_svg.py);
   - the shortWord as a giant Anton word in the project accent along the bottom.
 Rendered at 2x and downsampled with Lanczos for clean edges.
 
@@ -31,6 +34,7 @@ Glyphs the latin subsets lack (✓ → ≈ …) fall back to a macOS system font
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 import tempfile
 from functools import lru_cache
@@ -38,19 +42,21 @@ from pathlib import Path
 
 import yaml
 from fontTools.ttLib import TTFont
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
 PROJECTS = ROOT / "src/content/projects"
+SKETCHES = ROOT / "src/assets/sketches"
 OUT = ROOT / "public/og"
 NM = ROOT / "node_modules"
 
 W, H, S = 1200, 630, 2  # output size and supersampling factor
+MAX_BYTES = 250_000  # larger cards are re-saved with 256 colours
 
 PAPER = "#F4EFE6"
+PAPER_2 = "#EBE4D8"
 INK = "#151412"
 INK_2 = "#5E5850"
-LINE = "#CCC7C0"  # --line: ink at 18% on paper
 SITE = "ALEXANDROSDELLIOS.COM"
 BYLINE = "Alexandros Dellios · Robotics M.Sc. · EPFL"
 ACCENT = "#E5501D"  # site default --accent (actuator orange)
@@ -176,13 +182,31 @@ def crop_4_3(img: Image.Image, focus: str) -> Image.Image:
     return img.crop((x0, y0, x0 + cw, y0 + ch))
 
 
-def tile_mask(size: tuple[int, int], r: int) -> Image.Image:
-    """Rounded rectangle with a sharp bottom-left corner (the tiles' exposed corner)."""
+def print_mask(size: tuple[int, int], r: int) -> Image.Image:
+    """The print card's shape (radius 0 = square corners, like --r-print)."""
     m = Image.new("L", size, 0)
-    d = ImageDraw.Draw(m)
-    d.rounded_rectangle((0, 0, size[0] - 1, size[1] - 1), radius=r, fill=255)
-    d.rectangle((0, size[1] - r, r, size[1] - 1), fill=255)
+    ImageDraw.Draw(m).rounded_rectangle((0, 0, size[0] - 1, size[1] - 1), radius=r, fill=255)
     return m
+
+
+def sketch_board(name: str, size: tuple[int, int], accent: str) -> Image.Image:
+    """A "Coming soon" board for pages without a poster: the sketch on paper-2,
+    its accent details (drawn in the site orange) recoloured to the page accent."""
+    board = Image.new("RGBA", size, PAPER_2)
+    svg = Path(_tmp) / f"sketch-{name}-{accent[1:]}.svg"
+    out = svg.with_suffix(".png")
+    if not out.exists():
+        svg.write_text((SKETCHES / f"{name}.svg").read_text(encoding="utf-8").replace(ACCENT, accent), encoding="utf-8")
+        subprocess.run(
+            [sys.executable, str(ROOT / "scripts/media/render_svg.py"), str(svg), str(out), "800", PAPER_2[1:]],
+            check=True,
+            capture_output=True,
+        )
+    art = Image.open(out).convert("RGBA")
+    w = round(size[0] * 0.6)
+    art = art.resize((w, round(art.height * w / art.width)), Image.LANCZOS)
+    board.alpha_composite(art, ((size[0] - art.width) // 2, (size[1] - art.height) // 2))
+    return board
 
 
 # ---- render ------------------------------------------------------------------------
@@ -208,22 +232,20 @@ def render(slug: str, fm: dict, md: Path) -> Path:
     ph = 318
     pw = round(ph * 4 / 3)
     px, py = W - pad - pw, 108  # bottom at 426: clear of the giant word's cap line (~449)
+    board = None
     if fm.get("poster"):
         poster = Image.open((md.parent / fm["poster"]).resolve()).convert("RGBA")
         poster = crop_4_3(poster, fm.get("focus", "50% 50%")).resize((s(pw), s(ph)), Image.LANCZOS)
         board = Image.new("RGBA", poster.size, accent)  # accent shows through transparent posters
         board.alpha_composite(poster)
-        mask = tile_mask(board.size, s(44))
-        img.paste(board.convert("RGB"), (s(px), s(py)), mask)
-        # Hairline along the tile shape, so posters drawn on paper (Uno, glider) keep their outline.
-        # Inner band = the shape minus the shape eroded by S px (1 px at 1x). The mask is
-        # padded first so the straight edges erode too (the filter clamps at the image edge).
-        m = 2 * S
-        padded = Image.new("L", (mask.width + 2 * m, mask.height + 2 * m), 0)
-        padded.paste(mask, (m, m))
-        eroded = padded.filter(ImageFilter.MinFilter(2 * S + 1))
-        ring = ImageChops.subtract(padded, eroded).crop((m, m, m + mask.width, m + mask.height))
-        img.paste(Image.new("RGB", mask.size, LINE), (s(px), s(py)), ring)
+    elif fm.get("sketch"):
+        board = sketch_board(fm["sketch"], (s(pw), s(ph)), accent)
+    if board is not None:
+        # Print card: square corners (--r-print: 0), hard ink shadow down-left, a 2px ink border.
+        r, off = 0, 8
+        d.rounded_rectangle((s(px - off), s(py + off), s(px + pw - off), s(py + ph + off)), radius=r, fill=INK)
+        img.paste(board.convert("RGB"), (s(px), s(py)), print_mask(board.size, r))
+        d.rounded_rectangle((s(px), s(py), s(px + pw) - 1, s(py + ph) - 1), radius=r, outline=INK, width=s(2))
 
     # Title (serif), metric chip, meta line on the left.
     col_w = px - pad - 40
@@ -255,7 +277,12 @@ def render(slug: str, fm: dict, md: Path) -> Path:
     draw_text(d, (s(pad - 4), s(H - 30)), word, "anton", s(fs), accent)
 
     out = OUT / f"{slug}.png"
-    img.resize((W, H), Image.LANCZOS).save(out, optimize=True)
+    final = img.resize((W, H), Image.LANCZOS)
+    final.save(out, optimize=True)
+    # Photo-heavy cards: 256 colours keep the file under ~250 KB (some apps drop
+    # link-preview images around 300 KB).
+    if out.stat().st_size > MAX_BYTES:
+        final.quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.FLOYDSTEINBERG).save(out, optimize=True)
     return out
 
 

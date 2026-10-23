@@ -15,7 +15,8 @@
  *           `clickToPlay` clips only start from the button). Very wide clips
  *           (> 3:1, e.g. three panels side by side) get their play button and
  *           a "Full size ↗" link to the MP4 under the frame instead of on it.
- *   soon    a slim "Coming soon · <label>" band (media still to come); the
+ *   soon    media still to come: a slim "Coming soon · <label>" band, or with
+ *           `card` a full-size drawn placeholder (role pages' `soon` list); the
  *           label is the whole message, so there is no caption
  *
  * Layouts (chosen by ProjectGallery from the media's aspect ratio):
@@ -27,6 +28,7 @@ import { getImage, Picture } from 'astro:assets';
 import LoopVideo from '../global/LoopVideo.astro';
 import MediaPlaceholder from '../global/MediaPlaceholder.astro';
 import VideoToggle from '../global/VideoToggle.astro';
+import type { Sketch } from '../global/sketches';
 import { widthsFor } from './projects';
 
 export type GalleryItem =
@@ -51,6 +53,9 @@ export type GalleryItem =
   | {
       type: 'soon';
       label: string;
+      /** A full-size drawn card (in `ratio`) instead of the slim band. */
+      card?: boolean;
+      sketch?: Sketch;
       ratio: { css: string; n: number };
     };
 
@@ -96,10 +101,15 @@ const videoId =
 ---
 
 <figure
-  class:list={['fig', `fig--${layout}`, `fig--${item.type}`, isSvg && 'fig--svg']}
+  class:list={[
+    'fig',
+    `fig--${layout}`,
+    item.type === 'soon' && item.card ? 'fig--soon-card' : `fig--${item.type}`,
+    isSvg && 'fig--svg',
+  ]}
   data-video-hover={item.type === 'video' && !item.clickToPlay ? '' : undefined}
 >
-  <div class="fig__media" style={item.type === 'soon' ? undefined : `--fig-ratio: ${item.ratio.css}`}>
+  <div class="fig__media" style={item.type === 'soon' && !item.card ? undefined : `--fig-ratio: ${item.ratio.css}`}>
     {
       item.type === 'figure' ? (
         isSvg ? (
@@ -139,7 +149,13 @@ const videoId =
           manual={item.clickToPlay}
         />
       ) : (
-        <MediaPlaceholder label={item.label} kicker="Coming soon" aspect="auto" class="fig__soon" />
+        <MediaPlaceholder
+          label={item.label}
+          aspect="auto"
+          sketch={item.sketch}
+          variant={item.card ? 'card' : 'band'}
+          class="fig__soon"
+        />
       )
     }
   </div>
@@ -235,6 +251,17 @@ const videoId =
 
   .fig--soon :global(.fig__soon) {
     min-height: 6rem;
+    height: 100%;
+  }
+
+  /* Drawn "Coming soon" card: a full-size placeholder in the media's ratio. */
+  .fig--soon-card .fig__media {
+    aspect-ratio: var(--fig-ratio);
+    border: 0;
+    background: none;
+  }
+
+  .fig--soon-card :global(.fig__soon) {
     height: 100%;
   }
 

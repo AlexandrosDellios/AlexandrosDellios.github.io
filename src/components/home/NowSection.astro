@@ -1,7 +1,8 @@
 ---
 /**
  * NowSection (DESIGN §4 "Now", content plan §2.3): two cards side by side
- * (6 + 6 columns on desktop, stacked below 1024px). Data: site.now.
+ * (6 + 6 columns on desktop, stacked below 1024px). Data: site.now. Each card
+ * links to its role page (/experience/<slug>/).
  * Sits right under the hero so its top peeks into the first screen.
  */
 import { site } from '../../data/site';
@@ -10,7 +11,7 @@ import SectionHead from './SectionHead.astro';
 ---
 
 <section class="now container" id="now" aria-labelledby="now-title">
-  <SectionHead index="01" label="Now" id="now-title" title="What I’m doing *now*" aside="Research · robot learning · Lausanne" />
+  <SectionHead index="01" label="Now" id="now-title" title="What I’m doing *now*" aside="Research & prototyping" />
   <div class="now__grid">
     {site.now.map((card, i) => <NowCard card={card} index={i} class="now__card" />)}
   </div>

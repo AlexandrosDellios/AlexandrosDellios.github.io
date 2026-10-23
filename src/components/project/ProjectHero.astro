@@ -12,7 +12,7 @@
  *   2. data.poster  optimised <Picture> (AVIF + WebP). Posters whose alt text
  *                   starts with "Illustration:" / "Diagram:" get that word as
  *                   a chip, so a drawing is never mistaken for a result.
- *   3. otherwise    MediaPlaceholder with data.mediaNeeded.
+ *   3. otherwise    MediaPlaceholder with data.mediaNeeded and the data.sketch drawing.
  *
  * Frame size: the media's own aspect ratio (video: its first-frame poster in
  * public/; image: the poster), capped by the viewport height and by 1.5× the
@@ -117,7 +117,12 @@ const fullSize =
           pictureAttributes={{ class: 'pj-hero__media' }}
         />
       ) : (
-        <MediaPlaceholder label={data.mediaNeeded ?? 'Project footage'} aspect="auto" class="pj-hero__media" />
+        <MediaPlaceholder
+          label={data.mediaNeeded ?? 'Project footage'}
+          aspect="auto"
+          sketch={data.sketch}
+          class="pj-hero__media"
+        />
       )
     }
     {kind && mode !== 'placeholder' && <span class="chip chip--metric pj-hero__kind" aria-hidden="true">{kind}</span>}
@@ -142,8 +147,8 @@ const fullSize =
     place-items: center;
     padding: clamp(1rem, 4.5vw, 4.5rem);
     background: var(--accent);
-    /* Three round corners, one exposed (DESIGN §3.3 tile shape). */
-    border-radius: var(--r-tile) var(--r-tile) var(--r-tile) 0;
+    /* The board the print is pinned to (same print language as the home tiles). */
+    border-radius: var(--r-sm);
   }
 
   @supports (height: 1svh) {
@@ -158,7 +163,7 @@ const fullSize =
     aspect-ratio: var(--ratio);
     overflow: hidden;
     border: var(--border-2);
-    border-radius: var(--r-sm);
+    border-radius: var(--r-print);
     background: var(--paper-2);
     /* A print pinned to the board: hard ink offset, never blurred. */
     box-shadow: -6px 6px 0 0 var(--ink);

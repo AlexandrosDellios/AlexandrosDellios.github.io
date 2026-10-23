@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120">
+  <!-- Placeholder line drawing (docs/MEDIA.md, "Coming soon" sketches). Ink lines; the .acc parts take the page accent when inlined. Quadruped robot with a guide-dog handle. -->
+  <g fill="none" stroke="#151412" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 101h124" stroke-dasharray="3 6" stroke-opacity=".5"/>
+    <path d="M58 64l-6 17 6 17M98 64l7 18-7 16" stroke-opacity=".4"/>
+    <rect x="40" y="44" width="72" height="24" rx="8"/>
+    <rect x="112" y="38" width="20" height="15" rx="4"/>
+    <circle class="acc" cx="126" cy="45" r="2.5" fill="#E5501D" stroke="none"/>
+    <path d="M50 66l-8 17 7 15M104 66l9 17-8 15"/>
+    <path d="M60 44l6-18h18l6 18"/>
+    <path class="acc-stroke" d="M64 30h22" stroke="#E5501D" stroke-width="3"/>
+  </g>
+</svg>

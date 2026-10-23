@@ -1,8 +1,11 @@
 /**
- * Build-time helpers for the project pages (/work/<id>/).
+ * Build-time helpers for the detail pages: projects (/work/<id>/) and roles (/experience/<id>/).
  * Everything here runs in Node during `astro build` / `astro dev` (never in the browser).
  *
- *   getProjects()          real projects, sorted by `order` (ids starting with "_" are stubs: skipped)
+ *   getProjects()          projects (kind "project"), sorted by section (featured first), then `order`
+ *                          (ids starting with "_" are stubs: skipped)
+ *   getRoles()             roles (kind "role": BioRob, AI Team, Mediacom), sorted by `order`
+ *   pageHref(entry)        canonical URL of a page (/work/<id>/ or /experience/<id>/)
  *   projectHref(id)        canonical URL of a project page
  *   vtNames(id)            the shared view-transition names (contract with the home tiles)
  *   accentStyle(data)      inline `--accent` / `--accent-ink` for a tile in another project's colour
@@ -20,13 +23,25 @@ export type ProjectData = Project['data'];
 
 /* ---- Collection ------------------------------------------------------------- */
 
-/** All publishable projects in grid order. Ids starting with "_" are stubs. */
+const byOrder = (a: Project, b: Project) => a.data.order - b.data.order || a.id.localeCompare(b.id);
+const SECTION_RANK = { featured: 0, more: 1 } as const;
+
+/** All publishable projects: Selected work in grid order, then More projects. Ids starting with "_" are stubs. */
 export async function getProjects(): Promise<Project[]> {
-  const entries = await getCollection('projects', ({ id }) => !id.startsWith('_'));
-  return entries.sort((a, b) => a.data.order - b.data.order || a.id.localeCompare(b.id));
+  const entries = await getCollection('projects', ({ id, data }) => !id.startsWith('_') && data.kind === 'project');
+  return entries.sort((a, b) => SECTION_RANK[a.data.section] - SECTION_RANK[b.data.section] || byOrder(a, b));
+}
+
+/** The role pages (Now cards and Experience rows), in `order`. */
+export async function getRoles(): Promise<Project[]> {
+  const entries = await getCollection('projects', ({ id, data }) => !id.startsWith('_') && data.kind === 'role');
+  return entries.sort(byOrder);
 }
 
 export const projectHref = (id: string): string => `/work/${id}/`;
+export const roleHref = (id: string): string => `/experience/${id}/`;
+export const pageHref = (entry: Pick<Project, 'id' | 'data'>): string =>
+  entry.data.kind === 'role' ? roleHref(entry.id) : projectHref(entry.id);
 
 /**
  * View-transition names shared with the home tiles (DESIGN M8):

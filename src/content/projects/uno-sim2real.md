@@ -1,12 +1,12 @@
 ---
-# Featured project 4 · copy mirrored in docs/CONTENT.md (keep both in sync).
+# Selected work, tile 3 · copy mirrored in docs/CONTENT.md (keep both in sync).
 # Sources: CV "Image Processing for Uno Cards" (claims, used as written: 12M params,
 # detect and count, 75% on a Kaggle dataset) + code via private/research/repo_Uno-cards.json.
 # Private repo with a course-competition solution: never link it, never show the course photos.
 title: "Reading an Uno table from a single photo"
 shortTitle: "Uno sim-to-real"
 shortWord: "UNO"
-order: 4
+order: 3
 year: "2026"
 context: "EPFL · In-class Kaggle competition"
 team: "Team project" # size not confirmed yet: see docs/QUESTIONS.md

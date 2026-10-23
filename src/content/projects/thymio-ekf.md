@@ -1,12 +1,12 @@
 ---
-# Featured project 5 · copy mirrored in docs/CONTENT.md (keep both in sync).
+# Selected work, tile 4 · copy mirrored in docs/CONTENT.md (keep both in sync).
 # Not on the CV (it backs the CV skills "Extended Kalman Filter" and "OpenCV").
 # Sources: the team's report notebook and code via private/research/repo_Autonomous-Thymio.json.
 # Alexandros's part (state estimation) is stated in the team report. Vision and planning are teammates' work.
 title: "Autonomous Thymio: localization that survives a blindfold"
 shortTitle: "Thymio EKF"
 shortWord: "THYMIO"
-order: 5
+order: 4
 year: "2025"
 context: "EPFL · Basics of Mobile Robotics course"
 team: "Team of 4"

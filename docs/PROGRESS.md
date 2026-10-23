@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase:** 6 → 7. **Live at https://alexandrosdellios.com** (custom domain since 2026-10-21; first deployed 2026-10-20 at alexandrosdellios.github.io, which now redirects). Next: answers to docs/QUESTIONS.md and the user's real media (MEDIA.md §3).
+**Phase:** 7 (edits from Alexandros + real media). **Live at https://alexandrosdellios.com** (custom domain since 2026-10-21; first deployed 2026-10-20 at alexandrosdellios.github.io, which now redirects). Next: answers to docs/QUESTIONS.md and the user's real media (MEDIA.md §3).
 
 ## Roadmap
 
@@ -69,10 +69,24 @@
 - Kept on GitHub Pages for hosting (see DECISIONS).
 - HTTPS certificate issued (~2 min) and HTTPS enforced. Live checks: apex 200; `www`, `http://` and the old github.io URL all 301 to https://alexandrosdellios.com/; analytics beacon reports (204).
 - **New CV** (dropped into `public/` by Alexandros) published, and the site synced to it: BioRob Lab, EPFL Student AI Team, ROS 2 + C++ CAN bullet, Isaac Sim. Mediacom kept on the site; BioRob kept high-level (the CV's method bullet stays off the site).
+- Added the GitHub Pages **domain-verification TXT record** (`_github-pages-challenge-alexandrosdellios`) in Cloudflare. Do not delete it. Alexandros clicks Verify and sets his GitHub profile website himself: he doesn't grant Claude account-level GitHub access.
+
+### 2026-10-23: Session 3, first round of edits from Alexandros
+
+- **Hero:** the portrait's shoulder no longer pokes out past the orange arch at rest (the cut-out's top mask layer now stops at the arch's widest point). The ring and lime stickers sit on the arch's right edge on desktop and never cover the text; the tag sticker is a little narrower. Measured: no sticker/text overlap from 1024 to 2560 px.
+- **Header and asides:** no "06" on Work; Now aside "Research & prototyping"; Selected work only "hover to play"; no Toolbox aside.
+- **Tiles = "print cards"** (Alexandros's pick): ink border, near-square corners, hard shadow that grows as the card lifts on hover. Same language on the project hero, prev/next and the social cards (all regenerated).
+- **Selected work:** Quadruped, Glider, Uno, Thymio (4 tiles + 2 statements; the "Also on the bench" statement is gone). **More projects** (renamed): Polymander, Rocket MPC and a new **fly-navigation page**, each row linking to its page, tags as chips, course and team stacked (fixes the odd wrapping). The multi-robot cleanup simulator is removed.
+- **Role pages** at `/experience/<slug>/`: BioRob (CV level, simple), EPFL Student AI Team (Byte, Project docs link, photo, "Coming soon" walking video / Isaac Lab clip / build photos) and the Mediacom award. The Now cards and all three Experience rows link to them; every Experience row has a desktop hover preview.
+- **Drawn placeholders:** six line sketches (`src/assets/sketches/`) inside every "Coming soon" placeholder.
+- **Toolbox:** "Seen in" now also links AI Team (Hardware & embedded, Simulation & ROS) and the Mediacom award (CAD & fabrication).
+- **Footer:** "Built with Astro · Inspired by cydstumpel.nl".
+- Model: one content collection with `kind: project | role` and `section: featured | more` (CONTENT.md §9–§10, DESIGN.md amendments 2026-10-23, DECISIONS.md).
+- Checks: `npm run check` 0 errors, build 13 pages, 0 broken internal references; checked in the browser at 1440, 1024 and 390 (home, AI Team, BioRob, Mediacom, fly navigation). Then a six-lens review workflow (requests, code, accessibility, content rules, build/SEO, visual; 12 agents) with adversarial verification: 19 findings kept, 7 refuted. Fixed: the glider's missing media is now drawn cards (no more text-only "Coming soon" line anywhere); meta lines no longer start with "·" (Segments glue rewritten) and the Experience org no longer wraps with a leading "·"; "6-DOF" no longer splits; row preview cards are pointer-only and Escape closes previews; the hover hint hides in narrow windows; square print corners (Alexandros asked for square); three meta descriptions trimmed to ≤ 160; BioRob's Notes back to the approved footnote; social cards recolour the sketch accent and stay ≤ 250 KB; smaller a11y and doc fixes.
 
 ## Next
 
-1. Get Alexandros's answers to docs/QUESTIONS.md (local file): "my part" per team project, Uno solo/team + course, glider report/plots, Marco Odermatt mention, research-card illustration, spoken languages, CV PDF metadata, teammates' names in his repo READMEs.
-2. Swap placeholders for real media as it arrives in `Images/` (MEDIA.md §3: BioRob photo, award photos, glider plots/clip, rocket landing recording, Uno overlay, hi-res quadruped/Thymio videos, hi-res guide-dog photo). Re-run `python3 scripts/og/make_og_images.py <slug>` when a project's poster, title or metric changes.
+1. Get Alexandros's answers to docs/QUESTIONS.md (local file): "my part" per team project, Uno solo/team + course, glider report/plots, Marco Odermatt mention, research-card illustration, spoken languages, CV PDF metadata, teammates' names in his repo READMEs, and a read-through of the new fly-navigation and role pages (drafted from the code and the CV).
+2. Swap placeholders for real media as it arrives in `Images/` (MEDIA.md §3: BioRob photo, award photos + CAD render + fabrication, AI Team walking video / Isaac Lab clip / build photos, glider plots/clip, rocket landing recording, Uno overlay, hi-res quadruped/Thymio videos, hi-res guide-dog photo). Replace the page's `mediaNeeded` / `soon` entry when its media arrives. Re-run `python3 scripts/og/make_og_images.py <slug>` when a project's poster, title or metric changes.
 3. A quick real-device pass with **reduced motion**, **JavaScript off** and a **touch phone**, which the automated checks could not emulate.
 4. After any content or media change: `npm run build` locally, then commit and push to `main` (it deploys automatically). Re-run a QA review pass after big changes.

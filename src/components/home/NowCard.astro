@@ -14,6 +14,11 @@
  * Fills never carry small text (DESIGN §3.1): on the accent card all copy sits
  * on the paper panel. Phones stack media above the text.
  *
+ * Link: with `slug`, the title links to the role page (/experience/<slug>/)
+ * and the link stretches over the whole card; a "Read more →" cue closes the
+ * text (aria-hidden; the link's name is the title + "(read more)", so voice
+ * users can say either). A `link` pill sits above the stretched link.
+ *
  * Phones (< 600px) are kept short (the Now section must not push the work
  * grid down): the dark card's decorative art is hidden, the cut-out is
  * smaller, and `bodyShort` (when set) replaces `body`. Both texts are in the
@@ -32,7 +37,9 @@ import Chip from '../global/Chip.astro';
 import Emph from '../global/Emph.astro';
 import MediaPlaceholder from '../global/MediaPlaceholder.astro';
 import PillButton from '../global/PillButton.astro';
+import Segments from '../global/Segments.astro';
 import type { NowCard as NowCardData } from '../../data/site';
+import { roleHref } from '../project/projects';
 import TrajectoryArt from './TrajectoryArt.astro';
 
 interface Props extends HTMLAttributes<'article'> {
@@ -44,6 +51,7 @@ interface Props extends HTMLAttributes<'article'> {
 
 const { card, index, class: className, ...rest } = Astro.props;
 const titleId = `now-title-${index}`;
+const href = card.slug ? roleHref(card.slug) : undefined;
 
 // The pattern lists only files in use: every image a glob matches is emitted.
 const me = import.meta.glob<{ default: ImageMetadata }>('/src/assets/me/{guide-dog-cutout.png,guide-dog.jpg}', {
@@ -56,21 +64,29 @@ const imageAlt = card.imageAlt ?? '';
 ---
 
 <article
-  class:list={['now-card', `now-card--${card.variant}`, card.variant === 'dark' && 'on-dark', className]}
+  class:list={['now-card', `now-card--${card.variant}`, card.variant === 'dark' && 'on-dark', href && 'now-card--linked', className]}
   aria-labelledby={titleId}
   data-enter
   {...rest}
 >
   <div class="now-card__text">
-    <p class="now-card__kicker">{card.kicker}</p>
-    <h3 class="now-card__title" id={titleId}><Emph text={card.title} /></h3>
+    {/* Kicker and role lines break only between their " · " parts (Segments). */}
+    <p class="now-card__kicker"><Segments text={card.kicker} /></p>
+    <h3 class="now-card__title" id={titleId}>
+      {href ? (
+        <a class="now-card__stretch" href={href}><Emph text={card.title} /><span class="sr-only"> (read more)</span></a>
+      ) : (
+        <Emph text={card.title} />
+      )}
+    </h3>
     <p class:list={['now-card__body', card.bodyShort && 'now-card__body--full']}>{card.body}</p>
     {card.bodyShort && <p class="now-card__body now-card__body--short">{card.bodyShort}</p>}
-    <p class="now-card__role">{card.role}</p>
+    <p class="now-card__role"><Segments text={card.role} /></p>
     <ul class="now-card__tags cluster" role="list">
       {card.tags.map((tag) => <Chip as="li" text={tag} />)}
     </ul>
     {card.footnote && <p class="now-card__foot">{card.footnote}</p>}
+    {href && <p class="now-card__more" aria-hidden="true">Read more <span class="now-card__more-arrow">→</span></p>}
     {
       card.link && (
         <div class="now-card__link">
@@ -186,8 +202,73 @@ const imageAlt = card.imageAlt ?? '';
     line-height: 1.3;
   }
 
+  /* Above the card-wide link (z-index 2), so the pill keeps its own target. */
   .now-card__link {
+    position: relative;
+    z-index: 3;
     padding-left: 3px;
+  }
+
+  /* ---- Whole-card link (role page) ---------------------------------------------- */
+  .now-card__stretch {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .now-card__stretch::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .now-card__stretch:focus-visible {
+    outline: none;
+    background: none;
+  }
+
+  .now-card--linked:has(.now-card__stretch:focus-visible) {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+  }
+
+  .now-card__more {
+    margin-top: auto;
+    padding-top: 0.25rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  .now-card--dark .now-card__more {
+    color: var(--accent);
+  }
+
+  .now-card__more-arrow {
+    display: inline-block;
+    transition: transform 0.4s var(--ease-out-quart);
+  }
+
+  .now-card--linked:hover .now-card__more-arrow,
+  .now-card--linked:has(.now-card__stretch:focus-visible) .now-card__more-arrow {
+    transform: translateX(4px);
+  }
+
+  .now-card--linked:hover .now-card__title,
+  .now-card--linked:has(.now-card__stretch:focus-visible) .now-card__title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.12em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .now-card__more-arrow {
+      transition: none;
+    }
   }
 
   /* ---- Dark variant ------------------------------------------------------------ */

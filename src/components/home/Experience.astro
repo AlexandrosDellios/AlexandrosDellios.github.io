@@ -11,17 +11,20 @@
  * simple two-column grid (dates | content) rather than a 12-column table.
  * The parent provides the container / column; this section adds no gutters.
  *
- * Desktop hover: rows with an `image` (site.ts ExperienceItem.image, a key into
- * src/assets/me/) get a small tilted preview card pinned in the dates column,
- * just under the dates, so it never covers the text being read (CursorPreview,
- * data-preview-*). Rows without one get nothing (no
- * placeholders on the home page). Today only the EPFL Student AI Team row has approved
- * media: the guide-dog robot photo also used in the Now card.
+ * Rows with a `slug` link to their role page (/experience/<slug>/): the role
+ * title is the link and it stretches over the whole row.
+ *
+ * Desktop hover: a small tilted preview card pinned in the dates column, just
+ * under the dates, so it never covers the text being read (CursorPreview,
+ * data-preview-*). Rows with an `image` (a key into src/assets/me/) show that
+ * photo (the AI Team's guide-dog robot); rows with `mediaNeeded` + `sketch`
+ * show the drawn placeholder (src/assets/sketches/) captioned "Coming soon · …".
  */
 import type { ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
 import type { HTMLAttributes } from 'astro/types';
 import { site, type ExperienceItem } from '../../data/site';
+import { roleHref } from '../project/projects';
 import SectionHead from './SectionHead.astro';
 
 interface Props extends HTMLAttributes<'section'> {
@@ -39,12 +42,23 @@ const IMAGE_FILES: Record<NonNullable<ExperienceItem['image']>, string> = {
   'guide-dog': '/src/assets/me/guide-dog.jpg',
 };
 
+// Drawn placeholders, as plain image URLs (vector: nothing to optimise).
+const sketches = import.meta.glob<string>('/src/assets/sketches/{arm,award,photo}.svg', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+
 const previews = new Map<ExperienceItem, { src: string; label: string }>();
 for (const item of [...site.experience, ...site.education]) {
   const src = item.image ? me[IMAGE_FILES[item.image]]?.default : undefined;
-  if (!src) continue;
-  const img = await getImage({ src, width: 420, format: 'webp' });
-  previews.set(item, { src: img.src, label: item.imageLabel ?? `${item.role} · ${item.org}` });
+  if (src) {
+    const img = await getImage({ src, width: 420, format: 'webp' });
+    previews.set(item, { src: img.src, label: item.imageLabel ?? `${item.role} · ${item.org}` });
+    continue;
+  }
+  const sketch = item.mediaNeeded && item.sketch ? sketches[`/src/assets/sketches/${item.sketch}.svg`] : undefined;
+  if (sketch) previews.set(item, { src: sketch, label: `Coming soon · ${item.mediaNeeded}` });
 }
 
 const groups: { key: string; label: string; items: ExperienceItem[] }[] = [
@@ -73,8 +87,21 @@ const groups: { key: string; label: string; items: ExperienceItem[] }[] = [
                 <p class="xp__when">{item.when}</p>
                 <div class="xp__main">
                   <p class="xp__role">
-                    <span class="xp__role-title">{item.role}</span>
-                    <span class="xp__org">{item.org}</span>
+                    {/* The " ·" belongs to the title, so a wrapped org never starts a line with it. */}
+                    <span class="xp__head">
+                      {item.slug ? (
+                        <a class="xp__link xp__role-title" href={roleHref(item.slug)}>
+                          {item.role}
+                        </a>
+                      ) : (
+                        <span class="xp__role-title">{item.role}</span>
+                      )}
+                      <span class="xp__dot" aria-hidden="true">{'\u00a0·'}</span>
+                    </span>
+                    <span class="xp__org">
+                      {item.org}
+                      {item.slug && <span class="xp__arrow" aria-hidden="true">→</span>}
+                    </span>
                   </p>
                   <p class="xp__line">{item.line}</p>
                 </div>
@@ -145,6 +172,42 @@ const groups: { key: string; label: string; items: ExperienceItem[] }[] = [
     line-height: 1.1;
   }
 
+  /* The role title links to the role page and covers the whole row. */
+  .xp__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .xp__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .xp__link:focus-visible {
+    outline: none;
+  }
+
+  .xp__row:has(.xp__link:focus-visible) {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .xp__arrow {
+    display: inline-block;
+    margin-left: 0.25em;
+    font-family: var(--font-sans);
+    font-size: 0.75em;
+    color: var(--accent-ink);
+    transition: transform 0.4s var(--ease-out-quart);
+  }
+
+  .xp__row:hover .xp__arrow,
+  .xp__row:has(.xp__link:focus-visible) .xp__arrow {
+    transform: translateX(4px);
+  }
+
   .xp__org {
     font-family: var(--font-sans);
     font-size: var(--fs-small);
@@ -152,8 +215,10 @@ const groups: { key: string; label: string; items: ExperienceItem[] }[] = [
     color: var(--ink-2);
   }
 
-  .xp__org::before {
-    content: '· ';
+  .xp__dot {
+    font-family: var(--font-sans);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
 
   .xp__line {
@@ -170,8 +235,8 @@ const groups: { key: string; label: string; items: ExperienceItem[] }[] = [
       flex-basis: 100%;
     }
 
-    .xp__org::before {
-      content: none;
+    .xp__dot {
+      display: none;
     }
 
     .xp__line {
@@ -207,7 +272,8 @@ const groups: { key: string; label: string; items: ExperienceItem[] }[] = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .xp__row::before {
+    .xp__row::before,
+    .xp__arrow {
       transition: none;
     }
   }

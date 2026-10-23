@@ -1,5 +1,5 @@
-// Site-wide copy that is not a featured project: identity, "Now" cards, statements,
-// more work, experience, education and toolbox.
+// Site-wide copy that is not a project or role page: identity, "Now" cards, statements,
+// experience, education and toolbox. (Projects and roles: src/content/projects/*.md.)
 // Source of truth for the wording: docs/CONTENT.md (keep both in sync). Every claim
 // comes from Alexandros's CV unless CONTENT.md says otherwise.
 //
@@ -27,17 +27,8 @@ export interface NowCard {
   image?: 'guide-dog'; // key into src/assets/me/ handled by the component
   imageAlt?: string; // alt text for `image` (added by the content pass; optional)
   mediaNeeded?: string; // visible placeholder label
+  slug?: string; // role page (src/content/projects/<slug>.md, kind "role"): the whole card links to /experience/<slug>/
   link?: Link;
-}
-
-export interface MoreWorkItem {
-  title: string;
-  line: string;
-  context: string; // "2026 · CoBAR course · Team of 3"
-  stack: string;
-  year: string;
-  link?: Link; // omit when private / not publishable
-  thumb?: string; // public path (optional hover thumbnail)
 }
 
 export interface ExperienceItem {
@@ -45,15 +36,17 @@ export interface ExperienceItem {
   role: string;
   org: string;
   line: string;
-  mediaNeeded?: string;
+  mediaNeeded?: string; // what the hover card shows as a drawn "Coming soon" placeholder (no image yet)
+  sketch?: 'arm' | 'award' | 'photo'; // drawing for that placeholder (src/assets/sketches/)
   image?: 'guide-dog'; // approved photo in src/assets/me/ shown as the desktop hover preview
   imageLabel?: string; // caption of that preview card
+  slug?: string; // role page: the row links to /experience/<slug>/
 }
 
 export interface SkillGroup {
   label: string;
   items: string[];
-  seenIn?: { label: string; slug: string }[]; // links to /work/<slug>/
+  seenIn?: { label: string; slug: string }[]; // links to the project or role page with that id
 }
 
 export interface Statement {
@@ -99,7 +92,7 @@ export const site = {
   // ≤ 70 words. Sentence 2 is the CV summary, verbatim.
   bio: 'I’m a Master’s student in Robotics at EPFL, focused on robot learning and manipulation. My research goal is to help robots make sense of unstructured, real-world information so they can better assist people in everyday tasks. Right now I research egocentric robot manipulation at BioRob, and I build an Isaac Lab training pipeline for a guide-dog quadruped with the EPFL Student AI Team.',
 
-  // ---- now (two cards; no detail pages) ---------------------------------------
+  // ---- now (two cards; each links to its role page, /experience/<slug>/) -----
   now: [
     {
       // BioRob: CV wording only (bullet 1). No methods, models, equipment, sponsors or venues:
@@ -114,6 +107,7 @@ export const site = {
         'At EPFL’s Biorobotics Laboratory (BioRob Lab), I research egocentric, data-driven robot manipulation: bridging the embodiment gap between human demonstrations and robotic execution.',
       footnote: 'Research in progress. Happy to talk about it in person.',
       mediaNeeded: 'Lab photo',
+      slug: 'biorob',
     },
     {
       variant: 'accent',
@@ -126,6 +120,7 @@ export const site = {
       tags: ['Isaac Lab', 'Reinforcement learning', 'ROS 2', 'C++ CAN bus', 'NVIDIA Jetson'],
       image: 'guide-dog',
       imageAlt: 'The EPFL Student AI Team’s guide-dog quadruped prototype on its test stand',
+      slug: 'ai-team',
     },
   ] as NowCard[],
 
@@ -156,37 +151,7 @@ export const site = {
       ],
       pill: { label: 'Download CV', href: '/CV-Alexandros-Dellios.pdf' },
     },
-    {
-      segments: [
-        {
-          text: 'Also on the bench: a simulated fruit fly that follows a smell past obstacles, and a C++ simulator for a fleet of cleanup robots.',
-        },
-      ],
-      // Anchor of the More-work section on the home page.
-      pill: { label: 'More work ↓', href: '#more-work' },
-    },
   ] as Statement[],
-
-  // ---- more work (compact list, no detail pages) -----------------------------
-  // No links: the fly project lives in a teammate-owned repo, and the C++ repo
-  // needs a clean-up before it can be linked (see docs/QUESTIONS.md).
-  moreWork: [
-    {
-      title: 'Fly navigation in NeuroMechFly',
-      line: 'A hierarchical controller steers a simulated fruit fly to an odor source past obstacles, wind, hills and a predator, using simulated vision and smell. My part: posture correction, odor attraction and the movement logic for the first two levels.',
-      context: '2026 · CoBAR course · Team of 3',
-      stack: 'Python · MuJoCo · flygym',
-      year: '2026',
-      thumb: '/media/more/fly-navigation.jpg',
-    },
-    {
-      title: 'Multi-robot cleanup simulator',
-      line: 'A base station deploys robots with limited turning rates to decontaminate a hazardous zone. I wrote the robot motion controllers, collision geometry and rendering.',
-      context: '2023 · B.Sc. C++ course · Team of 2',
-      stack: 'C++17 · GTKmm 4 · Cairo',
-      year: '2023',
-    },
-  ] as MoreWorkItem[],
 
   // ---- experience (CV wording) ----------------------------------------------
   experience: [
@@ -196,6 +161,8 @@ export const site = {
       org: 'BioRob Lab, EPFL',
       line: 'Researching egocentric data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution.',
       mediaNeeded: 'Lab photo',
+      sketch: 'arm',
+      slug: 'biorob',
     },
     {
       when: 'Feb 2026 – now',
@@ -203,14 +170,17 @@ export const site = {
       org: 'EPFL Student AI Team',
       line: 'Contributing to the ground-up design and build of a custom quadruped meant to act as a guide dog for the visually impaired. Implemented a real-time ROS 2 pipeline and custom C++ CAN bus interface on NVIDIA Jetson hardware, achieving reliable motor control and state synchronization; building an NVIDIA Isaac Lab simulation pipeline to train RL policies for varied-terrain navigation.',
       image: 'guide-dog',
-      imageLabel: 'Guide-dog quadruped prototype',
+      imageLabel: 'Byte, the guide-dog quadruped',
+      slug: 'ai-team',
     },
     {
       when: 'Feb – Oct 2025',
       role: 'Lead Design & Fabrication Engineer',
       org: 'Mediacom EPFL',
       line: 'Won a competitive design pitch for the official EPFL Doctor Honoris Causa Award out of 12 proposals and took full ownership from concept to physical fabrication, partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards. The award was presented to Marco Odermatt and others.',
-      mediaNeeded: 'Award photos · finished piece / CAD / fabrication',
+      mediaNeeded: 'Award photos',
+      sketch: 'award',
+      slug: 'mediacom',
     },
   ] as ExperienceItem[],
 
@@ -269,6 +239,7 @@ export const site = {
       label: 'Simulation & ROS',
       items: ['Isaac Lab', 'Isaac Sim', 'MuJoCo', 'PyBullet', 'ROS 2 Jazzy'],
       seenIn: [
+        { label: 'AI Team', slug: 'ai-team' },
         { label: 'Quadruped', slug: 'quadruped-cpg-rl' },
         { label: 'Polymander', slug: 'polymander' },
       ],
@@ -276,10 +247,12 @@ export const site = {
     {
       label: 'Hardware & embedded',
       items: ['NVIDIA Jetson (Orin Nano)', 'CAN bus', 'STM32', 'ESP32', 'RTOS'],
+      seenIn: [{ label: 'AI Team', slug: 'ai-team' }],
     },
     {
       label: 'CAD & fabrication',
       items: ['Fusion 360', 'CATIA', 'KiCad', '3D printing', 'Machining (lathe, milling)'],
+      seenIn: [{ label: 'Mediacom award', slug: 'mediacom' }],
     },
     {
       label: 'Code & tools',

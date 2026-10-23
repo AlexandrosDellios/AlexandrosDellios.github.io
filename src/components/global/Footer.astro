@@ -10,7 +10,7 @@
  *   │                                             │ CV · GitHub · LinkedIn│ │
  *   └─────────────────────────────────────────────└──────────────────────┘ ┘
  *   ALEXANDROS DELLIOS ✦ ALEXANDROS DELLIOS ✦ …   (CSS marquee, sticky)
- *   © 2026 Alexandros Dellios · Built with Astro            Back to top ↑
+ *   © 2026 Alexandros Dellios · Built with Astro · Inspired by cydstumpel.nl     Back to top ↑
  *
  * Small text never sits directly on the accent fill (per-project accents can be
  * as dark as magenta): it lives on the paper card / chips.
@@ -77,7 +77,10 @@ const tickerItems = Array.from({ length: 4 });
   </div>
 
   <div class="site-footer__bottom container">
-    <p class="site-footer__small">© {year} {site.name} · Built with Astro</p>
+    {/* Design credit: the portfolio this design is modelled on (docs/DESIGN.md §1). */}
+    <p class="site-footer__small">
+      <span class="seg">© {year} {site.name}</span>{' · '}<span class="seg">Built with Astro</span>{' · '}<span class="seg">Inspired by <a class="link-hl site-footer__credit" href="https://cydstumpel.nl" target="_blank" rel="noopener">cydstumpel.nl<span class="sr-only"> (opens in a new tab)</span></a></span>
+    </p>
     <a class="site-footer__top" href="#main" data-scroll-top>
       Back to top <Icon name="arrow-up" />
     </a>
@@ -289,6 +292,15 @@ const tickerItems = Array.from({ length: 4 });
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--ink-2);
+  }
+
+  /* Taller hit area (≈ 44px, like the Toolbox "seen in" links) without changing the line. */
+  .site-footer__credit {
+    padding-block: 0.875rem;
+    margin-block: -0.875rem;
+    background-origin: content-box;
+    background-clip: content-box;
+    color: var(--ink);
   }
 
   .site-footer__top {

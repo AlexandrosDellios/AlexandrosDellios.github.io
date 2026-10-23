@@ -2,42 +2,40 @@
 /**
  * WorkSection (DESIGN §4 "Selected work", content plan §2.4), id="work".
  *
- * Desktop 3 × 3 grid, read row by row:
+ * Desktop 3 × 2 grid, read row by row:
  *   [ Tile 1 ] [ Tile 2 ] [ S1 ]
  *   [ Tile 3 ] [ S2 ]     [ Tile 4 ]
- *   [ Tile 5 ] [ Tile 6 ] [ S3 ]
  * Tablet: 2 columns, statements span both (dense flow backfills the gaps).
  * Phone: 1 column, statements between tiles (DOM order).
  *
  * Every cell spans 5 implicit rows (media / title / line / tags / meta) and
  * uses subgrid, so text rows line up across a grid row.
- * The exposed tile corner follows the grid position (cell index mod 3:
- * TL → TR → BL), which keeps chips off each poster's subject.
  *
- * Projects: getCollection('projects') sorted by `order` (passed in by the page;
- * "_stub" entries are already filtered out there). Missing projects simply
- * leave their slot out; extra projects are appended as tiles.
+ * Projects: the featured projects (section "featured") in `order`, passed in
+ * by the page. Missing projects simply leave their slot out; extra projects
+ * are appended as tiles. `all` (every project) feeds the statement-link
+ * thumbnails, since statements also link to More-projects pages.
  */
 import type { CollectionEntry } from 'astro:content';
 import { getImage } from 'astro:assets';
 import { site } from '../../data/site';
-import ProjectTile, { type TileCorner } from './ProjectTile.astro';
+import ProjectTile from './ProjectTile.astro';
 import SectionHead from './SectionHead.astro';
 import StatementCell, { type PreviewInfo } from './StatementCell.astro';
 
 interface Props {
+  /** The Selected-work tiles, in order. */
   projects: CollectionEntry<'projects'>[];
+  /** Every project page (statement links may point to any of them). */
+  all?: CollectionEntry<'projects'>[];
 }
 
-const { projects } = Astro.props;
+const { projects, all = projects } = Astro.props;
 
 // ---- Grid layout: 't' = next project tile, 's' = next statement --------------------
-const PATTERN = ['t', 't', 's', 't', 's', 't', 't', 't', 's'] as const;
-const CORNERS: TileCorner[] = ['tl', 'tr', 'bl'];
+const PATTERN = ['t', 't', 's', 't', 's', 't'] as const;
 
-type Cell =
-  | { kind: 'tile'; project: CollectionEntry<'projects'>; corner: TileCorner }
-  | { kind: 'statement'; index: number };
+type Cell = { kind: 'tile'; project: CollectionEntry<'projects'> } | { kind: 'statement'; index: number };
 
 const cells: Cell[] = [];
 let nextTile = 0;
@@ -45,18 +43,18 @@ let nextStatement = 0;
 PATTERN.forEach((slot) => {
   if (slot === 't') {
     const project = projects[nextTile++];
-    if (project) cells.push({ kind: 'tile', project, corner: CORNERS[cells.length % 3] });
+    if (project) cells.push({ kind: 'tile', project });
   } else if (site.statements[nextStatement]) {
     cells.push({ kind: 'statement', index: nextStatement++ });
   }
 });
-// Anything beyond the six featured slots is appended so nothing silently disappears.
-projects.slice(nextTile).forEach((project) => cells.push({ kind: 'tile', project, corner: CORNERS[cells.length % 3] }));
+// Anything beyond the four featured slots is appended so nothing silently disappears.
+projects.slice(nextTile).forEach((project) => cells.push({ kind: 'tile', project }));
 
 // ---- Cursor-tooltip thumbnails for the statement links (tiny WebP, cropped square) --
 const previews: Record<string, PreviewInfo> = {};
 await Promise.all(
-  projects.map(async (p) => {
+  all.map(async (p) => {
     const still = p.data.tilePoster ?? p.data.poster;
     if (!still) return;
     const thumb = await getImage({ src: still, width: 96, height: 96, fit: 'cover', format: 'webp' });
@@ -64,29 +62,21 @@ await Promise.all(
   }),
 );
 
-const years = projects.map((p) => Number.parseInt(p.data.year, 10)).filter(Number.isFinite);
-const span = years.length ? `${Math.min(...years)}–${String(Math.max(...years)).slice(-2)}` : '';
-const aside = `${String(projects.length).padStart(2, '0')} projects${span ? ` · ${span}` : ''}`;
 ---
 
 <section class="work container" id="work" aria-labelledby="work-title">
-  <SectionHead index="02" label="Selected work" id="work-title" title="Selected *work*" aside={aside} hint="hover to play" />
+  <SectionHead index="02" label="Selected work" id="work-title" title="Selected *work*" hint="hover to play" />
 
   <div class="work__grid">
     {
       cells.map((cell) =>
         cell.kind === 'tile' ? (
-          <ProjectTile project={cell.project} corner={cell.corner} class="work__cell" />
+          <ProjectTile project={cell.project} class="work__cell" />
         ) : (
           <StatementCell
             statement={site.statements[cell.index]}
             previews={previews}
-            class:list={[
-              'work__cell work__cell--stmt',
-              // A statement whose pill points at #more-work only teases the next
-              // section; on phones that section follows immediately, so skip it.
-              site.statements[cell.index].pill?.href === '#more-work' && 'work__cell--teaser',
-            ]}
+            class="work__cell work__cell--stmt"
           />
         ),
       )
@@ -107,12 +97,6 @@ const aside = `${String(projects.length).padStart(2, '0')} projects${span ? ` ·
     grid-auto-flow: row dense;
     column-gap: var(--gap);
     row-gap: 0;
-  }
-
-  @media (max-width: 599.98px) {
-    .work__grid > :global(.work__cell--teaser) {
-      display: none;
-    }
   }
 
   /* Tablet: two columns, statements full width between pairs of tiles. */

@@ -12,7 +12,10 @@
  *   just under its first line (DESIGN §5.15 "fades in on the left"), so it
  *   never covers the text being read. When the row is stacked (no leading
  *   column wide enough), it falls back to following the cursor.
- * - Keyboard focus (:focus-visible) on a trigger shows it next to the element.
+ * - Keyboard focus (:focus-visible) on a statement link shows its pill next to
+ *   the link. List-row cards are pointer-only: on keyboard focus they would sit
+ *   over the next row's dates while the reader moves down the list.
+ * - Escape hides it (WCAG 1.4.13: content on hover or focus is dismissible).
  * - Reduced motion: no following; it appears next to the trigger and stays.
  * - Hides on scroll, pointer leave, blur, and when the tab is hidden.
  * Thumbnails are preloaded on idle so the first hover is instant.
@@ -142,11 +145,14 @@ export function initCursorPreview(): void {
     });
   }
 
-  // Keyboard: links that are triggers show the preview beside themselves.
+  // Keyboard: statement links show their pill beside themselves (row cards don't).
   document.addEventListener('focusin', (e) => {
     const target = e.target as HTMLElement | null;
     const trigger = target?.closest<HTMLElement>('[data-preview-src]');
-    if (trigger && target?.matches(':focus-visible') && env.finePointer) showBeside(trigger);
+    if (trigger && !isPinned(trigger) && target?.matches(':focus-visible') && env.finePointer) showBeside(trigger);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && active) hide();
   });
   document.addEventListener('focusout', (e) => {
     const trigger = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-preview-src]');

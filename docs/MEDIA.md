@@ -9,7 +9,7 @@
 >
 > **Publishing rules for media** (from docs/DECISIONS.md): no people's names anywhere (file names inside screen recordings included), no links to private or teammate-owned repos, nothing from the BioRob research beyond CV wording, no report PDFs, no course photos or datasets.
 
-Last full pass: 2026-10-20.
+Last full pass: 2026-10-20 (updated 2026-10-23: fly-navigation page media, role pages, drawn placeholders, print-card social cards).
 
 ---
 
@@ -24,7 +24,11 @@ What to put in each project's frontmatter (`src/content.config.ts`). `focus` is 
 | `rocket-mpc` | `poster.png` (5:4) | `50% 100%` | none (`mediaNeeded`: landing screen recording) | `fig-nmpc-closed-loop-landing.png`, `fig-tube-mpc-mrpi-terminal-sets.png`, `fig-tube-mpc-extreme-disturbance.png`, `fig-offset-free-disturbance-estimate.png` | none |
 | `uno-sim2real` | `poster.png` (or inline `poster.svg`) | `50% 50%` | none (`mediaNeeded`: prediction overlay) | `fig-pipeline.svg` | none |
 | `thymio-ekf` | `poster.jpg` | `50% 50%` | `/media/thymio-ekf/loop.*`, `loop-poster.jpg` | `fig-visibility-graph-planned-path.png` (team work) | `kidnapping.*`, `camera-occlusion.*` |
-| `glider-codesign` | `poster.png` (or inline `poster.svg`) | `50% 50%` | none (`mediaNeeded`: plots + evaluation clip) | none | none |
+| `glider-codesign` | `poster.png` (or inline `poster.svg`) | `50% 50%` | none | none | none (`soon`: convergence plot, learned airfoil plot, perching evaluation clip) |
+| `fly-navigation` | `poster.jpg` (the loop's first frame) | `50% 50%` | `/media/fly-navigation/loop.*`, `loop-poster.jpg` | none | none |
+| `ai-team` (role) | `../../assets/me/guide-dog.jpg` | `50% 50%` | none | none | none (`soon`: walking video, Isaac Lab training clip, build photos) |
+| `biorob` (role) | none (`mediaNeeded`: Lab photo, `sketch: arm`) | | none | none | none |
+| `mediacom` (role) | none (`mediaNeeded`: Photo of the finished award, `sketch: award`) | | none | none | none (`soon`: CAD render, fabrication photos) |
 
 The Uno SVGs tag their zone rectangles with `class="zone zone-p1 … zone-ctr"`, so the page can animate the 5-zone split when the SVG is inlined. The glider poster is an **illustration**: its alt text and caption must say so.
 
@@ -40,7 +44,7 @@ Sizes are on-disk bytes. "src" paths are relative to the repo root.
 |---|---|---|---|---|
 | `portrait.jpg` | 864×1080 (4:5), 175 KB | `Images/pic.JPG` (1616×1080, camera export) | The pixels are already upright, but the file carries a wrong EXIF Orientation tag (8 = "rotate 90°"), which is why it looks sideways in viewers. Loaded the raw pixels, **dropped all EXIF** (kept the sRGB ICC profile), cropped a 4:5 box `(303, 0)–(1167, 1080)` centred on the face, saved JPEG q92 4:4:4. | **Not used** (not imported, so not published): the hero uses the cut-out. Kept as the source of the cut-out. |
 | `portrait-cutout.png` | 864×861, RGBA, 716 KB | same | Same 4:5 crop. Mask from Apple Vision (`VNGenerateForegroundInstanceMaskRequest`, script §2.2), refined with closed-form matting (`pymatting`): wide unknown band where the wall behind is bright, narrow band against the dark door frame, face/neck protected, wall pockets between curls removed, then foreground colour estimation to remove beige spill. Trimmed to the alpha bounding box (top only, since the shoulders reach the sides and bottom). Fully transparent pixels zeroed. Checked on orange, ink and paper. | Hero cut-out that breaks out of the arch |
-| `guide-dog.jpg` | 584×584, 120 KB | `Images/dog.png` (584×687 screenshot) | Square crop `(0, 103)–(584, 687)`, which removes the people in the background; JPEG q92. **Low resolution**: see §3. | "Now · EPFL AI Team" card (fallback when the cut-out is not used) |
+| `guide-dog.jpg` | 584×584, 120 KB | `Images/dog.png` (584×687 screenshot) | Square crop `(0, 103)–(584, 687)`, which removes the people in the background; JPEG q92. **Low resolution**: see §3. | AI Team page hero + its social card; the Experience row's hover preview; "Now · EPFL AI Team" card fallback |
 | `guide-dog-cutout.png` | 532×550, RGBA, 298 KB | same | Apple Vision mask, plus two targeted fixes: the navy backpack and the light wall seen through the robot's frame (colour tests in fixed boxes), and the concrete floor between the stand legs (colour distance to the sampled floor colour). Light 0.6 px feather, trimmed. The result is clean at this size; it is soft because the source is a 584 px screenshot. | "Now · EPFL AI Team" accent card (cut-out on the flat orange) |
 
 ### 1.2 Projects: images (`src/assets/projects/<slug>/`)
@@ -86,15 +90,14 @@ All clips: H.264 High `yuv420p` + `+faststart` (`.mp4`) and VP9 two-pass constan
 | `thymio-ekf/loop.*` + `loop-poster.jpg` | 187 KB / 104 KB | 416×288 (≈4:3) · 8 s · 15 fps | `autonomous-thymio/thymio-kidnapping-crop.mp4` (760×244 screen recording) | Right-hand "camera + planned path" panel only, without its window bar: `crop=208:144:522:54`, **2× Lanczos** (panel is 208 px wide), trim 6.5 → 14.5 s: the robot drives, is picked up and moved, and the path is re-planned. | **Tile loop** |
 | `thymio-ekf/kidnapping.*` + poster | 377 KB / 265 KB | 736×180 · 24 s · 15 fps | same | Full 3-panel recording, `crop=736:180:14:40`. The crop removes the code editor's file list, which showed personal file names. | Extra page video (page hero row) |
 | `thymio-ekf/camera-occlusion.*` + poster | 241 KB / 167 KB | 736×180 · 20 s · 15 fps | `thymio-camera-occlusion-crop.mp4` | same crop | Extra page video |
-| `more/fly-navigation.jpg` | 14 KB | 512×384 | `cobar-fly-navigation-miniproject/fly_navigation_backcam_poster.png` (512×512) | 4:3 crop `(0,48)–(512,432)`, JPEG q86 progressive. Kept at native 512 px instead of upscaling to 640. | More-work hover thumbnail |
-| `more/fly-navigation.*` + `fly-navigation-poster.jpg` | 133 KB / 95 KB | 512×384 · 5.5 s · 24 fps | `fly_navigation_level2_backcam.mp4` | Trim 2.72 → 8.24 s (best loop window, before the camera tilts at the end), same 4:3 crop, CRF 24 / VP9 34 | **Not used** (published under `public/` but unlinked): delete it, or wire it up as the More-work hover loop |
+| `fly-navigation/loop.*` + `loop-poster.jpg` | 133 KB / 95 KB | 512×384 · 5.5 s · 24 fps | `cobar-fly-navigation-miniproject/fly_navigation_level2_backcam.mp4` | Trim 2.72 → 8.24 s (best loop window, before the camera tilts at the end), 4:3 crop `crop=512:384:0:48`, CRF 24 / VP9 34. Moved from `public/media/more/` on 2026-10-23 (the separate 512×384 still `more/fly-navigation.jpg` was deleted). | Fly-navigation page hero. `loop-poster.jpg` is also copied to `src/assets/projects/fly-navigation/poster.jpg` (11 KB): the page poster, More-projects hover preview, prev/next thumbnail and social card |
 
 ### 1.4 Social preview (`public/og/`)
 
 | File | Size | Processing | Used as |
 |---|---|---|---|
 | `default.png` | 1200×630, 95 KB | `scripts/og/make_og_images.py default`: paper background, "ALEXANDROS / DELLIOS" in Anton (accent `#E5501D`) sized to fill the width, "Robotics M.Sc. · EPFL" in Geist 500 (ink), the site URL and four focus areas in Geist Mono (`#5E5850`: Robot learning, Manipulation, Legged locomotion, Model predictive control), and a 2×2 trot "gait metronome" mark. Rendered at 2× and downsampled. | Default `og:image` / `twitter:image` |
-| `<slug>.png` (6) | 1200×630, 95–250 KB | `scripts/og/make_og_images.py` (kept in the repo): byline + URL + gait mark, the project title in Instrument Serif, metric chip and year · team in Geist Mono, the poster cropped 4:3 with the project's `focus` (tile shape, one sharp corner, hairline), and the `shortWord` in Anton in the project accent. Re-run `python3 scripts/og/make_og_images.py [slug]` after changing those fields. Needs Pillow, fontTools + brotli, PyYAML. | `og:image` of `/work/<slug>/` (ProjectLayout uses it automatically when the file exists) |
+| `<slug>.png` (10: 7 projects + 3 roles) | 1200×630, 85–220 KB | `scripts/og/make_og_images.py` (kept in the repo): byline + URL + gait mark, the title in Instrument Serif, metric chip and year · team in Geist Mono, the poster cropped 4:3 with the page's `focus` as a print card (square corners, 2px ink border, hard ink shadow; pages without a poster show their `sketch` drawing on paper-2 instead, its accent details recoloured to the page accent). Cards over 250 KB are re-saved with 256 colours, and the `shortWord` in Anton in the page accent. Re-run `python3 scripts/og/make_og_images.py [slug]` after changing those fields. Needs Pillow, fontTools + brotli, PyYAML (and macOS Quick Look for the sketches). | `og:image` of `/work/<slug>/` and `/experience/<slug>/` (ProjectLayout uses it automatically when the file exists) |
 
 ### 1.5 Icons (`public/`)
 
@@ -103,7 +106,20 @@ All clips: H.264 High `yuv420p` + `+faststart` (`.mp4`) and VP9 two-pass constan
 | `favicon.svg` | "AD" in Anton glyph outlines, ink on orange, rounded square |
 | `favicon.ico` (16 + 32 px) · `apple-touch-icon.png` (180 px, square corners) | `node scripts/media/make_icons.mjs` (sharp) from `favicon.svg` |
 
-### 1.6 Deliberately not used
+### 1.6 Placeholder sketches (`src/assets/sketches/`)
+
+| File | Drawing | Used as |
+|---|---|---|
+| `photo.svg` | camera | default drawing for photo placeholders |
+| `video.svg` | screen with play button and timeline | labels with "video", "clip", "recording" or "footage" |
+| `plot.svg` | axes with two curves | labels with "plot", "curve", "chart" or "graph" |
+| `arm.svg` | robot arm picking up a cube | BioRob page hero; BioRob Experience hover card |
+| `quadruped.svg` | quadruped with a guide-dog handle | available (`sketch: quadruped`) |
+| `award.svg` | medallion on a column and plinth | Mediacom page hero; Mediacom Experience hover card |
+
+160×120 viewBox line drawings, 2.5px ink strokes, accent details on elements with class `acc` (fill) / `acc-stroke` (stroke). Drawn by hand for the site (2026-10-23). MediaPlaceholder inlines them (`?raw`), so the accent parts follow the page accent; the Experience hover cards and the social cards use the files as images (orange accents).
+
+### 1.7 Deliberately not used
 - Everything in `private/media-src/biorob-egocentric-manipulation/` (unpublished research).
 - `uno-cards/synthetic-augmentation-grid.jpg` (an illustration, not his data) and any course photos.
 - The raw GIFs (converted to MP4/WebM instead; never ship GIFs).
@@ -140,7 +156,7 @@ encode.sh p2_best_walk.mp4 public/media/polymander/walk 6.72 7.77 "crop=768:432:
 encode.sh p2_swim2walk.mp4 public/media/polymander/swim2walk 20 12 "crop=768:432:236:144" 24 23 33
 encode.sh thymio-kidnapping-crop.mp4 public/media/thymio-ekf/loop 6.5 8 "crop=208:144:522:54,scale=416:288:flags=lanczos" 15 22 32
 encode.sh thymio-kidnapping-crop.mp4 public/media/thymio-ekf/kidnapping 0 24 "crop=736:180:14:40" 15 24 34
-encode.sh fly_navigation_level2_backcam.mp4 public/media/more/fly-navigation 2.72 5.52 "crop=512:384:0:48" 24 24 34
+encode.sh fly_navigation_level2_backcam.mp4 public/media/fly-navigation/loop 2.72 5.52 "crop=512:384:0:48" 24 24 34
 ```
 
 Budgets: loops ≤ 8 s and ≤ ~600 KB per file; page clips ≤ ~1 MB. If a file is over budget, raise the CRF by 2 (H.264) or 3 (VP9) and re-run. Use `-tune animation` for simulator renders; drop it for real camera footage.
@@ -202,13 +218,13 @@ Until each item arrives, the site shows a visible "Coming soon" placeholder with
 
 | # | What | Orientation · minimum size | Format and length | Where it appears | Placeholder label |
 |---|---|---|---|---|---|
-| 1 | **BioRob lab / robot setup photo**, cleared by the lab for publication. No screens showing results, no unpublished hardware details, no faces without consent. | Landscape 3:2 or 4:3, ≥ 1600 px wide | JPG/HEIC, original from the phone/camera | "Now · Research" dark card (home); Experience row hover preview | `COMING SOON · Lab photo` |
-| 2 | **Guide-dog robot, high-res photo.** The current one is a 584 px screenshot. Whole robot including the feet, ideally against a plain wall or floor, and the team's OK. | Portrait 4:5 or square, ≥ 2000 px long edge | Original camera/phone file (not a screenshot) | "Now · EPFL AI Team" card (cut-out on orange) | (replaces `guide-dog*.{jpg,png}`) |
-| 3 | **Guide-dog robot walking video.** Steady camera, robot fully in frame, a few seconds of clean walking. | Landscape 16:9, ≥ 1920×1080 | MP4/MOV, 5–15 s; sound not needed | AI Team card hover loop; future AI Team page | none on the site yet |
-| 4 | **Isaac Lab training clip**: many parallel robots on varied terrain. | Landscape 16:9, ≥ 1280×720 | Screen recording, 5–10 s | AI Team card / future AI Team page | none on the site yet |
-| 5 | **Mediacom Doctor Honoris Causa award**: (a) the finished piece, (b) a CAD render or screenshot, (c) a fabrication-in-progress photo (machining, 3D printing). Photos without the honorees, or with their consent. | Landscape 3:2, ≥ 1600 px wide (the finished piece may be portrait 4:5) | Original JPG/PNG | Experience row hover preview; promoted to a project tile if the photos are strong | none drawn (`mediaNeeded` in site.ts: `Award photos · finished piece / CAD / fabrication`) |
-| 6 | **Glider co-design plots**: (a) convergence curve (success rate vs training steps, co-design vs the NACA 4412 baseline), (b) the learned airfoil vs NACA 4412. Ideally the **raw data** (CSV of curve points and airfoil coordinates), so both can be redrawn in site colours like the gait figure. | Landscape, ≥ 1600 px wide if PNG; SVG/PDF or CSV preferred | PNG/SVG/CSV | Glider project page; the real airfoil replaces the illustrative poster | "Coming soon: Convergence plot, learned airfoil vs NACA 4412 and a perching evaluation clip." (one line in the Notes) |
-| 7 | **Glider evaluation clip**: a perching rollout. | Landscape 16:9, ≥ 1280×720 | MP4, 5–10 s | Glider tile loop + page hero | (same line as #6) |
+| 1 | **BioRob lab / robot setup photo**, cleared by the lab for publication. No screens showing results, no unpublished hardware details, no faces without consent. | Landscape 3:2 or 4:3, ≥ 1600 px wide | JPG/HEIC, original from the phone/camera | BioRob page hero (`/experience/biorob/`); "Now · Research" dark card (home); Experience row hover preview | `COMING SOON · Lab photo` (drawn: robot arm) |
+| 2 | **Guide-dog robot, high-res photo.** The current one is a 584 px screenshot. Whole robot including the feet, ideally against a plain wall or floor, and the team's OK. | Portrait 4:5 or square, ≥ 2000 px long edge | Original camera/phone file (not a screenshot) | AI Team page hero; "Now · EPFL AI Team" card (cut-out on orange) | (replaces `guide-dog*.{jpg,png}`); more photos: `COMING SOON · Build photos` card on the AI Team page |
+| 3 | **Guide-dog robot walking video.** Steady camera, robot fully in frame, a few seconds of clean walking. | Landscape 16:9, ≥ 1920×1080 | MP4/MOV, 5–15 s; sound not needed | AI Team page gallery (and the Now card) | `COMING SOON · Walking video` (AI Team page) |
+| 4 | **Isaac Lab training clip**: many parallel robots on varied terrain. | Landscape 16:9, ≥ 1280×720 | Screen recording, 5–10 s | AI Team page gallery | `COMING SOON · Isaac Lab training clip` (AI Team page) |
+| 5 | **Mediacom Doctor Honoris Causa award**: (a) the finished piece, (b) a CAD render or screenshot, (c) a fabrication-in-progress photo (machining, 3D printing). Photos without the honorees, or with their consent. | Landscape 3:2, ≥ 1600 px wide (the finished piece may be portrait 4:5) | Original JPG/PNG | Mediacom page (`/experience/mediacom/`): hero (a), gallery (b, c); Experience row hover preview | `COMING SOON · Photo of the finished award` (hero, drawn: award), `CAD render`, `Fabrication photos` (gallery); `Award photos` (hover card) |
+| 6 | **Glider co-design plots**: (a) convergence curve (success rate vs training steps, co-design vs the NACA 4412 baseline), (b) the learned airfoil vs NACA 4412. Ideally the **raw data** (CSV of curve points and airfoil coordinates), so both can be redrawn in site colours like the gait figure. | Landscape, ≥ 1600 px wide if PNG; SVG/PDF or CSV preferred | PNG/SVG/CSV | Glider project page; the real airfoil replaces the illustrative poster | `COMING SOON · Convergence plot`, `Learned airfoil vs NACA 4412 plot` (drawn cards in the gallery) |
+| 7 | **Glider evaluation clip**: a perching rollout. | Landscape 16:9, ≥ 1280×720 | MP4, 5–10 s | Glider tile loop + page hero | `COMING SOON · Perching evaluation clip` (drawn card) |
 | 8 | **Rocket landing screen recording** from the course visualiser: the NMPC landing from the 30° roll start (and optionally the tube-MPC run). | Landscape 16:9, ≥ 1920×1080 (≥ 1280×720 minimum) | Screen recording, 5–10 s, no cursor | Rocket tile loop + page hero | `COMING SOON · Rocket landing screen recording` (slim band in the gallery) |
 | 9 | **Uno prediction overlay** on a real photo **he took himself** (not from the course dataset): zone boxes plus predicted counts drawn on the image. | Landscape 4:3 or 3:2, ≥ 1600 px wide | PNG/JPG | Uno project page figure (optionally the tile) | `COMING SOON · Prediction overlay on a table photo` |
 | 10 | **Original high-res quadruped videos** (PyBullet recordings behind `RL_SLOPE.gif` / `RL_VEL_1.3ms.gif`). The current loops are 400 px wide and look soft on large or retina screens. | Landscape 16:9, ≥ 1280×720 | MP4, the full recordings | Quadruped tile loop + page hero, velocity extra | (replaces `quadruped-cpg-rl/loop.*`, `velocity.*`) |

@@ -1,5 +1,5 @@
 ---
-# Featured project 6 · copy mirrored in docs/CONTENT.md (keep both in sync).
+# Selected work, tile 2 · copy mirrored in docs/CONTENT.md (keep both in sync).
 # Sources: CV "RL-Driven Glider Co-Design" (claims, used as written: beats optimal control,
 # wind and starting-speed robustness, 29.7% faster convergence) + the team's public code
 # via private/research/repo_Classes-MA2-2026.json (method, numbers).
@@ -7,7 +7,7 @@
 title: "Glider perching with wing co-design"
 shortTitle: "Glider co-design"
 shortWord: "GLIDER"
-order: 6
+order: 2
 year: "2026"
 context: "EPFL · Course project"
 team: "Team of 4"
@@ -23,7 +23,8 @@ posterAlt: "Illustration: a NACA 4412 airfoil outline morphing into a more cambe
 # Tile-only version: the outlines without the mono labels (illegible at tile size).
 tilePoster: "../../assets/projects/glider-codesign/poster-tile.png"
 focus: "50% 50%"
-mediaNeeded: "Convergence plot, learned airfoil vs NACA 4412 and a perching evaluation clip"
+# Still to come: drawn "Coming soon" cards in the gallery (docs/MEDIA.md §3 #6–7).
+soon: ["Convergence plot", "Learned airfoil vs NACA 4412 plot", "Perching evaluation clip"]
 
 lead: "What if a robot could *redesign its own wing* while learning to fly?"
 tldr:

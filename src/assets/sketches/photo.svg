@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120">
+  <!-- Placeholder line drawing (docs/MEDIA.md, "Coming soon" sketches). Ink lines; the .acc parts take the page accent when inlined. Camera. -->
+  <g fill="none" stroke="#151412" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="28" y="40" width="104" height="60" rx="8"/>
+    <path d="M54 40l7-11h28l7 11"/>
+    <rect x="36" y="33" width="11" height="7" rx="2"/>
+    <circle cx="80" cy="70" r="20"/>
+    <circle cx="80" cy="70" r="11"/>
+    <path d="M74 64a8 8 0 0 1 8-3" stroke-width="2"/>
+    <rect class="acc" x="110" y="48" width="13" height="7" rx="2" fill="#E5501D" stroke="none"/>
+  </g>
+</svg>

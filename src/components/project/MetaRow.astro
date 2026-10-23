@@ -13,25 +13,37 @@
  * Team: the label is for screen readers only ("Team of 3" already says it;
  * a visible "TEAM Team of 3" reads twice).
  *
+ * Role pages (kind "role"): When · Organisation · Role, then a "Website ↗"
+ * pill when `links.website` is set (projects can use it too).
+ * The labels of the dates and the organisation are for screen readers only.
+ *
  * Semantics: a <dl>; each pair is wrapped in a <div> (allowed in <dl>).
  */
 import PillButton from '../global/PillButton.astro';
 import type { ProjectData } from './projects';
 
 interface Props {
-  data: Pick<ProjectData, 'year' | 'context' | 'team' | 'myPart' | 'links' | 'privateRepo'>;
+  data: Pick<ProjectData, 'kind' | 'year' | 'context' | 'team' | 'myPart' | 'links' | 'privateRepo'>;
   class?: string;
 }
 
 const { data, class: className } = Astro.props;
 
-const items: { label: string; value: string; srLabel?: boolean }[] = [
-  { label: 'Year', value: data.year },
-  { label: 'Context', value: data.context },
-  { label: 'Team', value: data.team, srLabel: true },
-  ...(data.myPart ? [{ label: 'My part', value: data.myPart }] : []),
-];
+const items: { label: string; value: string; srLabel?: boolean }[] =
+  data.kind === 'role'
+    ? [
+        { label: 'When', value: data.year, srLabel: true },
+        { label: 'Organisation', value: data.context, srLabel: true },
+        ...(data.myPart ? [{ label: 'Role', value: data.myPart }] : []),
+      ]
+    : [
+        { label: 'Year', value: data.year },
+        { label: 'Context', value: data.context },
+        { label: 'Team', value: data.team, srLabel: true },
+        ...(data.myPart ? [{ label: 'My part', value: data.myPart }] : []),
+      ];
 const code = data.links?.code;
+const website = data.links?.website;
 ---
 
 <dl class:list={['meta', className]}>
@@ -61,6 +73,18 @@ const code = data.links?.code;
         </dd>
       </div>
     ) : null
+  }
+  {
+    website && (
+      <div class="meta__item meta__item--link">
+        <dt class="sr-only">Website</dt>
+        <dd class="meta__value">
+          <PillButton href={website} variant="secondary" size="sm" class="meta__pill">
+            {data.links?.websiteLabel ?? 'Website'}
+          </PillButton>
+        </dd>
+      </div>
+    )
   }
 </dl>
 
