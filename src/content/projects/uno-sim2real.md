@@ -18,9 +18,8 @@ tags: ["PyTorch", "Synthetic data", "Sim-to-real", "Attention"]
 accent: "#D23445" # crimson, Uno red
 accentInk: "#A61F30"
 cvMatch: true
-# The restructured repo (github.com/AlexandrosDellios/ImageProject) is still private: link it with
-# links.code (and drop privateRepo) once Alexandros makes it public.
-privateRepo: true
+links:
+  code: "https://github.com/AlexandrosDellios/ImageProject" # public since 2026-10-24
 
 # The last frame of the hero animation: the submitted model's reading of an unseen test photo.
 poster: "../../assets/projects/uno-sim2real/poster.jpg"

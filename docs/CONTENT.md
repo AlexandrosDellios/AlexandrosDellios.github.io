@@ -402,7 +402,7 @@ The rocket model, simulator and 3D visualizer were provided by the course. We cl
 | Metric chip | `75% ACCURACY · 12M PARAMS` (CV: 75% is the Kaggle leaderboard score, 12M the CV's rounding of 11.4M; both kept by Alexandros) |
 | Tags | `PyTorch` · `Synthetic data` · `Sim-to-real` · `Attention` |
 | Accent | `#D23445` fill / `#A61F30` text |
-| Code link | none yet: "Code: on request" until Alexandros makes github.com/AlexandrosDellios/ImageProject public, then `links.code` |
+| Code link | https://github.com/AlexandrosDellios/ImageProject (public, restructured 2026-10-24) |
 | On the CV | yes |
 | Hero + tile loop | `/media/uno-sim2real/loop.mp4`: the submitted model reading test photo L1000947 zone by zone |
 | Poster alt | Overhead photo of an Uno table on a leaf-print tablecloth, with the five reading zones drawn and the model’s predicted cards labelled in each |
