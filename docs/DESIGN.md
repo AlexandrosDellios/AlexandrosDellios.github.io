@@ -18,7 +18,7 @@
 > - Project pages: the order is title, meta, **TL;DR, then the serif lead** (on desktop the TL;DR sits in the right column), so the TL;DR fits the first screen on phones (§2.7, §8).
 > - Reading progress is a 2px bar in the header's underline slot (not 1px); project pages never use the M2 header underline, so two accent lines never stack.
 > - Highlights bullets: the bold lead-in is set as a serif metric only when it ends with punctuation.
-> - Videos: `extraVideos[].clickToPlay` clips never start by themselves (Polymander transitions). A clip started with its button is not interrupted by hovering another card.
+> - Videos: `extraVideos[].clickToPlay` clips never start by themselves (Polymander transitions). A clip started with its button is not interrupted by hovering another card. `extraVideos[].autoplay` clips play when they scroll into view on every screen, not only on touch screens (never under reduced motion or Save-Data), and `wide` makes a clip span the whole gallery (the Uno synthesis clip, 2026-10-24, at Alexandros's request).
 > - View-transition names are filtered per navigation by one inline script in BaseLayout (`data-vt-name` / `data-vt-only`): only the clicked tile morphs into the hero, and off-screen targets are dropped.
 > - M10 walk phases, by leg: LF 0, RH .25, RF .5, LH .75 (lateral-sequence walk, same as the report's gait figure).
 >

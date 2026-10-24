@@ -437,7 +437,7 @@ The animation at the top is the submitted model reading a test photo it never sa
 A team of 3, as an in-class Kaggle competition. Afterwards I restructured the code into a documented package that reproduces the submission exactly; the repository has the trained weights, every step of the pipeline and the scripts behind the figures on this page.
 
 **Gallery** (caption · credit), in order:
-- `synthesis.mp4` (clip, click to play): How one synthetic training image is built: a patch of a real tablecloth, two hand-cut cards colour-jittered, rotated, tilted and blurred, pasted so they overlap, then brightness, letterbox bars and sensor noise. Pre-training used 10,000 of these.
+- `synthesis.mp4` (clip, full width, plays in view: `autoplay`, `wide`): How one synthetic training image is built: a patch of a real tablecloth, two hand-cut cards colour-jittered, rotated, tilted and blurred, pasted so they overlap, then brightness, letterbox bars and sensor noise. Pre-training used 10,000 of these.
 - `fig-zones.jpg` (photo): From photo to network input: the table is cut into five zones, each hand is turned to face its player, and every crop is padded to a square so round symbols keep their shape. Cards in the red corners are seen by two zones. *(Rendered for this site with the project’s code)*
 - `fig-pipeline.svg`: The pipeline: split the table into five zones, pre-train on synthetic composites, fine-tune on real crops, and read out the table state. *(Diagram redrawn for this site)*
 - `fig-f1.png` (photo): Per-class F1 on 81 held-out real hand crops, counting every copy: a mean of 0.737 over the 48 classes present. Blue 2, blue 6 and red 7 are never found. *(Rendered for this site with the project’s code)*
@@ -768,7 +768,7 @@ Sources: [CV] Mediacom entry (older CV; kept by decision) for the pitch, ownersh
 | `soon` | no | Media still to come, as drawn "Coming soon" cards in the gallery: `["Walking video", "Build photos"]` (a label with "video"/"clip" gets a 16:9 video drawing) |
 | `timeline` | no | A development story in stages, oldest first, shown as the "Development *cycle*" section: each stage has `when`, `title` (one `*italic*` phrase), optional `text`, and `media` (photos: `src`, `alt`, `caption`, optional `credit`; clips: `mp4`, `webm`, `poster`, `alt`, `caption`). See the Mediacom page (§9.3). |
 | `figures` | no | List of `src` (relative path), `alt`, `caption`, optional `credit` ("Team figure · course report") |
-| `extraVideos` | no | List of `mp4`, `webm`, `poster`, `caption`, optional `clickToPlay: true` (never starts by itself: for longer clips that tell a story) |
+| `extraVideos` | no | List of `mp4`, `webm`, `poster`, `caption`, optional `clickToPlay: true` (never starts by itself: for longer clips that tell a story), `autoplay: true` (plays in view on every screen, not only touch) and `wide: true` (spans the whole gallery) |
 | `lead` | yes | One sentence with exactly **one** `*italic phrase*` |
 | `tldr` | yes | `problem`, `built`, `result`, `stack` (optional): one line each, no asterisks. Roles read them as Mission / My role / Status / Tools |
 

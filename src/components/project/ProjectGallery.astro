@@ -12,7 +12,8 @@
  * "Rocket landing screen recording", docs/MEDIA.md keeps the spec.
  *
  * Layout without reordering anything (DOM order = visual order):
- *   - items at least 2.4:1 span the whole gallery ("wide"; ~2:1 plots pair up);
+ *   - items at least 2.4:1 span the whole gallery ("wide"; ~2:1 plots pair up),
+ *     and so do clips marked `wide`;
  *   - the "Coming soon" band is always wide;
  *   - two consecutive narrower items share a row ("half");
  *   - a lone narrower item spans the row with its caption beside it ("side"),
@@ -84,7 +85,7 @@ const lone = (entry: (typeof numbered)[number]): Placed => ({
 });
 let pending: (typeof numbered)[number] | null = null;
 for (const entry of numbered) {
-  const wide = entry.item.ratio.n >= WIDE;
+  const wide = entry.item.ratio.n >= WIDE || (entry.item.type === 'video' && entry.item.wide === true);
   if (wide) {
     if (pending) placed.push(lone(pending));
     pending = null;

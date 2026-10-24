@@ -110,6 +110,7 @@
 - Test photos have hidden labels, so every card named on a test photo was checked by eye; the copy says what the model misses (32 of 123 copies on the validation crops, 16 invented) instead of claiming spread-out hands are always right.
 - The Mac's disk filled up mid-session (agents' test outputs); freed by deleting the scratch work folder and, with Alexandros's OK, his local project copy (`ImageYOLO/`) and the report folder, which are both gone now.
 - Checks: `npm run check` 0 errors, build 13 pages; the page checked in the browser at 1440 and 390 (hero plays, figures load, no sideways scroll).
+- Then, at Alexandros's request, the synthetic-data clip spans the whole gallery and plays when it scrolls into view (new `extraVideos[].autoplay` and `wide` options; reduced motion and Save-Data still never autoplay).
 
 ## Next
 

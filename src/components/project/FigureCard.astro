@@ -13,7 +13,8 @@
  *           as they are (no blend, no cap).
  *   video   LoopVideo card (poster first, hover/focus to play on desktop,
  *           visible play/pause button; touch screens follow the core rules;
- *           `clickToPlay` clips only start from the button). Very wide clips
+ *           `autoplay` clips play in view on every screen; `clickToPlay` clips
+ *           only start from the button). Very wide clips
  *           (> 3:1, e.g. three panels side by side) get their play button and
  *           a "Full size ↗" link to the MP4 under the frame instead of on it.
  *   soon    media still to come: a slim "Coming soon · <label>" band, or with
@@ -51,6 +52,10 @@ export type GalleryItem =
       caption: string;
       /** Only the play button starts it (no hover / scroll autoplay). */
       clickToPlay?: boolean;
+      /** Plays when in view on every screen, not only on touch screens. */
+      autoplay?: boolean;
+      /** Spans the whole gallery width (ProjectGallery). */
+      wide?: boolean;
       ratio: { css: string; n: number };
     }
   | {
@@ -151,6 +156,7 @@ const videoId =
           aspect={item.ratio.css}
           controls={!wideClip}
           controlsAt="bottom-right"
+          autoplay={item.autoplay}
           manual={item.clickToPlay}
         />
       ) : (

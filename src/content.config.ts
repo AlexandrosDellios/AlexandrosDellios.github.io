@@ -113,6 +113,11 @@ const projects = defineCollection({
             // true = never starts by itself (no hover / scroll autoplay): only the
             // play button starts it. For longer clips that tell a story.
             clickToPlay: z.boolean().default(false),
+            // true = plays when it scrolls into view on every screen (by default only touch
+            // screens do; desktops wait for hover). Never under reduced motion or Save-Data.
+            autoplay: z.boolean().default(false),
+            // true = spans the whole gallery width, whatever its aspect ratio.
+            wide: z.boolean().default(false),
           }),
         )
         .default([]),

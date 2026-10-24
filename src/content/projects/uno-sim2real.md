@@ -34,7 +34,8 @@ extraVideos:
     webm: "/media/uno-sim2real/synthesis.webm"
     poster: "/media/uno-sim2real/synthesis-poster.jpg"
     caption: "How one synthetic training image is built: a patch of a real tablecloth, two hand-cut cards colour-jittered, rotated, tilted and blurred, pasted so they overlap, then brightness, letterbox bars and sensor noise. Pre-training used 10,000 of these."
-    clickToPlay: true
+    autoplay: true
+    wide: true
 figures:
   - src: "../../assets/projects/uno-sim2real/fig-zones.jpg"
     alt: "A test photo of a white table with the five reading zones drawn, overlapping at the corners, and below it the five padded square crops the network receives"
