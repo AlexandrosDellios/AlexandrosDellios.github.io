@@ -144,7 +144,7 @@ export const site = {
         { text: 'I like controllers that hold up when things go wrong: ' },
         { text: 'sensory feedback', slug: 'polymander' },
         { text: ' that keeps a robot swimming through neural damage, a glider that ' },
-        { text: 'lands precisely in the wind', slug: 'glider-codesign' },
+        { text: 'lands precisely from an off-course start', slug: 'glider-codesign' },
         { text: ', and a robot that keeps its bearings ' },
         { text: 'when its camera goes dark', slug: 'thymio-ekf' },
         { text: '.' },

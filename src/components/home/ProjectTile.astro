@@ -70,6 +70,7 @@ const sizes = '(min-width: 1024px) 31vw, (min-width: 600px) 48vw, 100vw';
 const accentStyle = `--accent: ${data.accent}; --accent-ink: ${data.accentInk}`;
 const tagCount = data.tags.length;
 // Every project is at EPFL (the hero says so): drop the prefix so the meta fits one line.
+// A longer context ("… course · in collaboration with …") wraps between its own parts.
 const context = data.context.replace(/^EPFL\s*·\s*/i, '');
 // Drawings may ship a label-free tile crop (tilePoster); footage uses the poster.
 const tileImage = data.tilePoster ?? data.poster;
@@ -151,7 +152,7 @@ const posterWidths = tileImage
     <ul class="tile__tags" role="list">
       {data.tags.map((tag, i) => <Chip as="li" text={tag} class="tile__tag" style={`--i: ${i}; --n: ${tagCount}`} />)}
     </ul>
-    <p class="tile__meta" id={ids.meta}><Segments parts={[data.year, context, data.team]} /></p>
+    <p class="tile__meta" id={ids.meta}><Segments parts={[data.year, ...context.split(' · '), data.team]} /></p>
   </a>
 
   {data.video && <VideoToggle target={ids.video} label={data.shortTitle} class="tile__toggle" />}

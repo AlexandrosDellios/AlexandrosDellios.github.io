@@ -86,11 +86,12 @@
 
 ### 2026-10-24: Session 3, the glider page
 
-- From Alexandros's course report (local only) and poster-session photo, plus an inference run of the team's code: the glider page now has a real hero/tile animation (the final co-design policy perching 4.5 cm off at 0.91 m/s, rendered in site colours from the logged states, slowed ×0.48; an independent re-run matched it exactly; repo clone and venv deleted afterwards), six figures (five from the report, the convergence table redrawn as a chart), the poster-session photo, and copy rewritten from the report (team of 3, with the CV Lab; simulator, curriculum, PPO vs SAC/TD3, randomized starts, co-design and CEM, 200 vs 285 updates to the final stage).
+- From Alexandros's course report (local only) and poster-session photo, plus an inference run of the team's code: the glider page now has a real hero/tile animation (the final co-design policy perching 4.5 cm off at 0.91 m/s, rendered in site colours from the logged states, slowed ×0.48; an independent re-run matched it exactly; repo clone and venv deleted afterwards), six figures (five from the report, the convergence table redrawn as a chart), the poster-session photo, and copy rewritten from the report (team of 3; simulator, curriculum, PPO vs SAC/TD3, randomized starts, co-design and CEM, 200 vs 285 updates to the final stage).
 - The illustration poster and its tile crop are gone; the social card is regenerated.
 - New `photo` flag on figures (no multiply blend); the gallery title counts photos.
 - A six-agent review then caught: the report's speedups belong to its "Stage 3 reached" column (chart and copy now use it), 4:3 crops that cut the glider out (animation re-rendered from the same logged flight with the perch further left), Escape being undone by the new preview resync (fixed), prev/next letterboxing, the photo's 2.2 MB full-size PNG (now JPEG), and doc wording.
-- Open (QUESTIONS Q-A4): the wind wording, the course name, Alexandros's own part.
+- Alexandros's answers (Q-A4), applied the same day: no wind (the claim is gone from the TL;DR and the home statement, now "lands precisely from an off-course start"; he is updating his CV), context "EPFL · Reinforcement Learning course · in collaboration with the CV Lab" (in collaboration with the lab), My part "SAC agent, in parallel with a teammate's PPO" (also in the Approach), the poster-session photo stays. The other CV claims stay as written (Alexandros confirmed them).
+- To do: replace `public/CV-Alexandros-Dellios.pdf` when the updated CV (no glider wind claim) arrives.
 
 ### 2026-10-24: Session 3, the award's development cycle
 

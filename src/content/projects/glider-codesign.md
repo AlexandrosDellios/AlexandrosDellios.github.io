@@ -8,8 +8,9 @@ shortTitle: "Glider co-design"
 shortWord: "GLIDER"
 order: 2
 year: "2026"
-context: "EPFL · Course project with the CV Lab"
+context: "EPFL · Reinforcement Learning course · in collaboration with the CV Lab"
 team: "Team of 3"
+myPart: "SAC agent, in parallel with a teammate’s PPO"
 oneLiner: "Reinforcement learning teaches a glider to land precisely while the agent redesigns its own wing, reaching success 29.7% faster."
 metric: "29.7% FASTER CONVERGENCE"
 tags: ["PPO", "Co-design", "GPU-batched sim", "Curriculum"]
@@ -58,7 +59,7 @@ figures:
 lead: "What if a robot could *redesign its own wing* while learning to fly?"
 tldr:
   problem: "Perching, landing on a point at near-zero speed, needs a post-stall pitch-up, and the wing’s shape limits what any controller can do. Optimal-control co-design plans one open-loop trajectory for one start."
-  built: "A closed-loop PPO controller for the elevator, trained to adapt to unpredictable wind disturbances and varying starting speeds in a GPU-native simulator with NeuralFoil aerodynamics, plus two searches for a better wing: one learned alongside the controller, one black-box."
+  built: "A closed-loop PPO controller for the elevator, trained to adapt to varying starting speeds, positions and flight directions in a GPU-native simulator with NeuralFoil aerodynamics, plus two searches for a better wing: one learned alongside the controller, one black-box."
   result: "Perches within 5 cm at under 1 m/s, matching optimal control from its start and generalizing beyond it; the best wing found cuts training time by 29.7%."
   stack: "Python, PyTorch, PPO, REINFORCE, cross-entropy method, NeuralFoil"
 ---
@@ -67,7 +68,7 @@ tldr:
 
 1. **A simulator built for RL.** The planar glider dynamics (RK4) and the NeuralFoil aerodynamics surrogate run natively in PyTorch, so everything stays on the GPU: 4,096 gliders in parallel, about 600,000 steps per second on one RTX 5090. The agent sees a 7-D state and commands the elevator rate, within ±5 rad/s.
 2. **Curriculum.** First a simple flat-plate aerodynamics model, then NeuralFoil, then four stages that tighten the perch from 0.5 m to 0.05 m, always under 1 m/s.
-3. **Algorithm.** PPO, chosen over SAC and TD3: it stays stable when the curriculum tightens (no stale replay buffer) and scales with thousands of parallel gliders, while TD3 never reliably found the pitch-up.
+3. **Algorithm.** I built the SAC agent while a teammate built the PPO one, in parallel, both to replace the optimal-control planner with RL. SAC solved the flat-plate perch, but PPO was kept: it stays stable when the curriculum tightens (SAC’s replay buffer goes stale) and scales with thousands of parallel gliders, while TD3 never reliably found the pitch-up.
 4. **Robustness.** Every episode starts from a randomized state: nine base positions 3 to 10 m from the perch, Gaussian noise, and a 30° spread on the velocity direction, so the controller learns a strategy, not one trajectory.
 5. **Wing co-design.** The 18-D wing shape (Kulfan/CST parameters, 0 = NACA 4412) joins the policy’s state and learns by REINFORCE with a design critic as baseline. A second, black-box search (the cross-entropy method, 8 generations × 24 wings) looks directly for the wing the controller learns fastest.
 
@@ -82,4 +83,4 @@ tldr:
 
 The animation at the top is a real inference run of the trained co-design policy flying its co-designed wing, rendered for this site from the logged states: it perches 4.5 cm off target at 0.91 m/s after 2.42 s (shown at ×0.48, the glider drawn larger than scale). From 12 random starts, it perched every time.
 
-A team of 3, with EPFL’s CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code lives in a team repository.
+A team of 3 in EPFL’s Reinforcement Learning course, in collaboration with the CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code lives in a team repository.

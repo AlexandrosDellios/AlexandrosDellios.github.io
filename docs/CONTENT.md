@@ -16,7 +16,7 @@
 4. **BioRob stays at CV level.** Only the CV's wording; no methods, models, equipment, partners or publication plans.
 5. **No report PDFs.** Figures are shown individually with captions; the reports themselves are not linked.
 6. **Voice.** First person, "we" for team work. Concise and concrete, no hype words. Serif titles and leads mark exactly **one** italic phrase with `*asterisks*`.
-7. **"My part"** is stated only where it is documented. Today: Thymio (state estimation) and the fly-navigation project. Everywhere else it waits for Alexandros (Q-A1). Role pages show the CV role title instead.
+7. **"My part"** is stated only where it is documented. Today: Thymio (state estimation), the fly-navigation project and the glider (the SAC agent). Everywhere else it waits for Alexandros (Q-A1). Role pages show the CV role title instead.
 
 **Source tags used below**
 - **[CV]**: wording or number from the CV.
@@ -130,9 +130,9 @@ Every tile always shows: title, one-liner, metric chip, tags, and `year · conte
 ### Statement cells (underlined phrases link to project pages)
 
 - **S1:** "I teach [legged robots](/work/quadruped-cpg-rl/) to walk with reinforcement learning, write [controllers that land rockets](/work/rocket-mpc/), and train networks to [read a cluttered table](/work/uno-sim2real/)." Pill: **GitHub ↗**
-- **S2:** "I like controllers that hold up when things go wrong: [sensory feedback](/work/polymander/) that keeps a robot swimming through neural damage, a glider that [lands precisely in the wind](/work/glider-codesign/), and a robot that keeps its bearings [when its camera goes dark](/work/thymio-ekf/)." Pill: **Download CV**
+- **S2:** "I like controllers that hold up when things go wrong: [sensory feedback](/work/polymander/) that keeps a robot swimming through neural damage, a glider that [lands precisely from an off-course start](/work/glider-codesign/), and a robot that keeps its bearings [when its camera goes dark](/work/thymio-ekf/)." Pill: **Download CV**
 
-Source: [Edit], each phrase backed by its project page (S2 glider phrase: [CV] "wind disturbances").
+Source: [Edit], each phrase backed by its project page (S2 glider phrase: [CV] varying starting speeds, and the randomized starts on the glider page).
 
 ---
 
@@ -511,7 +511,7 @@ Team of 4 with one module each: global navigation and motion control, local navi
 | Tile title | Glider perching with wing co-design |
 | Short title | Glider co-design |
 | Outlined word | GLIDER |
-| Meta | 2026 · EPFL · Course project with the CV Lab · Team of 3 |
+| Meta | 2026 · EPFL · Reinforcement Learning course · in collaboration with the CV Lab · Team of 3 · My part: SAC agent, in parallel with a teammate’s PPO |
 | One-liner | Reinforcement learning teaches a glider to land precisely while the agent redesigns its own wing, reaching success 29.7% faster. (CV wording) |
 | Metric chip | `29.7% FASTER CONVERGENCE` |
 | Tags | `PPO` · `Co-design` · `GPU-batched sim` · `Curriculum` |
@@ -525,7 +525,7 @@ Team of 4 with one module each: global navigation and motion control, local navi
 
 **TL;DR**
 - **Problem:** Perching, landing on a point at near-zero speed, needs a post-stall pitch-up, and the wing’s shape limits what any controller can do. Optimal-control co-design plans one open-loop trajectory for one start.
-- **What we built:** A closed-loop PPO controller for the elevator, trained to adapt to unpredictable wind disturbances and varying starting speeds in a GPU-native simulator with NeuralFoil aerodynamics, plus two searches for a better wing: one learned alongside the controller, one black-box.
+- **What we built:** A closed-loop PPO controller for the elevator, trained to adapt to varying starting speeds, positions and flight directions in a GPU-native simulator with NeuralFoil aerodynamics, plus two searches for a better wing: one learned alongside the controller, one black-box.
 - **Result:** Perches within 5 cm at under 1 m/s, matching optimal control from its start and generalizing beyond it; the best wing found cuts training time by 29.7%.
 - **Stack:** Python, PyTorch, PPO, REINFORCE, cross-entropy method, NeuralFoil
 
@@ -533,7 +533,7 @@ Team of 4 with one module each: global navigation and motion control, local navi
 
 1. **A simulator built for RL.** The planar glider dynamics (RK4) and the NeuralFoil aerodynamics surrogate run natively in PyTorch, so everything stays on the GPU: 4,096 gliders in parallel, about 600,000 steps per second on one RTX 5090. The agent sees a 7-D state and commands the elevator rate, within ±5 rad/s.
 2. **Curriculum.** First a simple flat-plate aerodynamics model, then NeuralFoil, then four stages that tighten the perch from 0.5 m to 0.05 m, always under 1 m/s.
-3. **Algorithm.** PPO, chosen over SAC and TD3: it stays stable when the curriculum tightens (no stale replay buffer) and scales with thousands of parallel gliders, while TD3 never reliably found the pitch-up.
+3. **Algorithm.** I built the SAC agent while a teammate built the PPO one, in parallel, both to replace the optimal-control planner with RL. SAC solved the flat-plate perch, but PPO was kept: it stays stable when the curriculum tightens (SAC’s replay buffer goes stale) and scales with thousands of parallel gliders, while TD3 never reliably found the pitch-up.
 4. **Robustness.** Every episode starts from a randomized state: nine base positions 3 to 10 m from the perch, Gaussian noise, and a 30° spread on the velocity direction, so the controller learns a strategy, not one trajectory.
 5. **Wing co-design.** The 18-D wing shape (Kulfan/CST parameters, 0 = NACA 4412) joins the policy’s state and learns by REINFORCE with a design critic as baseline. A second, black-box search (the cross-entropy method, 8 generations × 24 wings) looks directly for the wing the controller learns fastest.
 
@@ -548,7 +548,7 @@ Team of 4 with one module each: global navigation and motion control, local navi
 
 The animation at the top is a real inference run of the trained co-design policy flying its co-designed wing, rendered for this site from the logged states: it perches 4.5 cm off target at 0.91 m/s after 2.42 s (shown at ×0.48, the glider drawn larger than scale). From 12 random starts, it perched every time.
 
-A team of 3, with EPFL’s CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code lives in a team repository.
+A team of 3 in EPFL’s Reinforcement Learning course, in collaboration with the CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code lives in a team repository.
 
 **Figures** (caption · credit), in order:
 - `fig-training-curve-neuralfoil.png`: Training with NeuralFoil aerodynamics: each sharp drop is the curriculum tightening the perch, and the policy recovers every time. 200M timesteps in under 6 minutes. *(Team figure · course report)*
@@ -560,10 +560,11 @@ A team of 3, with EPFL’s CV Lab: the project builds on the lab’s gradient-ba
 - `poster-session.jpg` (photo): Presenting our poster at the poster session.
 
 **Sources**
-- [CV] "RL-Driven Glider Co-Design": precise landings, robustness to unpredictable wind disturbances and varying starting speeds, wing redesign while learning, 29.7% faster convergence. The wind wording is kept as the CV's (open question, local QUESTIONS Q-A4).
-- [Report] the team's course report (local only, never published): the simulator (RK4 + NeuralFoil in PyTorch, 4,096 gliders, ~600k steps/s on an RTX 5090), the 7-D state and ±5 rad/s elevator rate, the flat-plate → NeuralFoil curriculum and its 4 stages, PPO vs SAC vs TD3, the randomized starts, the 18-D CST co-design with REINFORCE and a design critic, CEM (8 × 24), 200M timesteps in under 6 minutes, comparable trajectory quality to optimal control and the success heatmap, Table 3 (final stage reached in 200 vs 285 updates and mastery in 244 vs 336; the 29.7% / 27.1% / 11.6% speedups come from the final-stage column), the figures, team of 3, the CV Lab framework. The result line follows the report's wording.
+- [CV] "RL-Driven Glider Co-Design": precise landings, robustness to varying starting speeds, wing redesign while learning, 29.7% faster convergence. The CV's wind claim is dropped (there was no wind, per Alexandros, who is updating his CV); his other claims stand as written.
+- [Report] the team's course report (local only, never published): the simulator (RK4 + NeuralFoil in PyTorch, 4,096 gliders, ~600k steps/s on an RTX 5090), the 7-D state and ±5 rad/s elevator rate, the flat-plate → NeuralFoil curriculum and its 4 stages, PPO vs SAC vs TD3, the randomized starts, the 18-D CST co-design with REINFORCE and a design critic, CEM (8 × 24), 200M timesteps in under 6 minutes, comparable trajectory quality to optimal control and the success heatmap, Table 3 (final stage reached in 200 vs 285 updates and mastery in 244 vs 336; the 29.7% / 27.1% / 11.6% speedups come from the final-stage column), the figures, team of 3, the SAC result on the flat plate, the CV Lab framework. The result line follows the report's wording.
 - [Run] an inference run of the team's final co-design policy with its learned wing, in the team's own simulator, rendered for this site and independently re-run with identical states (2026-10-24): perched 4.5 cm off at 0.91 m/s after 2.42 s from the evaluation start; 12/12 perches from the environment's seeded random starts.
-- The code is in a teammate's repository, so there is no link. Alexandros's own part is not documented yet (Q-A1).
+- [Alexandros] the course (Reinforcement Learning, a project in collaboration with the CV Lab) and his part: the SAC agent, built in parallel with a teammate's PPO, both to replace the optimal-control planner with RL.
+- The code is in a teammate's repository, so there is no link.
 
 ### 8.7 Fly navigation in NeuroMechFly
 
@@ -738,7 +739,7 @@ Sources: [CV] Mediacom entry (older CV; kept by decision) for the pitch, ownersh
 | `shortWord` | yes | One or two uppercase words for the giant outlined word: "ROCKET" |
 | `order` | yes | Position within its section (Selected work, More projects) or among the roles (1 = first). Renumber the others if needed. |
 | `year` | yes | "2026" |
-| `context` | yes | "EPFL · <course name> course", or the lab or team |
+| `context` | yes | "EPFL · <course name> course" (optionally " · in collaboration with <lab>": the tile wraps between the parts), or the lab or team |
 | `team` | yes | "Solo" or "Team of N". **Never names.** (Roles: a short descriptor, shown only on the social card) |
 | `myPart` | no | Only when Alexandros has confirmed it: "State estimation (EKF)" |
 | `oneLiner` | yes | One sentence with the outcome. It is always visible on the tile and is the page's meta description, so keep it ≤ 160 characters. |
