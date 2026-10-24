@@ -99,6 +99,7 @@ const projects = defineCollection({
             alt: z.string(),
             caption: z.string(),
             credit: z.string().optional(),
+            photo: z.boolean().default(false), // a photo, not a plot: shown as is (plots are multiplied onto the paper)
           }),
         )
         .default([]),

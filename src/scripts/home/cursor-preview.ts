@@ -15,9 +15,15 @@
  * - Keyboard focus (:focus-visible) on a statement link shows its pill next to
  *   the link. List-row cards are pointer-only: on keyboard focus they would sit
  *   over the next row's dates while the reader moves down the list.
- * - Escape hides it (WCAG 1.4.13: content on hover or focus is dismissible).
+ * - Escape hides it (WCAG 1.4.13: content on hover or focus is dismissible),
+ *   and it stays dismissed until the pointer leaves that trigger.
  * - Reduced motion: no following; it appears next to the trigger and stays.
- * - Hides on scroll, pointer leave, blur, and when the tab is hidden.
+ * - Scrolling moves content under a still pointer: after each scroll frame the
+ *   preview follows what is under the pointer (same row: the card moves with
+ *   it; another trigger: that one shows; nothing: it hides). It used to hide on
+ *   every scroll event, and since smooth scroll keeps firing them for a moment
+ *   after the wheel stops, a row under a resting pointer never showed its card.
+ * - Hides on pointer leave, blur, and when the tab is hidden.
  * Thumbnails are preloaded on idle so the first hover is instant.
  */
 import { env } from '../core/motion';
@@ -40,6 +46,8 @@ export function initCursorPreview(): void {
 
   const follow = env.finePointer && !env.reducedMotion;
   let active: HTMLElement | null = null;
+  // The trigger whose preview Escape closed: not shown again until the pointer leaves it.
+  let dismissed: HTMLElement | null = null;
   let x = 0;
   let y = 0;
   let tx = 0;
@@ -132,16 +140,24 @@ export function initCursorPreview(): void {
         else showBeside(trigger);
       });
       trigger.addEventListener('pointerleave', () => {
+        if (dismissed === trigger) dismissed = null;
         if (active === trigger) hide();
       });
-      if (follow) {
-        trigger.addEventListener('pointermove', (e) => {
-          if (active !== trigger) return;
-          if (isPinned(trigger) && pinnedSpot(trigger)) return; // stays put
-          [tx, ty] = clampTarget(e.clientX, e.clientY);
-          if (!raf) raf = requestAnimationFrame(tick);
-        });
-      }
+      trigger.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
+        // Moving inside a trigger whose preview is not showing (it was hidden by
+        // a scroll, a tab switch…): show it again, unless Escape dismissed it.
+        if (active !== trigger) {
+          if (dismissed === trigger) return;
+          if (follow) show(trigger, e.clientX, e.clientY);
+          else showBeside(trigger);
+          return;
+        }
+        if (!follow) return;
+        if (isPinned(trigger) && pinnedSpot(trigger)) return; // stays put
+        [tx, ty] = clampTarget(e.clientX, e.clientY);
+        if (!raf) raf = requestAnimationFrame(tick);
+      });
     });
   }
 
@@ -152,14 +168,75 @@ export function initCursorPreview(): void {
     if (trigger && !isPinned(trigger) && target?.matches(':focus-visible') && env.finePointer) showBeside(trigger);
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && active) hide();
+    if (e.key !== 'Escape' || !active) return;
+    dismissed = active;
+    hide();
   });
   document.addEventListener('focusout', (e) => {
     const trigger = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-preview-src]');
     if (trigger && trigger === active) hide();
   });
 
-  window.addEventListener('scroll', () => active && hide(), { passive: true });
+  // Last mouse/pen position in the viewport (-1 = unknown: before the first
+  // move, or once the pointer has left the window).
+  let px = -1;
+  let py = -1;
+  const forgetPointer = () => {
+    px = -1;
+    py = -1;
+  };
+  document.addEventListener('pointerout', (e) => {
+    if (!e.relatedTarget) forgetPointer();
+  });
+  window.addEventListener('blur', forgetPointer);
+  document.addEventListener(
+    'pointermove',
+    (e) => {
+      if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
+      px = e.clientX;
+      py = e.clientY;
+    },
+    { passive: true },
+  );
+
+  /** After a scroll frame: keep the preview in step with what is under the still pointer. */
+  const resync = () => {
+    scrollRaf = 0;
+    const under =
+      env.finePointer && px >= 0
+        ? (document.elementFromPoint(px, py)?.closest<HTMLElement>('[data-preview-src]') ?? null)
+        : null;
+    if (!under) {
+      if (active) hide();
+      return;
+    }
+    if (under === dismissed) return;
+    if (under !== active) {
+      if (follow) show(under, px, py);
+      else showBeside(under);
+      return;
+    }
+    const pin = isPinned(under) ? pinnedSpot(under) : null;
+    if (pin) [tx, ty] = pin;
+    else if (follow) [tx, ty] = clampTarget(px, py);
+    else {
+      showBeside(under); // reduced motion: an instant move, back beside the link
+      return;
+    }
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    x = tx;
+    y = ty;
+    place(x, y);
+  };
+  let scrollRaf = 0;
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!scrollRaf) scrollRaf = requestAnimationFrame(resync);
+    },
+    { passive: true },
+  );
   document.addEventListener('visibilitychange', () => document.hidden && hide());
 
   // Warm the cache so the first hover shows the image immediately.

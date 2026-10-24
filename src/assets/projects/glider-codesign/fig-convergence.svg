@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" width="960" height="380" role="img" aria-labelledby="t d">
+  <!-- Glider co-design: PPO updates until the final curriculum stage per frozen wing (course report, Table 3, Stage 3 reached: mean ± sd over 5 seeds). Redrawn for the site (docs/MEDIA.md). Ink on transparent; sky = the CEM winner. -->
+  <title id="t">Training updates until the controller reaches the final curriculum stage, per wing design</title>
+  <desc id="d">Mean PPO updates to reach the final curriculum stage over five seeds, lower is faster: NACA 4412 baseline 285 (±48), random direction 252 (±55, 11.6% faster), co-designed wing 208 (±22, 27.1% faster), a random sample from the co-design distribution 200 (±21, 29.9% faster), CEM winner 200 (±18, 29.7% faster).</desc>
+  <style>
+    .m { font-family: 'Geist Mono', 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; fill: #151412; }
+    .lab { font-size: 17px; font-weight: 500; }
+    .val { font-size: 16px; font-weight: 500; }
+    .ax { font-size: 13px; fill-opacity: .6; }
+    .note { font-size: 13px; letter-spacing: 1px; fill-opacity: .6; }
+    .grid { stroke: #151412; stroke-opacity: .12; stroke-width: 1; }
+    .err { stroke: #151412; stroke-width: 1.5; }
+  </style>
+  <line class="grid" x1="300.0" y1="26" x2="300.0" y2="310"/>
+  <text class="m ax" x="300.0" y="328" text-anchor="middle">0</text>
+  <line class="grid" x1="374.3" y1="26" x2="374.3" y2="310"/>
+  <text class="m ax" x="374.3" y="328" text-anchor="middle">50</text>
+  <line class="grid" x1="448.6" y1="26" x2="448.6" y2="310"/>
+  <text class="m ax" x="448.6" y="328" text-anchor="middle">100</text>
+  <line class="grid" x1="522.9" y1="26" x2="522.9" y2="310"/>
+  <text class="m ax" x="522.9" y="328" text-anchor="middle">150</text>
+  <line class="grid" x1="597.1" y1="26" x2="597.1" y2="310"/>
+  <text class="m ax" x="597.1" y="328" text-anchor="middle">200</text>
+  <line class="grid" x1="671.4" y1="26" x2="671.4" y2="310"/>
+  <text class="m ax" x="671.4" y="328" text-anchor="middle">250</text>
+  <line class="grid" x1="745.7" y1="26" x2="745.7" y2="310"/>
+  <text class="m ax" x="745.7" y="328" text-anchor="middle">300</text>
+  <line class="grid" x1="820.0" y1="26" x2="820.0" y2="310"/>
+  <text class="m ax" x="820.0" y="328" text-anchor="middle">350</text>
+  <text class="m note" x="300" y="354">PPO UPDATES TO THE FINAL STAGE · MEAN ± SD · 5 SEEDS</text>
+  <text class="m lab" x="284" y="62.0" text-anchor="end">NACA 4412 (baseline)</text>
+  <rect x="300" y="44.0" width="423.1" height="24" fill="#151412" fill-opacity=".22" stroke="#151412" stroke-width="1.5"/>
+  <line class="err" x1="652.3" y1="56.0" x2="794.0" y2="56.0"/>
+  <line class="err" x1="652.3" y1="51.0" x2="652.3" y2="61.0"/>
+  <line class="err" x1="794.0" y1="51.0" x2="794.0" y2="61.0"/>
+  <text class="m val" x="804.0" y="61.5">285 · baseline</text>
+  <text class="m lab" x="284" y="120.0" text-anchor="end">Random direction</text>
+  <rect x="300" y="102.0" width="374.1" height="24" fill="none" stroke="#151412" stroke-width="1.5"/>
+  <line class="err" x1="593.0" y1="114.0" x2="755.2" y2="114.0"/>
+  <line class="err" x1="593.0" y1="109.0" x2="593.0" y2="119.0"/>
+  <line class="err" x1="755.2" y1="109.0" x2="755.2" y2="119.0"/>
+  <text class="m val" x="765.2" y="119.5">252 · −11.6%</text>
+  <text class="m lab" x="284" y="178.0" text-anchor="end">Co-designed wing</text>
+  <rect x="300" y="160.0" width="308.4" height="24" fill="none" stroke="#151412" stroke-width="1.5"/>
+  <line class="err" x1="575.3" y1="172.0" x2="641.6" y2="172.0"/>
+  <line class="err" x1="575.3" y1="167.0" x2="575.3" y2="177.0"/>
+  <line class="err" x1="641.6" y1="167.0" x2="641.6" y2="177.0"/>
+  <text class="m val" x="651.6" y="177.5">208 · −27.1%</text>
+  <text class="m lab" x="284" y="236.0" text-anchor="end">Random co-design sample</text>
+  <rect x="300" y="218.0" width="296.5" height="24" fill="none" stroke="#151412" stroke-width="1.5"/>
+  <line class="err" x1="565.6" y1="230.0" x2="627.5" y2="230.0"/>
+  <line class="err" x1="565.6" y1="225.0" x2="565.6" y2="235.0"/>
+  <line class="err" x1="627.5" y1="225.0" x2="627.5" y2="235.0"/>
+  <text class="m val" x="637.5" y="235.5">200 · −29.9%</text>
+  <text class="m lab" x="284" y="294.0" text-anchor="end">CEM winner</text>
+  <rect x="300" y="276.0" width="297.4" height="24" fill="#3A9AD9" stroke="#151412" stroke-width="1.5"/>
+  <line class="err" x1="571.3" y1="288.0" x2="623.6" y2="288.0"/>
+  <line class="err" x1="571.3" y1="283.0" x2="571.3" y2="293.0"/>
+  <line class="err" x1="623.6" y1="283.0" x2="623.6" y2="293.0"/>
+  <text class="m val" x="633.6" y="293.5" style="fill: #1A6796">200 · −29.7%</text>
+</svg>

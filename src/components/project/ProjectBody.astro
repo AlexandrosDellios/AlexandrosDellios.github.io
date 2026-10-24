@@ -64,8 +64,9 @@ const soonKinds = [
   ...(hasSoon && data.mediaNeeded ? [data.sketch ?? sketchFor(data.mediaNeeded)] : []),
 ];
 const clips = hasVideos || soonKinds.includes('video');
-const figs = hasFigures || soonKinds.includes('plot');
-const photos = soonKinds.some((k) => k !== 'video' && k !== 'plot');
+const figs = data.figures.some((f) => !f.photo) || soonKinds.includes('plot');
+// Photos: real photo figures and drawn photo cards (`soon`); a lone placeholder band does not retitle the gallery.
+const photos = data.figures.some((f) => f.photo) || data.soon.map(sketchFor).some((k) => k !== 'video' && k !== 'plot');
 const galleryTitle = clips
   ? figs
     ? 'Footage & *figures*'
@@ -73,7 +74,9 @@ const galleryTitle = clips
       ? 'Photos & *footage*'
       : '*Footage*'
   : figs
-    ? '*Figures*'
+    ? photos
+      ? 'Figures & *photos*'
+      : '*Figures*'
     : '*Photos*';
 const [galleryLead, galleryEm] = galleryTitle.split('*');
 ---

@@ -9,7 +9,8 @@
  *           original file so small plot labels stay readable. Raster plots
  *           (white matplotlib PNGs) are multiplied onto the paper, so their
  *           white turns into paper and the lines stay; wide ones are capped
- *           at 56rem so their text is not blown up.
+ *           at 56rem so their text is not blown up. `photo` figures are shown
+ *           as they are (no blend, no cap).
  *   video   LoopVideo card (poster first, hover/focus to play on desktop,
  *           visible play/pause button; touch screens follow the core rules;
  *           `clickToPlay` clips only start from the button). Very wide clips
@@ -38,6 +39,8 @@ export type GalleryItem =
       alt: string;
       caption: string;
       credit?: string;
+      /** A photo, not a plot: no multiply blend onto the paper. */
+      photo?: boolean;
       ratio: { css: string; n: number };
     }
   | {
@@ -79,10 +82,11 @@ const isSvg = item.type === 'figure' && item.src.format === 'svg';
 
 // "Full size ↗" target: a native-size, lossless copy emitted by the image
 // pipeline (so it exists in the build), opened in a new tab to zoom into
-// small plot labels. SVG diagrams pass through as SVG.
+// small plot labels. SVG diagrams pass through as SVG; photos get a JPEG
+// (a lossless PNG of a photo is ~9× the size).
 const fullSize =
   item.type === 'figure'
-    ? (await getImage({ src: item.src, width: item.src.width, format: isSvg ? 'svg' : 'png' })).src
+    ? (await getImage({ src: item.src, width: item.src.width, format: isSvg ? 'svg' : item.photo ? 'jpg' : 'png' })).src
     : null;
 
 // "Walking: the limb oscillators…" -> "Walking"; "Flat-ground trot at about
@@ -106,6 +110,7 @@ const videoId =
     `fig--${layout}`,
     item.type === 'soon' && item.card ? 'fig--soon-card' : `fig--${item.type}`,
     isSvg && 'fig--svg',
+    item.type === 'figure' && item.photo && 'fig--photo',
   ]}
   data-video-hover={item.type === 'video' && !item.clickToPlay ? '' : undefined}
 >
@@ -227,12 +232,12 @@ const videoId =
   /* Raster plots are white prints: multiply them onto the paper, so the white
      becomes paper and the lines and fills stay (SVG diagrams are drawn for
      paper already). */
-  .fig--figure:not(.fig--svg) .fig__media :global(img) {
+  .fig--figure:not(.fig--svg):not(.fig--photo) .fig__media :global(img) {
     mix-blend-mode: multiply;
   }
 
   /* Wide raw plots: don't blow their axis labels up past ~1.4× (cap 56rem). */
-  .fig--wide.fig--figure:not(.fig--svg) .fig__media {
+  .fig--wide.fig--figure:not(.fig--svg):not(.fig--photo) .fig__media {
     width: 100%;
     max-width: 56rem;
     margin-inline: auto;

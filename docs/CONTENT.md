@@ -511,50 +511,59 @@ Team of 4 with one module each: global navigation and motion control, local navi
 | Tile title | Glider perching with wing co-design |
 | Short title | Glider co-design |
 | Outlined word | GLIDER |
-| Meta | 2026 · EPFL · Course project · Team of 4 |
-| One-liner | Reinforcement learning teaches a glider to land precisely while the agent redesigns its own wing, reaching success 29.7% faster. |
+| Meta | 2026 · EPFL · Course project with the CV Lab · Team of 3 |
+| One-liner | Reinforcement learning teaches a glider to land precisely while the agent redesigns its own wing, reaching success 29.7% faster. (CV wording) |
 | Metric chip | `29.7% FASTER CONVERGENCE` |
 | Tags | `PPO` · `Co-design` · `GPU-batched sim` · `Curriculum` |
 | Accent | `#3A9AD9` fill / `#1A6796` text (4.85:1 on paper-2) |
-| Code link | none |
+| Code link | none (teammate-owned repo) |
 | On the CV | yes |
-| Poster alt | Illustration: a NACA 4412 airfoil outline morphing into a more cambered co-designed wing section |
-| Coming soon (gallery) | Drawn cards (`soon`): Convergence plot · Learned airfoil vs NACA 4412 plot · Perching evaluation clip |
-| Tile poster | `poster-tile.png`: the airfoil outlines only, without labels |
+| Hero + tile loop | `/media/glider-codesign/loop.mp4`: a real inference run of the trained co-design policy, rendered for this site |
+| Poster alt | Simulation render: the glider perched on its target post after a pitch-up, its flight path traced behind it |
 
 **Lead:** What if a robot could *redesign its own wing* while learning to fly?
 
 **TL;DR**
-- **Problem:** Perching, landing precisely on a point at low speed, is a hard nonlinear control problem for fixed-wing gliders, and the wing’s shape limits what any controller can do.
-- **What we built:** A reinforcement-learning agent that flies the glider through its elevator, trained to adapt to unpredictable wind disturbances and varying starting speeds, plus a simultaneous optimization that redesigns the wing shape while the agent learns.
-- **Result:** Highly precise landings that outperform optimal control methods, and co-design that accelerates success convergence by 29.7%.
+- **Problem:** Perching, landing on a point at near-zero speed, needs a post-stall pitch-up, and the wing’s shape limits what any controller can do. Optimal-control co-design plans one open-loop trajectory for one start.
+- **What we built:** A closed-loop PPO controller for the elevator, trained to adapt to unpredictable wind disturbances and varying starting speeds in a GPU-native simulator with NeuralFoil aerodynamics, plus two searches for a better wing: one learned alongside the controller, one black-box.
+- **Result:** Perches within 5 cm at under 1 m/s, matching optimal control from its start and generalizing beyond it; the best wing found cuts training time by 29.7%.
 - **Stack:** Python, PyTorch, PPO, REINFORCE, cross-entropy method, NeuralFoil
 
 #### The *approach*
 
-1. **Glider model.** A planar glider with a 7-D state; the agent commands the elevator rate. Aerodynamics come from NeuralFoil, a neural surrogate of XFOIL, run in batches in PyTorch.
-2. **Training at scale.** PPO across 4,096 parallel GPU environments for 200M timesteps.
-3. **Curriculum.** Four stages tighten the landing target from 0.5 m to 0.05 m, at under 1 m/s touchdown speed.
-4. **Robustness.** Training with unpredictable wind disturbances and varying starting speeds, so the controller holds up outside the nominal case.
-5. **Co-design.** A policy conditioned on the wing design learns alongside an 18-D airfoil shape, optimized with REINFORCE and a design critic. A cross-entropy-method search looks for the wing the agent learns to fly fastest.
+1. **A simulator built for RL.** The planar glider dynamics (RK4) and the NeuralFoil aerodynamics surrogate run natively in PyTorch, so everything stays on the GPU: 4,096 gliders in parallel, about 600,000 steps per second on one RTX 5090. The agent sees a 7-D state and commands the elevator rate, within ±5 rad/s.
+2. **Curriculum.** First a simple flat-plate aerodynamics model, then NeuralFoil, then four stages that tighten the perch from 0.5 m to 0.05 m, always under 1 m/s.
+3. **Algorithm.** PPO, chosen over SAC and TD3: it stays stable when the curriculum tightens (no stale replay buffer) and scales with thousands of parallel gliders, while TD3 never reliably found the pitch-up.
+4. **Robustness.** Every episode starts from a randomized state: nine base positions 3 to 10 m from the perch, Gaussian noise, and a 30° spread on the velocity direction, so the controller learns a strategy, not one trajectory.
+5. **Wing co-design.** The 18-D wing shape (Kulfan/CST parameters, 0 = NACA 4412) joins the policy’s state and learns by REINFORCE with a design critic as baseline. A second, black-box search (the cross-entropy method, 8 generations × 24 wings) looks directly for the wing the controller learns fastest.
 
 #### What it *achieved*
 
-- **29.7% faster convergence.** The co-designed wing reaches successful landings sooner than the NACA 4412 baseline.
-- **0.05 m landing precision.** Touchdown at under 1 m/s after the four-stage curriculum.
-- **Beats optimal control.** Its landings are more precise than those of optimal control methods.
-- **4,096 parallel environments.** 200M timesteps of GPU-batched PPO.
-- **Airfoil search.** The cross-entropy method explores 8 generations × 24 candidate wings.
+- **5 cm, under 1 m/s.** The NeuralFoil policy cleared all four curriculum stages in 200M timesteps, trained in under 6 minutes.
+- **Optimal-control quality, closed loop.** From the optimal-control baseline’s start it perches with a trajectory of comparable quality, and it keeps perching from most other starts, where an open-loop plan would have to be solved again.
+- **29.7% faster learning.** With the CEM wing, the controller reaches the final curriculum stage in 200 PPO updates instead of 285 for the NACA 4412, and masters perching in 244 instead of 336 (5 seeds); the co-designed wing is 27.1% faster.
+- **The direction matters.** A random change of the same size is only 11.6% faster and was the only wing that once failed to master: co-design points somewhere real.
 
 #### *Notes*
 
-The image at the top is an illustration (a NACA 4412 baseline morphing toward a more cambered section), not the learned airfoil. The code lives in a team repository.
+The animation at the top is a real inference run of the trained co-design policy flying its co-designed wing, rendered for this site from the logged states: it perches 4.5 cm off target at 0.91 m/s after 2.42 s (shown at ×0.48, the glider drawn larger than scale). From 12 random starts, it perched every time.
+
+A team of 3, with EPFL’s CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code lives in a team repository.
+
+**Figures** (caption · credit), in order:
+- `fig-training-curve-neuralfoil.png`: Training with NeuralFoil aerodynamics: each sharp drop is the curriculum tightening the perch, and the policy recovers every time. 200M timesteps in under 6 minutes. *(Team figure · course report)*
+- `fig-algorithm-comparison.png`: PPO, SAC and TD3, normalised training curves over the first 4M timesteps: PPO was kept, for its stability across curriculum stages and its scaling to thousands of parallel gliders. *(Team figure · course report)*
+- `fig-optimized-airfoils.png`: The wings: the NACA 4412 baseline, the co-designed wing, and the CEM winner, visibly thinner. *(Team figure · course report)*
+- `fig-convergence.svg`: Learning speed per wing: PPO updates until the controller reaches the final curriculum stage, with each wing frozen (mean ± sd, 5 seeds). The CEM winner gets there 29.7% sooner than the NACA 4412. *(Redrawn for this site from our course report)*
+- `fig-rl-vs-ocp.png`: The trained policy against the optimal-control baseline from the same start: both reach the perch. *(Team figure · course report)*
+- `fig-success-heatmap.png`: Success rate over start positions (perch within 5 cm at under 1 m/s): the policy perches from most of the region, and fails only where there is too little height or distance for the pitch-up. *(Team figure · course report)*
+- `poster-session.jpg` (photo): Presenting our poster at the poster session.
 
 **Sources**
-- [CV] "RL-Driven Glider Co-Design": highly precise landings, outperforming optimal control methods, robustness to unpredictable wind disturbances and varying starting speeds, simultaneous wing-shape redesign while learning to fly, success convergence accelerated by 29.7%.
-- [Report] (the team's code) NeuralFoil aerodynamics, PPO on 4,096 parallel GPU environments for 200M timesteps, four-stage curriculum down to 0.05 m at under 1 m/s, 18-D airfoil shape with REINFORCE and a design critic, cross-entropy-method search (8 × 24), NACA 4412 baseline.
+- [CV] "RL-Driven Glider Co-Design": precise landings, robustness to unpredictable wind disturbances and varying starting speeds, wing redesign while learning, 29.7% faster convergence. The wind wording is kept as the CV's (open question, local QUESTIONS Q-A4).
+- [Report] the team's course report (local only, never published): the simulator (RK4 + NeuralFoil in PyTorch, 4,096 gliders, ~600k steps/s on an RTX 5090), the 7-D state and ±5 rad/s elevator rate, the flat-plate → NeuralFoil curriculum and its 4 stages, PPO vs SAC vs TD3, the randomized starts, the 18-D CST co-design with REINFORCE and a design critic, CEM (8 × 24), 200M timesteps in under 6 minutes, comparable trajectory quality to optimal control and the success heatmap, Table 3 (final stage reached in 200 vs 285 updates and mastery in 244 vs 336; the 29.7% / 27.1% / 11.6% speedups come from the final-stage column), the figures, team of 3, the CV Lab framework. The result line follows the report's wording.
+- [Run] an inference run of the team's final co-design policy with its learned wing, in the team's own simulator, rendered for this site and independently re-run with identical states (2026-10-24): perched 4.5 cm off at 0.91 m/s after 2.42 s from the evaluation start; 12/12 perches from the environment's seeded random starts.
 - The code is in a teammate's repository, so there is no link. Alexandros's own part is not documented yet (Q-A1).
-- Media: the poster is an **illustration** (exact NACA 4412 outline, invented target shape) and its alt text says so. Still to come: three drawn "Coming soon" cards in the gallery (Q-A4).
 
 ### 8.7 Fly navigation in NeuroMechFly
 
