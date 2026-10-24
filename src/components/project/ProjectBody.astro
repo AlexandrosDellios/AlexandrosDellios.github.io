@@ -1,7 +1,8 @@
 ---
 /**
  * ProjectBody: the Markdown body of a project (Approach / Highlights / Notes)
- * as numbered sections, with the Footage & figures gallery inserted before
+ * as numbered sections, with the "Development cycle" timeline (data.timeline,
+ * ProcessTimeline.astro) and the Footage & figures gallery inserted before
  * the Notes (content plan §3: approach -> results -> credits).
  *
  *   <ProjectBody entry={entry} showSoon={hero !== 'placeholder'} />
@@ -27,6 +28,7 @@
  * every missing picture gets a drawn placeholder).
  */
 import { render } from 'astro:content';
+import ProcessTimeline from './ProcessTimeline.astro';
 import ProjectGallery from './ProjectGallery.astro';
 import { sketchFor } from '../global/sketches';
 import { splitSections, type Project } from './projects';
@@ -94,6 +96,21 @@ const [galleryLead, galleryEm] = galleryTitle.split('*');
         <div class="pj-sec__body pj-prose" set:html={s.html} />
       </section>
     ))
+  }
+
+  {
+    data.timeline.length > 0 && (
+      <section class="pj-sec pj-sec--timeline" aria-labelledby="pj-timeline">
+        <div class="pj-sec__head">
+          <h2 id="pj-timeline" class="pj-sec__title" data-reveal="lines">
+            Development <em>cycle</em>
+          </h2>
+        </div>
+        <div class="pj-sec__wide">
+          <ProcessTimeline stages={data.timeline} />
+        </div>
+      </section>
+    )
   }
 
   {

@@ -84,6 +84,14 @@
 - Model: one content collection with `kind: project | role` and `section: featured | more` (CONTENT.md §9–§10, DESIGN.md amendments 2026-10-23, DECISIONS.md).
 - Checks: `npm run check` 0 errors, build 13 pages, 0 broken internal references; checked in the browser at 1440, 1024 and 390 (home, AI Team, BioRob, Mediacom, fly navigation). Then a six-lens review workflow (requests, code, accessibility, content rules, build/SEO, visual; 12 agents) with adversarial verification: 19 findings kept, 7 refuted. Fixed: the glider's missing media is now drawn cards (no more text-only "Coming soon" line anywhere); meta lines no longer start with "·" (Segments glue rewritten) and the Experience org no longer wraps with a leading "·"; "6-DOF" no longer splits; row preview cards are pointer-only and Escape closes previews; the hover hint hides in narrow windows; square print corners (Alexandros asked for square); three meta descriptions trimmed to ≤ 160; BioRob's Notes back to the approved footnote; social cards recolour the sketch accent and stay ≤ 250 KB; smaller a11y and doc fixes.
 
+### 2026-10-24: Session 3, the award's development cycle
+
+- Alexandros added 14 photos and a clip of the wafer trophy (`Images/Wafer Trophy/`). All looked at; processed into `src/assets/projects/mediacom/` (EXIF and GPS dropped, sideways files fixed, tall shots cropped 3:4).
+- New `timeline` field + `ProcessTimeline.astro`: the award page now tells the development cycle in his order: prototypes (Design industriel course, SHS × ECAL, Tomas Kral, Nov 2024) → tests → production (wafers by the CMi: Pol Torres Vila, Chenxiang Zhang; machined stands; the Alumni Award 2025 run; Odermatt's trophy) → in print and on stage (Dimension n°18, Magistrale 2025) → the award (4 May 2026), ending with the hand-over to Mediacom and the CMi. Photos fade in one by one as you scroll.
+- The page's hero, social card and the Experience row's hover preview now use the finished Odermatt trophy. Mediacom dates on the site: Feb 2025 – May 2026. Names and faces in the photos and the photo credits (ECAL photographers, EPFL) as Alexandros decided (DECISIONS 2026-10-24).
+- Then added the protection-test clip to "The tests" (4:5, no audio, 886 KB MP4 / 705 KB WebM) and credited the Odermatt photo to François Wavre.
+- Checks: `npm run check` 0 errors, build 13 pages, 0 broken references; the page checked in the browser at 1440 and 390.
+
 ## Next
 
 1. Get Alexandros's answers to docs/QUESTIONS.md (local file): "my part" per team project, Uno solo/team + course, glider report/plots, Marco Odermatt mention, research-card illustration, spoken languages, CV PDF metadata, teammates' names in his repo READMEs, and a read-through of the new fly-navigation and role pages (drafted from the code and the CV).

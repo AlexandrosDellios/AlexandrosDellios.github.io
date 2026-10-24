@@ -28,7 +28,7 @@ What to put in each project's frontmatter (`src/content.config.ts`). `focus` is 
 | `fly-navigation` | `poster.jpg` (the loop's first frame) | `50% 50%` | `/media/fly-navigation/loop.*`, `loop-poster.jpg` | none | none |
 | `ai-team` (role) | `../../assets/me/guide-dog.jpg` | `50% 50%` | none | none | none (`soon`: walking video, Isaac Lab training clip, build photos) |
 | `biorob` (role) | none (`mediaNeeded`: Lab photo, `sketch: arm`) | | none | none | none |
-| `mediacom` (role) | none (`mediaNeeded`: Photo of the finished award, `sketch: award`) | | none | none | none (`soon`: CAD render, fabrication photos) |
+| `mediacom` (role) | `poster.jpg` (the finished Odermatt trophy, 4:3) | `50% 50%` | none | none (the photos are in `timeline`: 14 photos, `01-…` to `15-…`) | none |
 
 The Uno SVGs tag their zone rectangles with `class="zone zone-p1 … zone-ctr"`, so the page can animate the 5-zone split when the SVG is inlined. The glider poster is an **illustration**: its alt text and caption must say so.
 
@@ -73,6 +73,8 @@ Sizes are on-disk bytes. "src" paths are relative to the repo root.
 | `thymio-ekf/fig-visibility-graph-planned-path.png` | 584×478 | `visibility-graph-planned-path.png` | trimmed | Figure (planning is **team work**: credit it in the caption) |
 | `glider-codesign/poster.svg` | 1200×900 viewBox, 16 KB, transparent | generated (`airfoil_svg.py`) | **Illustration, not data.** NACA 4412 computed with the standard 4-digit equations (cosine spacing, closed trailing edge), three fading intermediate outlines, and an invented, more cambered target shape in sky `#3A9AD9` (m 0.068, p 0.45, t 0.105). Mono labels "AIRFOIL CO-DESIGN", "NACA 4412 · BASELINE", "CO-DESIGNED WITH THE POLICY" (the "Illustration" label is a chip on the page, not in the drawing). | Source of the PNGs |
 | `glider-codesign/poster.png` | 1600×1200 | `poster.svg` | Rendered on paper `#F4EFE6` with `scripts/media/render_svg.py` | Page hero still + OG card |
+| `mediacom/01-first-prototypes.jpg` … `15-odermatt-ceremony.jpg` (14 files) | ≤ 2000 px long edge, 155–650 KB | `Images/Wafer Trophy/` (Alexandros, 2026-10-24): iPhone photos (HEIC converted with `sips`), ECAL studio shots (`Trophy`, `Trophy 2`, `Trophy full project`), EPFL photos (`On the journal Dimension number 18`, `Talk on the trophy`, `Marco Odermatt`) | Every file looked at. Oriented from the EXIF tag (two files were stored sideways), **all EXIF dropped (several carried GPS)**, ICC kept where present, long edge ≤ 2000 px, JPEG q90 4:4:4. Tall phone shots cropped to 3:4 (`06` top 4%, `08` top 10%, `10` top 22%). Names and faces kept as they are (DECISIONS 2026-10-24). | Award page "Development cycle" timeline (`timeline` in mediacom.md), in Alexandros's order: prototypes `01–05`, tests `06`, production `08–12`, print and stage `13–14`, award `15` (the tests stage also holds the protection-test clip, §1.3) |
+| `mediacom/poster.jpg` | 1500×1125 | `12-odermatt-final.jpg` | 4:3 crop centred on the trophy | Award page hero, social card, Experience hover preview (`image: 'award'`) |
 | `glider-codesign/poster-tile.svg` / `.png` | 1200×900 | `poster.svg` | The outlines only (no labels), scaled 1.1× around the chord, on paper | **Tile** (`tilePoster`) |
 
 ### 1.3 Videos (`public/media/`)
@@ -91,6 +93,7 @@ All clips: H.264 High `yuv420p` + `+faststart` (`.mp4`) and VP9 two-pass constan
 | `thymio-ekf/kidnapping.*` + poster | 377 KB / 265 KB | 736×180 · 24 s · 15 fps | same | Full 3-panel recording, `crop=736:180:14:40`. The crop removes the code editor's file list, which showed personal file names. | Extra page video (page hero row) |
 | `thymio-ekf/camera-occlusion.*` + poster | 241 KB / 167 KB | 736×180 · 20 s · 15 fps | `thymio-camera-occlusion-crop.mp4` | same crop | Extra page video |
 | `fly-navigation/loop.*` + `loop-poster.jpg` | 133 KB / 95 KB | 512×384 · 5.5 s · 24 fps | `cobar-fly-navigation-miniproject/fly_navigation_level2_backcam.mp4` | Trim 2.72 → 8.24 s (best loop window, before the camera tilts at the end), 4:3 crop `crop=512:384:0:48`, CRF 24 / VP9 34. Moved from `public/media/more/` on 2026-10-23 (the separate 512×384 still `more/fly-navigation.jpg` was deleted). | Fly-navigation page hero. `loop-poster.jpg` is also copied to `src/assets/projects/fly-navigation/poster.jpg` (11 KB): the page poster, More-projects hover preview, prev/next thumbnail and social card |
+| `mediacom/protection-test.*` + `protection-test-poster.jpg` | 886 KB / 705 KB | 720×900 (4:5) · 11.8 s · 24 fps | `Images/Wafer Trophy/Protection test.MP4` (1080×1920 phone video, 30 fps, with sound) | Whole clip, `crop=1080:1350:0:285` (4:5 around the wafer), Lanczos to 720 px, **audio dropped**, CRF 29 / VP9 40 (real footage: no `-tune animation`) | Award page timeline, "The tests" (plays when in view, pause button) |
 
 ### 1.4 Social preview (`public/og/`)
 
@@ -115,7 +118,7 @@ All clips: H.264 High `yuv420p` + `+faststart` (`.mp4`) and VP9 two-pass constan
 | `plot.svg` | axes with two curves | labels with "plot", "curve", "chart" or "graph" |
 | `arm.svg` | robot arm picking up a cube | BioRob page hero; BioRob Experience hover card |
 | `quadruped.svg` | quadruped with a guide-dog handle | available (`sketch: quadruped`) |
-| `award.svg` | medallion on a column and plinth | Mediacom page hero; Mediacom Experience hover card |
+| `award.svg` | medallion on a column and plinth | available (`sketch: award`); the award page now has real photos |
 
 160×120 viewBox line drawings, 2.5px ink strokes, accent details on elements with class `acc` (fill) / `acc-stroke` (stroke). Drawn by hand for the site (2026-10-23). MediaPlaceholder inlines them (`?raw`), so the accent parts follow the page accent; the Experience hover cards and the social cards use the files as images (orange accents).
 
@@ -222,7 +225,7 @@ Until each item arrives, the site shows a visible "Coming soon" placeholder with
 | 2 | **Guide-dog robot, high-res photo.** The current one is a 584 px screenshot. Whole robot including the feet, ideally against a plain wall or floor, and the team's OK. | Portrait 4:5 or square, ≥ 2000 px long edge | Original camera/phone file (not a screenshot) | AI Team page hero; "Now · EPFL AI Team" card (cut-out on orange) | (replaces `guide-dog*.{jpg,png}`); more photos: `COMING SOON · Build photos` card on the AI Team page |
 | 3 | **Guide-dog robot walking video.** Steady camera, robot fully in frame, a few seconds of clean walking. | Landscape 16:9, ≥ 1920×1080 | MP4/MOV, 5–15 s; sound not needed | AI Team page gallery (and the Now card) | `COMING SOON · Walking video` (AI Team page) |
 | 4 | **Isaac Lab training clip**: many parallel robots on varied terrain. | Landscape 16:9, ≥ 1280×720 | Screen recording, 5–10 s | AI Team page gallery | `COMING SOON · Isaac Lab training clip` (AI Team page) |
-| 5 | **Mediacom Doctor Honoris Causa award**: (a) the finished piece, (b) a CAD render or screenshot, (c) a fabrication-in-progress photo (machining, 3D printing). Photos without the honorees, or with their consent. | Landscape 3:2, ≥ 1600 px wide (the finished piece may be portrait 4:5) | Original JPG/PNG | Mediacom page (`/experience/mediacom/`): hero (a), gallery (b, c); Experience row hover preview | `COMING SOON · Photo of the finished award` (hero, drawn: award), `CAD render`, `Fabrication photos` (gallery); `Award photos` (hover card) |
+| 5 | ~~**Mediacom Doctor Honoris Causa award**~~ **Received 2026-10-24** (14 photos + 1 clip, `Images/Wafer Trophy/`), see §1.2 and §1.3. | | | Award page timeline | none |
 | 6 | **Glider co-design plots**: (a) convergence curve (success rate vs training steps, co-design vs the NACA 4412 baseline), (b) the learned airfoil vs NACA 4412. Ideally the **raw data** (CSV of curve points and airfoil coordinates), so both can be redrawn in site colours like the gait figure. | Landscape, ≥ 1600 px wide if PNG; SVG/PDF or CSV preferred | PNG/SVG/CSV | Glider project page; the real airfoil replaces the illustrative poster | `COMING SOON · Convergence plot`, `Learned airfoil vs NACA 4412 plot` (drawn cards in the gallery) |
 | 7 | **Glider evaluation clip**: a perching rollout. | Landscape 16:9, ≥ 1280×720 | MP4, 5–10 s | Glider tile loop + page hero | `COMING SOON · Perching evaluation clip` (drawn card) |
 | 8 | **Rocket landing screen recording** from the course visualiser: the NMPC landing from the 30° roll start (and optionally the tube-MPC run). | Landscape 16:9, ≥ 1920×1080 (≥ 1280×720 minimum) | Screen recording, 5–10 s, no cursor | Rocket tile loop + page hero | `COMING SOON · Rocket landing screen recording` (slim band in the gallery) |

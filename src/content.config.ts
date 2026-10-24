@@ -60,6 +60,33 @@ const projects = defineCollection({
       sketch: z.enum(SKETCHES).optional(), // drawing on this page's placeholders (default: picked from the label)
       // Media still to come, shown as "Coming soon" cards in the gallery (labels only, no specs).
       soon: z.array(z.string()).default([]),
+      // Development story in stages, oldest first (ProcessTimeline.astro): each stage has a date
+      // label, a serif title with ONE *italic* phrase, an optional line of text, and its photos
+      // (or clips) in order. Rendered as the "Development cycle" section before the gallery.
+      timeline: z
+        .array(
+          z.object({
+            when: z.string(), // "Nov 2024"
+            title: z.string(), // "The *prototypes*"
+            text: z.string().optional(),
+            media: z
+              .array(
+                z.union([
+                  z.object({ src: image(), alt: z.string(), caption: z.string(), credit: z.string().optional() }),
+                  z.object({
+                    mp4: z.string(), // public path
+                    webm: z.string().optional(),
+                    poster: z.string().optional(), // public path to the first frame
+                    alt: z.string(),
+                    caption: z.string(),
+                    credit: z.string().optional(),
+                  }),
+                ]),
+              )
+              .default([]),
+          }),
+        )
+        .default([]),
       figures: z
         .array(
           z.object({

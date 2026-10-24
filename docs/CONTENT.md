@@ -11,7 +11,7 @@
 ## 0. Rules the copy follows
 
 1. **The CV is the source of truth.** Wherever the CV makes a claim (numbers included), the site uses the CV wording as written. Alexandros confirmed every CV claim is backed by his reports (docs/DECISIONS.md). Repo and report details are added only where they don't contradict the CV.
-2. **No people's names.** Teammates, professors and supervisors are never named: "Team of 3", "a teammate". The one exception is Marco Odermatt in the Mediacom line, because Alexandros's CV names him (open question Q-B3).
+2. **No people's names.** Teammates, professors and supervisors are never named: "Team of 3", "a teammate". Exceptions, each approved by Alexandros: Marco Odermatt (Mediacom line and award page); on the award page only, the course teacher (Tomas Kral), the CMi makers (Pol Torres Vila, Chenxiang Zhang) and the names and faces visible in its photos (DECISIONS 2026-10-24).
 3. **No links to private or teammate-owned repos, and none to repos holding report PDFs or student ID numbers** (history included). Linked today: Legged-Robot (quadruped), MPC-Rocket (rocket) and Autonomous-Thymio. The report PDFs were purged from the first two on 2026-10-20. Other public links: the EPFL Student AI Team's project documentation (bark-documentation.readthedocs.io, given by Alexandros) and, in the footer, the design credit to cydstumpel.nl.
 4. **BioRob stays at CV level.** Only the CV's wording; no methods, models, equipment, partners or publication plans.
 5. **No report PDFs.** Figures are shown individually with captions; the reports themselves are not linked.
@@ -159,9 +159,9 @@ Left out on purpose: the B.Sc. C++ multi-robot cleanup simulator (removed 2026-1
 |---|---|---|---|---|
 | Jul 2026 – now | Graduate Research Assistant · BioRob Lab, EPFL | Researching egocentric data-driven robot manipulation, focusing on bridging the embodiment gap between human demonstrations and robotic execution. | `/experience/biorob/` | drawn placeholder (robot arm), "Coming soon · Lab photo" |
 | Feb 2026 – now | Machine Learning Engineer · EPFL Student AI Team | Contributing to the ground-up design and build of a custom quadruped meant to act as a guide dog for the visually impaired. Implemented a real-time ROS 2 pipeline and custom C++ CAN bus interface on NVIDIA Jetson hardware, achieving reliable motor control and state synchronization; building an NVIDIA Isaac Lab simulation pipeline to train RL policies for varied-terrain navigation. | `/experience/ai-team/` | the approved guide-dog photo, "Byte, the guide-dog quadruped" |
-| Feb – Oct 2025 | Lead Design & Fabrication Engineer · Mediacom EPFL | Won a competitive design pitch for the official EPFL Doctor Honoris Causa Award out of 12 proposals and took full ownership from concept to physical fabrication, partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards. The award was presented to Marco Odermatt and others. | `/experience/mediacom/` | drawn placeholder (award), "Coming soon · Award photos" |
+| Feb 2025 – May 2026 | Lead Design & Fabrication Engineer · Mediacom EPFL | Won a competitive design pitch for the official EPFL Doctor Honoris Causa Award out of 12 proposals and took full ownership from concept to physical fabrication, partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards. The award was presented to Marco Odermatt and others. | `/experience/mediacom/` | the finished Odermatt trophy (`image: 'award'`, the page poster), "Marco Odermatt’s trophy" |
 
-Source: [CV, updated 2026-10-21], lightly condensed for one table row. The Mediacom role is no longer on the CV but stays on the site by decision (DECISIONS 2026-10-21) (the CV's "full ownership", "strict design standards", "contributed to" and outcome clauses are kept).
+Source: [CV, updated 2026-10-21], lightly condensed for one table row. The Mediacom role is no longer on the CV but stays on the site by decision (DECISIONS 2026-10-21); its dates run to the May 2026 ceremony (DECISIONS 2026-10-24) (the CV's "full ownership", "strict design standards", "contributed to" and outcome clauses are kept).
 
 Each row's role title links to its page (§9) and the link covers the whole row. Rows with an `image` show that photo as the hover preview; rows with `mediaNeeded` + `sketch` show the drawn placeholder (src/assets/sketches/).
 
@@ -671,32 +671,43 @@ Sources: [CV] AI Team entry. The robot's name (Byte) and the documentation link:
 
 ### 9.3 Mediacom award
 
-`src/content/projects/mediacom.md` · page `/experience/mediacom/`
+`src/content/projects/mediacom.md` · page `/experience/mediacom/`. Names and faces in its photos are published with Alexandros's OK (DECISIONS 2026-10-24), as are the course teacher's and the CMi makers' names.
 
 | Field | Copy |
 |---|---|
 | Title (h1) | EPFL’s Doctor Honoris Causa award, from pitch to piece |
 | Short title / word | Mediacom award / AWARD |
-| Meta | Feb – Oct 2025 · Mediacom EPFL · Role: Lead Design & Fabrication Engineer |
+| Meta | Feb 2025 – May 2026 · Mediacom EPFL · Role: Lead Design & Fabrication Engineer |
 | One-liner | I won the design pitch for EPFL’s official Doctor Honoris Causa award, out of 12 proposals, and took it from concept to physical fabrication. |
 | Team (social card only) | With PhD researchers |
 | Metric chip | `CHOSEN FROM 12 PROPOSALS` |
-| Tags | `Design pitch` · `CAD` · `Fabrication` |
+| Tags | `Design pitch` · `Prototyping` · `Machining` · `Fabrication` |
 | Accent | `#C4893A` / `#7A5016` (bronze) |
-| Hero | drawn placeholder (award), "Coming soon · Photo of the finished award" |
-| Coming soon (gallery) | CAD render · Fabrication photos |
+| Hero | `src/assets/projects/mediacom/poster.jpg`, alt: "Marco Odermatt’s Doctor Honoris Causa trophy: an engraved purple silicon wafer standing on a machined metal stand" |
 
 **Lead:** Designing the piece EPFL hands to its *honorary doctors*.
 
-**TL;DR** — Mission: Design and build EPFL’s official Doctor Honoris Causa award. · My role: Lead Design & Fabrication Engineer: I won the design pitch out of 12 proposals and took full ownership from concept to physical fabrication. · Status: The award was presented to Marco Odermatt and others.
+**TL;DR** — Mission: Design and build EPFL’s official Doctor Honoris Causa award. · My role: Lead Design & Fabrication Engineer: I won the design pitch out of 12 proposals and took full ownership from concept to physical fabrication. · Status: Awarded to Marco Odermatt on 4 May 2026; production now runs entirely at Mediacom and the CMi.
 
 **How it *came together*:**
 1. **Pitch.** A competitive design pitch for the official EPFL Doctor Honoris Causa Award, won out of 12 proposals.
 2. **Ownership.** Full ownership of the award, from concept to physical fabrication.
 3. **Standards.** Partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards.
-4. **Outcome.** The award was presented to Marco Odermatt and others.
+4. **Hand-over.** Production now runs entirely at Mediacom and the CMi, for the awards to come.
 
-Source: [CV] Mediacom entry (older CV; kept by decision). Marco Odermatt: open question Q-B3.
+**Development *cycle*** (the `timeline` field; stages in Alexandros's order, photos in `src/assets/projects/mediacom/`):
+
+| # | When | Stage | Text | Photos (caption · credit) |
+|---|---|---|---|---|
+| 01 | Nov 2024 | The *prototypes* | It started in the Design industriel course (SHS, in partnership with ECAL), taught by Tomas Kral. The idea: engrave the Serment d’Archimède, EPFL’s engineering oath, on a silicon wafer with microfabrication processes, so the award itself shows what EPFL makes. | First prototypes: the oath on a disc, and a bare silicon wafer, on two stand ideas. · The course presentation: prototypes and boards on the wafer, the oath and the photolithography process. · The course prototype, front: the EPFL logo on the wafer’s coloured oxide layer. (Photo: ECAL photographers) · The back: the full Serment d’Archimède, engraved in the wafer. (Photo: ECAL photographers) · The whole concept: the trophy and its design boards. (Photo: ECAL photographers) |
+| 02 | Jun – Jul 2025 | The *tests* | Before production, the wafer had to survive handling and display. | Encasing test: a wafer in a clear acrylic case. · (clip) Protection test: a fork dragged across a wafer, to see how its surface holds up. |
+| 03 | Sep 2025 – Apr 2026 | Into *production* | The wafers were produced at EPFL’s CMi by Pol Torres Vila and Chenxiang Zhang, and the stands were machined on a lathe. | Machining a stand on the lathe. · The first production run: the Alumni Award 2025 trophies, delivered on 4 October 2025. · A finished stand. · Assembling Marco Odermatt’s trophy. · Marco Odermatt’s Doctor Honoris Causa trophy, April 2026. |
+| 04 | Jul – Oct 2025 | In print and *on stage* | The project was featured in Dimension n°18, and we presented the trophy on stage at Magistrale 2025, EPFL’s graduation ceremony. | The team with the trophy, photographed for Dimension n°18. (Photo: EPFL) · Presenting the trophy on stage at Magistrale 2025. (Photo: EPFL) |
+| 05 | 4 May 2026 | The *award* | Marco Odermatt became an EPFL Doctor Honoris Causa on 4 May 2026. The trophy’s production has now been handed over entirely to Mediacom and the CMi for future awards. | Marco Odermatt on stage at EPFL on 4 May 2026, the day of his honorary doctorate and his talk. (Photo: François Wavre) |
+
+***Notes*:** The wafers are produced at EPFL’s CMi (Center of MicroNanoTechnology) by Pol Torres Vila and Chenxiang Zhang. Photos: ECAL photographers (the course prototype studio shots), EPFL (Dimension n°18, Magistrale 2025) and François Wavre (4 May 2026); the others are mine.
+
+Sources: [CV] Mediacom entry (older CV; kept by decision) for the pitch, ownership and standards lines. Alexandros (2026-10-24): the course (Design industriel, SHS × ECAL, Tomas Kral), the CMi makers, Dimension n°18, Magistrale 2025, the 4 May 2026 ceremony, the hand-over, the photo credits (the 4 May 2026 photo: François Wavre) and the Feb 2025 – May 2026 dates. Visible in the photos: the Alumni Award 2025 engraving ("Délivré à Lausanne, le 4 octobre 2025"), "Awarded on 4th May 2026" on Odermatt's trophy, the course boards (oath, oxide layer, photolithography).
 
 ---
 
@@ -736,6 +747,7 @@ Source: [CV] Mediacom entry (older CV; kept by decision). Marco Odermatt: open q
 | `mediaNeeded` | no | Visitor-facing label for a visible "Coming soon" placeholder while media is missing: "Rocket landing screen recording". Keep specs (16:9, sizes) in docs/MEDIA.md §3. |
 | `sketch` | no | Drawing for the `mediaNeeded` placeholder (the hero when there is no poster, otherwise the gallery band) and the social card of a page without a poster: `photo`, `video`, `plot`, `arm`, `quadruped`, `award` (default: picked from the label; `soon` cards always pick from their own label) |
 | `soon` | no | Media still to come, as drawn "Coming soon" cards in the gallery: `["Walking video", "Build photos"]` (a label with "video"/"clip" gets a 16:9 video drawing) |
+| `timeline` | no | A development story in stages, oldest first, shown as the "Development *cycle*" section: each stage has `when`, `title` (one `*italic*` phrase), optional `text`, and `media` (photos: `src`, `alt`, `caption`, optional `credit`; clips: `mp4`, `webm`, `poster`, `alt`, `caption`). See the Mediacom page (§9.3). |
 | `figures` | no | List of `src` (relative path), `alt`, `caption`, optional `credit` ("Team figure · course report") |
 | `extraVideos` | no | List of `mp4`, `webm`, `poster`, `caption`, optional `clickToPlay: true` (never starts by itself: for longer clips that tell a story) |
 | `lead` | yes | One sentence with exactly **one** `*italic phrase*` |

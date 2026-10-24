@@ -1,0 +1,291 @@
+---
+/**
+ * ProcessTimeline: a page's development story, stage by stage, oldest first
+ * (frontmatter `timeline`, e.g. the Mediacom award: prototypes → tests →
+ * production → in print and on stage → the award). ProjectBody renders it as
+ * the numbered "Development *cycle*" section.
+ *
+ *   01 ●  NOV 2024                       ← mono date, accent dot on the rail
+ *   │     The *prototypes*               ← serif h3 (one italic phrase)
+ *   │     One line of context.
+ *   │     [photo][photo  ][photo]        ← justified row: equal heights,
+ *   │     caption · CREDIT                 widths follow each photo's ratio
+ *   02 ●  …
+ *
+ * - The rail is a hairline down the left edge; each stage puts its number and
+ *   a dot on it. The last dot is filled with the accent (the end of the cycle).
+ * - Phones: a two-column grid in the same order (portraits pair up,
+ *   landscape items take the full width).
+ * - Photos keep their own aspect ratio (no crop): flex items grow in
+ *   proportion to their ratio, so a row shares one height; a lone item is
+ *   capped (1.6 × the row height) so it never fills a whole row by itself.
+ * - Media: optimised <Picture> (AVIF + WebP, lazy), or a LoopVideo for clips
+ *   (plays when in view, pause button, nothing under reduced motion).
+ * - Each figure carries [data-enter]: scripts/project/index.ts fades them in
+ *   one after another as they scroll into view (M5, never under reduced
+ *   motion, never hidden without JS).
+ */
+import { Picture } from 'astro:assets';
+import Emph from '../global/Emph.astro';
+import LoopVideo from '../global/LoopVideo.astro';
+import { publicImageSize, ratioOf, widthsFor, type ProjectData } from './projects';
+
+interface Props {
+  stages: ProjectData['timeline'];
+  class?: string;
+}
+
+const { stages, class: className } = Astro.props;
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
+type Item = ProjectData['timeline'][number]['media'][number];
+const ratio = (item: Item) =>
+  'src' in item ? ratioOf({ width: item.src.width, height: item.src.height }) : ratioOf(publicImageSize(item.poster));
+---
+
+<ol class:list={['tl', className]} role="list">
+  {
+    stages.map((stage, i) => (
+      <li class:list={['tl__stage', i === stages.length - 1 && 'tl__stage--last']}>
+        <div class="tl__rail" aria-hidden="true">
+          <span class="tl__num">{pad2(i + 1)}</span>
+          <span class="tl__dot" />
+        </div>
+        <div class="tl__body">
+          <p class="tl__when">{stage.when}</p>
+          <h3 class="tl__title">
+            <Emph text={stage.title} />
+          </h3>
+          {stage.text && <p class="tl__text">{stage.text}</p>}
+          {stage.media.length > 0 && (
+            <div class="tl__media">
+              {stage.media.map((item) => {
+                const r = ratio(item);
+                return (
+                  <figure
+                    class:list={['tl__fig', r.n > 1.2 && 'tl__fig--wide']}
+                    style={`--r: ${r.n}; --ratio: ${r.css}`}
+                    data-enter
+                  >
+                    <div class="tl__frame">
+                      {'src' in item ? (
+                        <Picture
+                          src={item.src}
+                          alt={item.alt}
+                          formats={['avif', 'webp']}
+                          fallbackFormat="webp"
+                          widths={widthsFor(item.src.width, [480, 800, 1200])}
+                          sizes="(min-width: 1024px) 34vw, (min-width: 600px) 50vw, 92vw"
+                          loading="lazy"
+                          decoding="async"
+                          class="tl__img"
+                        />
+                      ) : (
+                        <LoopVideo
+                          mp4={item.mp4}
+                          webm={item.webm}
+                          poster={item.poster}
+                          alt={item.alt}
+                          aspect="auto"
+                          autoplay
+                          class="tl__video"
+                        />
+                      )}
+                    </div>
+                    <figcaption class="tl__cap">
+                      {item.caption}
+                      {item.credit && <span class="tl__credit">{item.credit}</span>}
+                    </figcaption>
+                  </figure>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .tl {
+    --rail-x: 1.1rem; /* centre of the rail from the list's left edge */
+    position: relative;
+    display: grid;
+    gap: clamp(2.25rem, 4.5vw, 3.75rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The rail: one hairline from the first dot to the last. */
+  .tl::before {
+    content: '';
+    position: absolute;
+    top: 0.6rem;
+    bottom: 0;
+    left: var(--rail-x);
+    width: 1px;
+    background: var(--ink);
+    opacity: 0.25;
+  }
+
+  .tl__stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: calc(var(--rail-x) * 2 + 0.5rem) minmax(0, 1fr);
+    column-gap: clamp(0.5rem, 1.6vw, 1.25rem);
+  }
+
+  /* The last stage hides the rail below its dot (the cycle ends there). */
+  .tl__stage--last::before {
+    content: '';
+    position: absolute;
+    top: 1.4rem;
+    bottom: 0;
+    left: calc(var(--rail-x) - 1px);
+    width: 3px;
+    background: var(--paper);
+  }
+
+  .tl__rail {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 0.35rem;
+    width: calc(var(--rail-x) * 2);
+    z-index: 1;
+  }
+
+  .tl__num {
+    padding-block: 0.1rem;
+    background: var(--paper);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: 1;
+    letter-spacing: var(--track-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-ink);
+  }
+
+  .tl__dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+  }
+
+  .tl__stage--last .tl__dot {
+    background: var(--accent);
+  }
+
+  .tl__body {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .tl__when {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-ink);
+  }
+
+  .tl__title {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+  }
+
+  .tl__text {
+    max-width: var(--measure, 62ch);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+
+  /* ---- Justified photo rows ------------------------------------------------- */
+  .tl__media {
+    --row: 9rem; /* the height a row aims for, before it stretches to fill */
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.75rem, 1.4vw, 1.25rem);
+    margin-top: 0.75rem;
+  }
+
+  @media (min-width: 600px) {
+    .tl__media {
+      --row: 13rem;
+    }
+  }
+
+  /* Phones: two columns; landscape items span both. */
+  @media (max-width: 599.98px) {
+    .tl__media {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tl__media > .tl__fig {
+      max-width: none;
+    }
+
+    .tl__media > .tl__fig--wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .tl__fig {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+    flex: var(--r) 1 calc(var(--r) * var(--row));
+    max-width: calc(var(--r) * var(--row) * 1.6);
+    min-width: 0;
+    margin: 0;
+  }
+
+  .tl__frame {
+    position: relative;
+    aspect-ratio: var(--ratio);
+    overflow: hidden;
+    border: var(--border-2);
+    border-radius: var(--r-print);
+    background: var(--paper-2);
+  }
+
+  .tl__frame :global(picture),
+  .tl__frame :global(.tl__img),
+  .tl__frame :global(.tl__video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .tl__frame :global(.tl__img) {
+    object-fit: cover;
+  }
+
+  .tl__cap {
+    display: grid;
+    gap: 0.15rem;
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+  }
+
+  .tl__credit {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+</style>

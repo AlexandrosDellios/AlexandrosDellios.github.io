@@ -4,7 +4,7 @@
 > The full inspiration analyses (fonts, colours and effects reverse-engineered from the 4 sites) are in `private/research/site_*.json`. They are local-only and gitignored.
 >
 > ## Amendments after user answers (these override anything below)
-> - **No people's names** anywhere (teammates, supervisors). Say "Team of 3". The exception is Marco Odermatt in the Mediacom line, because Alexandros's own CV names him. That one is listed as an open question in docs/QUESTIONS.md.
+> - **No people's names** anywhere (teammates, supervisors). Say "Team of 3". The exceptions are Marco Odermatt (approved) and, on the award page only, the names Alexandros approved on 2026-10-24 (docs/DECISIONS.md).
 > - **Availability:** "Available summer 2027 · ~6 months".
 > - **Claims:** use the CV wording as-is. Alexandros confirmed the claims are backed by his reports.
 > - **Portrait:** `Images/pic.JPG`, rotated upright, background cut out, placed in the accent arch.
@@ -45,6 +45,7 @@
 > - **Meta lines** (`Segments.astro`): each segment carries its own trailing " ·" and lines break only at the plain space between segments (a no-break space after an inline-block does not stop Chrome from breaking), so no meta line starts with "·".
 > - **Header:** no project count on Work. **Section asides:** Now "Research & prototyping"; Selected work only "hover to play" (fine pointers); none on More projects and Toolbox. The aside spans cols 10–12 (title cols 4–9) so it stays on one line.
 > - **Hero:** the cut-out's top mask layer stops at the D's widest point (1 − k), so the shoulder no longer pokes out past the curve at rest. On desktop the ring and lime stickers sit on the arch's right edge (`--arch-right`, computed from the same geometry), never over the text column; the tag sticker is narrower (`clamp(9.5rem, 12vw, 13rem)`) so it clears "Model Predictive". Checked from 1024 to 2560 px.
+> - **Development-cycle timeline** (2026-10-24, `ProcessTimeline.astro`, frontmatter `timeline`): a numbered "Development *cycle*" section before the gallery. A hairline rail with a number and a dot per stage (the last dot in the accent); each stage: mono date, serif title, one line, then its photos in justified rows (equal heights, widths from each photo's ratio, no crop, lone items capped at 1.6 × the row height; phones: two columns, landscape items full width), each as a print (2px ink border) with a caption and a mono credit. Photos fade in one after another as they scroll in (M5 `[data-enter]`, now also on project pages; never under reduced motion, nothing hidden without JS).
 > - **Footer bottom line:** "© 2026 Alexandros Dellios · Built with Astro · Inspired by cydstumpel.nl" (link).
 > - New accents: fly navigation `#7BAE2F` / `#456A13`, AI Team `#1F9E8F` / `#0D6A60`, Mediacom `#C4893A` / `#7A5016`, BioRob the site orange (all `--accent-ink` ≥ 4.7:1 on paper-2).
 

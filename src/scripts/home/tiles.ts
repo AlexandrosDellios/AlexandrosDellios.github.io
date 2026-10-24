@@ -1,7 +1,8 @@
 /**
- * Tile entry (DESIGN M5): work tiles, statement cells and Now cards
- * ([data-enter]) fade and scale in (opacity 0 → 1, scale .94 → 1, .6 s
- * out-quart, 60 ms stagger) in batches as they reach 90% of the viewport.
+ * Tile entry (DESIGN M5): work tiles, statement cells, Now cards and the
+ * project pages' development-cycle photos ([data-enter]) fade and scale in
+ * (opacity 0 → 1, scale .94 → 1, .6 s out-quart, 60 ms stagger) in batches as
+ * they reach 90% of the viewport.
  *
  * Progressive enhancement: nothing is hidden by CSS. Only elements that are
  * still below the fold when this runs are hidden (by GSAP), so content is

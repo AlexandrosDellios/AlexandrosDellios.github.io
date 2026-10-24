@@ -5,7 +5,7 @@
 //
 // House rules for this file (docs/DECISIONS.md):
 // - No people's names (teammates, supervisors). Say "Team of 3". The one exception is
-//   Marco Odermatt in the Mediacom line, because the CV names him (open question in QUESTIONS.md).
+//   Marco Odermatt in the Mediacom line (approved by Alexandros; other exceptions: docs/DECISIONS.md).
 // - No links to private or teammate-owned repos. BioRob stays at CV-level wording.
 // - Serif titles mark exactly ONE italic phrase with *asterisks* (rendered by Emph.astro).
 
@@ -38,7 +38,7 @@ export interface ExperienceItem {
   line: string;
   mediaNeeded?: string; // what the hover card shows as a drawn "Coming soon" placeholder (no image yet)
   sketch?: 'arm' | 'award' | 'photo'; // drawing for that placeholder (src/assets/sketches/)
-  image?: 'guide-dog'; // approved photo in src/assets/me/ shown as the desktop hover preview
+  image?: 'guide-dog' | 'award'; // approved photo shown as the desktop hover preview (keys: Experience.astro)
   imageLabel?: string; // caption of that preview card
   slug?: string; // role page: the row links to /experience/<slug>/
 }
@@ -174,12 +174,12 @@ export const site = {
       slug: 'ai-team',
     },
     {
-      when: 'Feb – Oct 2025',
+      when: 'Feb 2025 – May 2026',
       role: 'Lead Design & Fabrication Engineer',
       org: 'Mediacom EPFL',
       line: 'Won a competitive design pitch for the official EPFL Doctor Honoris Causa Award out of 12 proposals and took full ownership from concept to physical fabrication, partnering with PhD researchers and the Mediacom team to meet the award’s strict design standards. The award was presented to Marco Odermatt and others.',
-      mediaNeeded: 'Award photos',
-      sketch: 'award',
+      image: 'award',
+      imageLabel: 'Marco Odermatt’s trophy',
       slug: 'mediacom',
     },
   ] as ExperienceItem[],
