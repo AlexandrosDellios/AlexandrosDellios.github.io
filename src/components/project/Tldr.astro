@@ -35,7 +35,6 @@ const rows = [
 <section class:list={['tldr', className]} aria-labelledby="tldr-title">
   <h2 id="tldr-title" class="tldr__title">
     <span>TL;DR</span>
-    <span class="tldr__count" aria-hidden="true">{rows.length} lines</span>
   </h2>
   <dl class="tldr__list">
     {
@@ -73,10 +72,6 @@ const rows = [
     line-height: var(--lh-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
-  }
-
-  .tldr__count {
-    color: var(--ink-2);
   }
 
   .tldr__list {

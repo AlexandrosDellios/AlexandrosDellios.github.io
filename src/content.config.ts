@@ -48,6 +48,11 @@ const projects = defineCollection({
       // (a crop / label-free version of the poster). The page hero and OG image keep `poster`.
       tilePoster: image().optional(),
       posterAlt: z.string(),
+      // Optional image for the TOP of the page only (ProjectHero), e.g. a studio shot; the tile,
+      // previews, prev/next and social card keep `poster`. Overrides `video` in the hero.
+      hero: image().optional(),
+      heroAlt: z.string().optional(), // its alt text (default: posterAlt)
+      heroCredit: z.string().optional(), // a credit line under the hero, e.g. "Photo: ECAL photographers"
       focus: z.string().default('50% 50%'), // object-position for the 4:3 crop
       video: z
         .object({

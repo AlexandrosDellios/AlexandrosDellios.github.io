@@ -89,6 +89,7 @@
 - Alexandros added 14 photos and a clip of the wafer trophy (`Images/Wafer Trophy/`). All looked at; processed into `src/assets/projects/mediacom/` (EXIF and GPS dropped, sideways files fixed, tall shots cropped 3:4).
 - New `timeline` field + `ProcessTimeline.astro`: the award page now tells the development cycle in his order: prototypes (Design industriel course, SHS × ECAL, Tomas Kral, Nov 2024) → tests → production (wafers by the CMi: Pol Torres Vila, Chenxiang Zhang; machined stands; the Alumni Award 2025 run; Odermatt's trophy) → in print and on stage (Dimension n°18, Magistrale 2025) → the award (4 May 2026), ending with the hand-over to Mediacom and the CMi. Photos fade in one by one as you scroll.
 - The page's hero, social card and the Experience row's hover preview now use the finished Odermatt trophy. Mediacom dates on the site: Feb 2025 – May 2026. Names and faces in the photos and the photo credits (ECAL photographers, EPFL) as Alexandros decided (DECISIONS 2026-10-24).
+- The top of the award page now shows the ECAL studio shot (new `hero` field, credit under the board); the TL;DR boxes no longer show their "N lines" count.
 - Then replaced the encasing photo (new `encasing.heic`, GPS dropped) and added the protection-test clip to "The tests" (4:5, no audio, 886 KB MP4 / 705 KB WebM) and credited the Odermatt photo to François Wavre.
 - Checks: `npm run check` 0 errors, build 13 pages, 0 broken references; the page checked in the browser at 1440 and 390.
 

@@ -6,6 +6,9 @@
  *   <ProjectHero id={entry.id} data={entry.data} />
  *
  * Media, in order of preference:
+ *   0. data.hero    an image for the top of the page only (alt: heroAlt), e.g. a
+ *                   studio shot; the tile, previews and social card keep the
+ *                   poster. `heroCredit` prints a mono credit line under the board.
  *   1. data.video   LoopVideo, poster first, plays when >= 60% in view (any
  *                   device), visible pause control, nothing autoplays under
  *                   reduced motion / Save-Data (scripts/core/video.ts).
@@ -52,7 +55,10 @@ interface Props {
 }
 
 const { id, data, class: className } = Astro.props;
-const { video, poster } = data;
+const { hero } = data;
+const video = hero ? undefined : data.video;
+const poster = hero ?? data.poster;
+const alt = (hero && data.heroAlt) || data.posterAlt;
 
 const mode: 'video' | 'image' | 'placeholder' = video ? 'video' : poster ? 'image' : 'placeholder';
 
@@ -66,7 +72,7 @@ const sourceWidth = size?.width ?? 1600;
 const mediaMax = Math.max(560, Math.round(sourceWidth * 1.5));
 const sizes = `(min-width: 1024px) ${Math.min(mediaMax, 1500)}px, (min-width: 600px) 92vw, 100vw`;
 
-const kind = mediaKind(data.posterAlt);
+const kind = mediaKind(alt);
 const vt = vtNames(id).media;
 
 // Phones: a native-size copy of a diagram poster, to zoom into its labels.
@@ -92,7 +98,7 @@ const fullSize =
           mp4={video.mp4}
           webm={video.webm}
           poster={poster ?? video.poster}
-          alt={data.posterAlt}
+          alt={alt}
           label={data.shortTitle}
           aspect="auto"
           focus={data.focus}
@@ -110,7 +116,7 @@ const fullSize =
           fallbackFormat="webp"
           widths={widthsFor(poster.width)}
           sizes={sizes}
-          alt={data.posterAlt}
+          alt={alt}
           loading="eager"
           decoding="async"
           class="pj-hero__img"
@@ -128,6 +134,7 @@ const fullSize =
     {kind && mode !== 'placeholder' && <span class="chip chip--metric pj-hero__kind" aria-hidden="true">{kind}</span>}
   </div>
 </div>
+{data.heroCredit && hero && <p class="pj-hero__credit">{data.heroCredit}</p>}
 {
   fullSize && (
     <p class="pj-hero__full">
@@ -198,6 +205,17 @@ const fullSize =
   }
 
   /* "Full size ↗" under the board: phones only (labels are readable above). */
+  .pj-hero__credit {
+    margin-top: 0.6rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+    text-align: right;
+  }
+
   .pj-hero__full {
     display: none;
     margin-top: 0.75rem;

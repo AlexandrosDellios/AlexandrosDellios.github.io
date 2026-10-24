@@ -28,7 +28,7 @@ What to put in each project's frontmatter (`src/content.config.ts`). `focus` is 
 | `fly-navigation` | `poster.jpg` (the loop's first frame) | `50% 50%` | `/media/fly-navigation/loop.*`, `loop-poster.jpg` | none | none |
 | `ai-team` (role) | `../../assets/me/guide-dog.jpg` | `50% 50%` | none | none | none (`soon`: walking video, Isaac Lab training clip, build photos) |
 | `biorob` (role) | none (`mediaNeeded`: Lab photo, `sketch: arm`) | | none | none | none |
-| `mediacom` (role) | `poster.jpg` (the finished Odermatt trophy, 4:3) | `50% 50%` | none | none (the photos are in `timeline`: 14 photos, `01-…` to `15-…`) | none |
+| `mediacom` (role) | `poster.jpg` (the finished Odermatt trophy, 4:3; previews and social card) + `hero: 03-prototype-front.jpg` (top of the page, ECAL studio shot) | `50% 50%` | none | none (the photos are in `timeline`: 14 photos, `01-…` to `15-…`) | none |
 
 The Uno SVGs tag their zone rectangles with `class="zone zone-p1 … zone-ctr"`, so the page can animate the 5-zone split when the SVG is inlined. The glider poster is an **illustration**: its alt text and caption must say so.
 

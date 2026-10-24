@@ -683,7 +683,8 @@ Sources: [CV] AI Team entry. The robot's name (Byte) and the documentation link:
 | Metric chip | `CHOSEN FROM 12 PROPOSALS` |
 | Tags | `Design pitch` · `Prototyping` · `Machining` · `Fabrication` |
 | Accent | `#C4893A` / `#7A5016` (bronze) |
-| Hero | `src/assets/projects/mediacom/poster.jpg`, alt: "Marco Odermatt’s Doctor Honoris Causa trophy: an engraved purple silicon wafer standing on a machined metal stand" |
+| Hero (top of the page) | `hero`: the ECAL studio shot `03-prototype-front.jpg`, alt: "The trophy in the studio: a pink and purple silicon wafer etched with the EPFL logo, on a round metal stand", credit under the board: "Photo: ECAL photographers" |
+| Poster (previews, prev/next, social card) | `src/assets/projects/mediacom/poster.jpg`, alt: "Marco Odermatt’s Doctor Honoris Causa trophy: an engraved purple silicon wafer standing on a machined metal stand" |
 
 **Lead:** Designing the piece EPFL hands to its *honorary doctors*.
 
@@ -742,6 +743,7 @@ Sources: [CV] Mediacom entry (older CV; kept by decision) for the pitch, ownersh
 | `poster` | no | Path relative to the .md file: `../../assets/projects/<slug>/poster.jpg` |
 | `tilePoster` | no | Tile-only still for drawings whose labels are illegible at tile size (a crop or label-free version of the poster) |
 | `posterAlt` | yes | What the poster shows, in plain words. Say "Illustration" if it is not real data. |
+| `hero` / `heroAlt` / `heroCredit` | no | A different image for the top of the page only (e.g. a professional shot); the tile, previews, prev/next and social card keep `poster`. `heroCredit` prints a credit line under it ("Photo: ECAL photographers"). |
 | `focus` | no | `object-position` for the 4:3 crop, default "50% 50%" |
 | `video` | no | `mp4`, `webm`, `poster` as public URLs: `/media/<slug>/loop.mp4` |
 | `mediaNeeded` | no | Visitor-facing label for a visible "Coming soon" placeholder while media is missing: "Rocket landing screen recording". Keep specs (16:9, sizes) in docs/MEDIA.md §3. |

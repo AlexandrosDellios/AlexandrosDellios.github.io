@@ -23,6 +23,10 @@ cvMatch: false # on the older CV only (the current one dropped it)
 poster: "../../assets/projects/mediacom/poster.jpg"
 posterAlt: "Marco Odermatt’s Doctor Honoris Causa trophy: an engraved purple silicon wafer standing on a machined metal stand"
 focus: "50% 50%"
+# Top of the page: the ECAL studio shot of the trophy (the poster above stays for previews and the social card).
+hero: "../../assets/projects/mediacom/03-prototype-front.jpg"
+heroAlt: "The trophy in the studio: a pink and purple silicon wafer etched with the EPFL logo, on a round metal stand"
+heroCredit: "Photo: ECAL photographers"
 
 lead: "Designing the piece EPFL hands to its *honorary doctors*."
 tldr:

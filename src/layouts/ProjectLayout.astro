@@ -56,7 +56,7 @@ const { id, data } = entry;
 const isRole = data.kind === 'role';
 const vt = vtNames(id);
 
-const heroIsPlaceholder = !data.video && !data.poster;
+const heroIsPlaceholder = !data.hero && !data.video && !data.poster;
 
 // Per-project social image if one was generated (public/og/<id>.png), else the default.
 const ogImage = existsSync(join(process.cwd(), 'public', 'og', `${id}.png`)) ? `/og/${id}.png` : undefined;
