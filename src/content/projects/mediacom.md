@@ -58,8 +58,8 @@ timeline:
     text: "Before production, the wafer had to survive handling and display."
     media:
       - src: "../../assets/projects/mediacom/06-encasing-tests.jpg"
-        alt: "A black silicon wafer inside a clear acrylic case on a metal table"
-        caption: "Encasing test: a wafer in a clear acrylic case."
+        alt: "A silicon wafer set into a round clear case, on a wooden table"
+        caption: "Encasing test: a wafer set into a round clear case."
       - mp4: "/media/mediacom/protection-test.mp4"
         webm: "/media/mediacom/protection-test.webm"
         poster: "/media/mediacom/protection-test-poster.jpg"
