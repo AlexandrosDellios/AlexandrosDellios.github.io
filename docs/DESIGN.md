@@ -5,6 +5,7 @@
 >
 > ## Amendments after user answers (these override anything below)
 > - **No people's names** anywhere (teammates, supervisors). Say "Team of 3". The exceptions are Marco Odermatt (approved) and, on the award page only, the names Alexandros approved on 2026-10-24 (docs/DECISIONS.md).
+> - **Project page header (2026-10-25):** the meta row under the title shows only the year and the link pills (Code, Website). Context, team and "my part" were too much text (Alexandros); the course and team stay on the home tiles, and "my part" is said in each page's text.
 > - **Availability:** "Available summer 2027 · ~6 months".
 > - **Claims:** use the CV wording as-is. Alexandros confirmed the claims are backed by his reports.
 > - **Portrait:** `Images/pic.JPG`, rotated upright, background cut out, placed in the accent arch.

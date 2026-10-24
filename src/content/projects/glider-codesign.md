@@ -1,7 +1,7 @@
 ---
 # Selected work, tile 2 · copy mirrored in docs/CONTENT.md (keep both in sync).
 # Sources: the team's course report (local only, never published), the CV "RL-Driven Glider Co-Design"
-# (claims), the team's code (teammate-owned: never link it), and an inference run of its trained policy
+# (claims), the team's code (public, linked with Alexandros's OK on 2026-10-25 after a check: no report or student numbers), and an inference run of its trained policy
 # rendered for this site (2026-10-24).
 title: "Glider perching with wing co-design"
 shortTitle: "Glider co-design"
@@ -17,6 +17,8 @@ tags: ["PPO", "Co-design", "GPU-batched sim", "Curriculum"]
 accent: "#3A9AD9" # sky
 accentInk: "#1A6796" # 4.85:1 on paper-2 (the TL;DR box), 5.35:1 on paper
 cvMatch: true
+links:
+  code: "https://github.com/DaniAffCH/perching-RL" # team repo, public
 
 # The final frame of the animation (a real inference run of the trained co-design policy, rendered for this site).
 poster: "../../assets/projects/glider-codesign/poster.png"
@@ -83,4 +85,4 @@ tldr:
 
 The animation at the top is a real inference run of the trained co-design policy flying its co-designed wing, rendered for this site from the logged states: it perches 4.5 cm off target at 0.91 m/s after 2.42 s (shown at ×0.48, the glider drawn larger than scale). From 12 random starts, it perched every time.
 
-A team of 3 in EPFL’s Reinforcement Learning course, in collaboration with the CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code lives in a team repository.
+A team of 3 in EPFL’s Reinforcement Learning course, in collaboration with the CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code is in the team’s repository, linked above.

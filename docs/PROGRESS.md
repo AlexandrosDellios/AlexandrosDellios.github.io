@@ -112,6 +112,11 @@
 - Checks: `npm run check` 0 errors, build 13 pages; the page checked in the browser at 1440 and 390 (hero plays, figures load, no sideways scroll).
 - Then, at Alexandros's request, the synthetic-data clip spans the whole gallery and plays when it scrolls into view (new `extraVideos[].autoplay` and `wide` options; reduced motion and Save-Data still never autoplay).
 
+### 2026-10-25: Session 3, lighter page headers and the glider repo link
+
+- Project pages no longer show Context / Team / My part under the title (Alexandros: too much text): the meta row keeps the year and the link pills. Course and team stay on the home tiles; "my part" is in each page's text (a sentence added to Uno's Notes).
+- The glider page links the team's public repo (Alexandros's OK), after a check of all its branches and history: no report or student numbers.
+
 ## Next
 
 1. Get Alexandros's answers to docs/QUESTIONS.md (local file): "my part" per team project (Uno and glider answered), Marco Odermatt mention, research-card illustration, spoken languages, CV PDF metadata, teammates' names in his repo READMEs, and a read-through of the new fly-navigation and role pages (drafted from the code and the CV).

@@ -1,17 +1,16 @@
 ---
 /**
  * MetaRow (DESIGN §5.18, content plan §3.2): the project's "spec sheet" in
- * the mono telemetry voice. Year · Context · Team · My part · Links.
+ * the mono telemetry voice. Projects: Year · Links only (Alexandros,
+ * 2026-10-25: context, team and "my part" were too much text; the course and
+ * team are on the home tile, and each page's text says what his part was).
  *
  *   <MetaRow data={entry.data} />
  *
- * Links rule (docs/DECISIONS.md): "Code ↗" only for PUBLIC repos owned by
- * Alexandros (`links.code`) with nothing in them that must not be published
- * (report PDFs with student IDs); `privateRepo` says "Code: on request"
- * (linking to the contact block); teammate-owned repos get nothing.
- *
- * Team: the label is for screen readers only ("Team of 3" already says it;
- * a visible "TEAM Team of 3" reads twice).
+ * Links rule (docs/DECISIONS.md): "Code ↗" only for PUBLIC repos with nothing
+ * in them that must not be published (report PDFs with student IDs), owned by
+ * Alexandros or approved by him (`links.code`); `privateRepo` says "Code: on
+ * request" (linking to the contact block).
  *
  * Role pages (kind "role"): When · Organisation · Role, then a "Website ↗"
  * pill when `links.website` is set (projects can use it too).
@@ -23,7 +22,7 @@ import PillButton from '../global/PillButton.astro';
 import type { ProjectData } from './projects';
 
 interface Props {
-  data: Pick<ProjectData, 'kind' | 'year' | 'context' | 'team' | 'myPart' | 'links' | 'privateRepo'>;
+  data: Pick<ProjectData, 'kind' | 'year' | 'context' | 'myPart' | 'links' | 'privateRepo'>;
   class?: string;
 }
 
@@ -36,12 +35,7 @@ const items: { label: string; value: string; srLabel?: boolean }[] =
         { label: 'Organisation', value: data.context, srLabel: true },
         ...(data.myPart ? [{ label: 'Role', value: data.myPart }] : []),
       ]
-    : [
-        { label: 'Year', value: data.year },
-        { label: 'Context', value: data.context },
-        { label: 'Team', value: data.team, srLabel: true },
-        ...(data.myPart ? [{ label: 'My part', value: data.myPart }] : []),
-      ];
+    : [{ label: 'Year', value: data.year }];
 const code = data.links?.code;
 const website = data.links?.website;
 ---
@@ -89,7 +83,7 @@ const website = data.links?.website;
 </dl>
 
 <style>
-  /* Wrapped row of label/value pairs: "YEAR 2025", "TEAM Team of 3", … */
+  /* Wrapped row of label/value pairs: "YEAR 2025", then the link pills. */
   .meta {
     display: flex;
     flex-wrap: wrap;

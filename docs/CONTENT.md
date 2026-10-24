@@ -12,11 +12,11 @@
 
 1. **The CV is the source of truth.** Wherever the CV makes a claim (numbers included), the site uses the CV wording as written. Alexandros confirmed every CV claim is backed by his reports (docs/DECISIONS.md). Repo and report details are added only where they don't contradict the CV.
 2. **No people's names.** Teammates, professors and supervisors are never named: "Team of 3", "a teammate". Exceptions, each approved by Alexandros: Marco Odermatt (Mediacom line and award page); on the award page only, the course teacher (Tomas Kral), the CMi makers (Pol Torres Vila, Chenxiang Zhang) and the names and faces visible in its photos (DECISIONS 2026-10-24).
-3. **No links to private or teammate-owned repos, and none to repos holding report PDFs or student ID numbers** (history included). Linked today: Legged-Robot (quadruped), MPC-Rocket (rocket) and Autonomous-Thymio. The report PDFs were purged from the first two on 2026-10-20. Other public links: the EPFL Student AI Team's project documentation (bark-documentation.readthedocs.io, given by Alexandros) and, in the footer, the design credit to cydstumpel.nl.
+3. **No links to private repos, none to teammate-owned repos unless Alexandros approves, and none to repos holding report PDFs or student ID numbers** (history included). Linked today: Legged-Robot (quadruped), MPC-Rocket (rocket), Autonomous-Thymio, ImageProject (Uno) and the team's perching-RL (glider, approved 2026-10-25). The report PDFs were purged from the first two on 2026-10-20. Other public links: the EPFL Student AI Team's project documentation (bark-documentation.readthedocs.io, given by Alexandros) and, in the footer, the design credit to cydstumpel.nl.
 4. **BioRob stays at CV level.** Only the CV's wording; no methods, models, equipment, partners or publication plans.
 5. **No report PDFs.** Figures are shown individually with captions; the reports themselves are not linked.
 6. **Voice.** First person, "we" for team work. Concise and concrete, no hype words. Serif titles and leads mark exactly **one** italic phrase with `*asterisks*`.
-7. **"My part"** is stated only where it is documented. Today: Thymio (state estimation), the fly-navigation project, the glider (the SAC agent) and Uno (most of the pipeline). Everywhere else it waits for Alexandros (Q-A1). Role pages show the CV role title instead.
+7. **"My part"** is stated only where it is documented, in the page text (since 2026-10-25 the page header no longer shows it): Thymio (TL;DR, state estimation), the fly-navigation project (Achieved list), the glider (Approach step 3, the SAC agent) and Uno (Notes, most of the pipeline). The `myPart` field stays in each file. Everywhere else it waits for Alexandros (Q-A1). Role pages show the CV role title instead.
 
 **Source tags used below**
 - **[CV]**: wording or number from the CV.
@@ -205,7 +205,7 @@ Sources: every item is on the CV, except "Central pattern generators" and the MP
 
 ## 8. Project pages
 
-Each page shows, in order: title strip (outlined word), meta row (year · context · team · my part · code link), TL;DR (Problem / What we built / Result / Stack), lead, hero media, *The approach* (≤ 5 steps), *What it achieved* (3–5 bullets with numbers), footage and figures with captions, *Notes*, then prev/next. Section headings carry one italic word like the home headings: `## The *approach*`, `## What it *achieved*`, `## *Notes*`.
+Each page shows, in order: title strip (outlined word), meta row (year and the code link only: context, team and "my part" were dropped on 2026-10-25 as too much text; the course and team stay on the home tile), TL;DR (Problem / What we built / Result / Stack), lead, hero media, *The approach* (≤ 5 steps), *What it achieved* (3–5 bullets with numbers), footage and figures with captions, *Notes*, then prev/next. Section headings carry one italic word like the home headings: `## The *approach*`, `## What it *achieved*`, `## *Notes*`.
 
 ### 8.1 Quadruped locomotion with CPGs + deep RL
 
@@ -523,7 +523,7 @@ Team of 4 with one module each: global navigation and motion control, local navi
 | Metric chip | `29.7% FASTER CONVERGENCE` |
 | Tags | `PPO` · `Co-design` · `GPU-batched sim` · `Curriculum` |
 | Accent | `#3A9AD9` fill / `#1A6796` text (4.85:1 on paper-2) |
-| Code link | none (teammate-owned repo) |
+| Code link | https://github.com/DaniAffCH/perching-RL (team repo, public; approved 2026-10-25) |
 | On the CV | yes |
 | Hero + tile loop | `/media/glider-codesign/loop.mp4`: a real inference run of the trained co-design policy, rendered for this site |
 | Poster alt | Simulation render: the glider perched on its target post after a pitch-up, its flight path traced behind it |
@@ -555,7 +555,7 @@ Team of 4 with one module each: global navigation and motion control, local navi
 
 The animation at the top is a real inference run of the trained co-design policy flying its co-designed wing, rendered for this site from the logged states: it perches 4.5 cm off target at 0.91 m/s after 2.42 s (shown at ×0.48, the glider drawn larger than scale). From 12 random starts, it perched every time.
 
-A team of 3 in EPFL’s Reinforcement Learning course, in collaboration with the CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code lives in a team repository.
+A team of 3 in EPFL’s Reinforcement Learning course, in collaboration with the CV Lab: the project builds on the lab’s gradient-based co-design framework for winged robots, and NeuralFoil is an open-source aerodynamics surrogate. The code is in the team’s repository, linked above.
 
 **Figures** (caption · credit), in order:
 - `fig-training-curve-neuralfoil.png`: Training with NeuralFoil aerodynamics: each sharp drop is the curriculum tightening the perch, and the policy recovers every time. 200M timesteps in under 6 minutes. *(Team figure · course report)*
@@ -571,7 +571,7 @@ A team of 3 in EPFL’s Reinforcement Learning course, in collaboration with the
 - [Report] the team's course report (local only, never published): the simulator (RK4 + NeuralFoil in PyTorch, 4,096 gliders, ~600k steps/s on an RTX 5090), the 7-D state and ±5 rad/s elevator rate, the flat-plate → NeuralFoil curriculum and its 4 stages, PPO vs SAC vs TD3, the randomized starts, the 18-D CST co-design with REINFORCE and a design critic, CEM (8 × 24), 200M timesteps in under 6 minutes, comparable trajectory quality to optimal control and the success heatmap, Table 3 (final stage reached in 200 vs 285 updates and mastery in 244 vs 336; the 29.7% / 27.1% / 11.6% speedups come from the final-stage column), the figures, team of 3, the SAC result on the flat plate, the CV Lab framework. The result line follows the report's wording.
 - [Run] an inference run of the team's final co-design policy with its learned wing, in the team's own simulator, rendered for this site and independently re-run with identical states (2026-10-24): perched 4.5 cm off at 0.91 m/s after 2.42 s from the evaluation start; 12/12 perches from the environment's seeded random starts.
 - [Alexandros] the course (Reinforcement Learning, a project in collaboration with the CV Lab) and his part: the SAC agent, built in parallel with a teammate's PPO, both to replace the optimal-control planner with RL.
-- The code is in a teammate's repository, so there is no link.
+- The code is in the team's public repository, linked with Alexandros's OK (2026-10-25) after a full check of its files and history: no report, no student numbers.
 
 ### 8.7 Fly navigation in NeuroMechFly
 
@@ -754,7 +754,7 @@ Sources: [CV] Mediacom entry (older CV; kept by decision) for the pitch, ownersh
 | `tags` | yes | 2–5 short tags (3–4 is best): `["MPC", "CasADi"]` |
 | `accent` / `accentInk` | yes | Fill colour (large shapes only) and a darker text colour with at least 4.5:1 contrast on paper `#F4EFE6`. Sample the fill from the project's own footage. |
 | `cvMatch` | no | `true` if the project is on the CV |
-| `links.code` | no | Only a **public repo owned by Alexandros**, with no report PDF or student IDs in it (history included). Never private or teammate-owned repos. |
+| `links.code` | no | Only a **public repo owned by Alexandros** (or a team repo he approved), with no report PDF or student IDs in it (history included). Never private repos. |
 | `privateRepo` | no | `true` shows "Code: on request" (links to the contact block) instead of a link |
 | `links.website` / `links.websiteLabel` | no | A public project or team website, shown as a pill ("Project docs ↗"); label defaults to "Website" |
 | `poster` | no | Path relative to the .md file: `../../assets/projects/<slug>/poster.jpg` |

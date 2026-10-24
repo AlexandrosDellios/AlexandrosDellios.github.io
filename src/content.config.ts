@@ -33,7 +33,7 @@ const projects = defineCollection({
       cvMatch: z.boolean().default(false), // project appears on the CV
       links: z
         .object({
-          code: z.url().optional(), // only PUBLIC repos owned by Alexandros, with no report PDFs / student IDs in them
+          code: z.url().optional(), // only PUBLIC repos owned by Alexandros (or team repos he approved), with no report PDFs / student IDs in them
           website: z.url().optional(), // a public project / team website
           websiteLabel: z.string().optional(), // its pill label, e.g. "Project docs" (default "Website")
         })

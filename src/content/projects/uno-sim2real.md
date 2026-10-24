@@ -89,4 +89,4 @@ tldr:
 
 The animation at the top is the submitted model reading a test photo it never saw: it gets 5 of the 6 cards and the turn right, and misses the red 8 in the bottom hand. The photos come from the course’s dataset; since the test labels are hidden, the cards were checked by eye.
 
-A team of 3, as an in-class Kaggle competition. Afterwards I restructured the code into a documented package that reproduces the submission exactly; the repository has the trained weights, every step of the pipeline and the scripts behind the figures on this page.
+A team of 3, as an in-class Kaggle competition; I built most of the pipeline: the synthetic data, the model, the training and the inference. Afterwards I restructured the code into a documented package that reproduces the submission exactly; the repository has the trained weights, every step of the pipeline and the scripts behind the figures on this page.
