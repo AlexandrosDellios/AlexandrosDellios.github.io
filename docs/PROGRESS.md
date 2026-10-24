@@ -90,8 +90,8 @@
 - The illustration poster and its tile crop are gone; the social card is regenerated.
 - New `photo` flag on figures (no multiply blend); the gallery title counts photos.
 - A six-agent review then caught: the report's speedups belong to its "Stage 3 reached" column (chart and copy now use it), 4:3 crops that cut the glider out (animation re-rendered from the same logged flight with the perch further left), Escape being undone by the new preview resync (fixed), prev/next letterboxing, the photo's 2.2 MB full-size PNG (now JPEG), and doc wording.
-- Alexandros's answers (Q-A4), applied the same day: no wind (the claim is gone from the TL;DR and the home statement, now "lands precisely from an off-course start"; he is updating his CV), context "EPFL · Reinforcement Learning course · in collaboration with the CV Lab" (in collaboration with the lab), My part "SAC agent, in parallel with a teammate's PPO" (also in the Approach), the poster-session photo stays. The other CV claims stay as written (Alexandros confirmed them).
-- To do: replace `public/CV-Alexandros-Dellios.pdf` when the updated CV (no glider wind claim) arrives.
+- Alexandros's answers (Q-A4), applied the same day: no wind (the claim is gone from the TL;DR and the home statement, now "lands precisely from an off-course start"), context "EPFL · Reinforcement Learning course · in collaboration with the CV Lab" (in collaboration with the lab), My part "SAC agent, in parallel with a teammate's PPO" (also in the Approach), the poster-session photo stays. The other CV claims stay as written (Alexandros confirmed them).
+- New CV published (`public/CV-Alexandros-Dellios.pdf`): its only change is the glider bullet, wind dropped ("varying starting speeds and positions"); same links and metadata as before.
 
 ### 2026-10-24: Session 3, the award's development cycle
 
