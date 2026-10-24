@@ -16,7 +16,7 @@
 4. **BioRob stays at CV level.** Only the CV's wording; no methods, models, equipment, partners or publication plans.
 5. **No report PDFs.** Figures are shown individually with captions; the reports themselves are not linked.
 6. **Voice.** First person, "we" for team work. Concise and concrete, no hype words. Serif titles and leads mark exactly **one** italic phrase with `*asterisks*`.
-7. **"My part"** is stated only where it is documented. Today: Thymio (state estimation), the fly-navigation project and the glider (the SAC agent). Everywhere else it waits for Alexandros (Q-A1). Role pages show the CV role title instead.
+7. **"My part"** is stated only where it is documented. Today: Thymio (state estimation), the fly-navigation project, the glider (the SAC agent) and Uno (most of the pipeline). Everywhere else it waits for Alexandros (Q-A1). Role pages show the CV role title instead.
 
 **Source tags used below**
 - **[CV]**: wording or number from the CV.
@@ -397,52 +397,59 @@ The rocket model, simulator and 3D visualizer were provided by the course. We cl
 | Tile title | Reading an Uno table from a single photo |
 | Short title | Uno sim-to-real |
 | Outlined word | UNO |
-| Meta | 2026 · EPFL · In-class Kaggle competition · Team project |
-| One-liner | A lightweight ResNet-18 + CBAM network detects and counts overlapping Uno cards, trained on synthetic data first and real photos second. |
-| Metric chip | `75% ACCURACY · 12M PARAMS` |
+| Meta | 2026 · EPFL · Image Analysis and Pattern Recognition course · Team of 3 · My part: Most of the pipeline: synthetic data, model, training, inference |
+| One-liner | A lightweight ResNet-18 + CBAM network detects and counts overlapping Uno cards, trained on synthetic data first and real photos second. (CV wording) |
+| Metric chip | `75% ACCURACY · 12M PARAMS` (CV: 75% is the Kaggle leaderboard score, 12M the CV's rounding of 11.4M; both kept by Alexandros) |
 | Tags | `PyTorch` · `Synthetic data` · `Sim-to-real` · `Attention` |
 | Accent | `#D23445` fill / `#A61F30` text |
-| Code link | none · shows "Code: on request" |
+| Code link | none yet: "Code: on request" until Alexandros makes github.com/AlexandrosDellios/ImageProject public, then `links.code` |
 | On the CV | yes |
-| Poster alt | Diagram: a table photo split into four rotated hand zones and a center pile, feeding synthetic pre-training, real fine-tuning and a table-state output |
-| Placeholder | COMING SOON · Prediction overlay on a table photo |
-| Tile poster | `poster-tile.png`: the 5-zone table split only, without small labels |
+| Hero + tile loop | `/media/uno-sim2real/loop.mp4`: the submitted model reading test photo L1000947 zone by zone |
+| Poster alt | Overhead photo of an Uno table on a leaf-print tablecloth, with the five reading zones drawn and the model’s predicted cards labelled in each |
 
-**Lead:** With few labeled photos and no pretrained weights allowed, the network first learned on *tables that never existed*.
+**Lead:** With only 81 labeled photos and no pretrained weights, the network first learned on *tables that never existed*.
 
 **TL;DR**
-- **Problem:** From one overhead photo of a game, read the center card, whose turn it is and every player’s hand, even when cards overlap, rotate and hide each other.
-- **What we built:** A lightweight (12M parameter) customized ResNet-18 with CBAM attention, pre-trained through a synthetic data pipeline, then moved to real camera photos with multi-stage fine-tuning.
-- **Result:** 75% accuracy on a Kaggle dataset.
-- **Stack:** Python, PyTorch, Torchvision, Albumentations, OpenCV
+- **Problem:** From one overhead photo of a game, read every player’s hand, the center card and whose turn it is, even when cards overlap, rotate and hide each other.
+- **What we built:** A lightweight (12M parameter) customized ResNet-18 with CBAM attention that counts the cards in five zones of the table, pre-trained on 10,000 synthetic two-card images, then moved to real camera photos with multi-stage fine-tuning.
+- **Result:** 75% accuracy on the course’s Kaggle leaderboard. Spread-out hands are read well; cards buried deep in a fan are still missed.
+- **Stack:** Python, PyTorch, Torchvision, NumPy, Pillow, Matplotlib
 
 #### The *approach*
 
-1. **Split the table.** Each photo is cut into five zones, four hands and the center pile, and every hand is rotated upright.
-2. **Detect by counting.** A 56 × 6 output head predicts how many copies (0–5) of each card and turn-token class a zone holds, so real labels never need bounding boxes.
-3. **Model.** A customized ResNet-18 trained from scratch, with CBAM channel and spatial attention on its last feature map, inside a 12M-parameter budget.
-4. **Synthetic data.** Card cut-outs composited onto real table textures with aggressive augmentations (±180° rotation, perspective distortion, lighting jitter, noise and occlusion holes) so the network can’t memorize textures. Rare turn tokens are oversampled 3×, and nothing is flipped, because mirrored digits don’t exist.
-5. **Multi-stage fine-tuning.** Pre-train on synthetic composites, then fine-tune on real table crops at a 10× lower learning rate with early stopping.
+1. **Five zones.** Each photo is cut on a fixed grid into the four hands and the center pile. Each hand is turned to face its player, and every crop is padded to a square before it is resized to 336 px, so round symbols are never squashed into ovals.
+2. **Count, don’t detect.** The real photos only list the cards in each hand, with no boxes. So for each of 56 classes (54 card faces and the two turn tokens), the network predicts how many copies, 0 to 5, a zone holds.
+3. **Model.** A ResNet-18 trained from scratch, with CBAM channel and spatial attention on its last feature map and a counting head. Focal loss keeps the many easy “zero copies” targets from swamping the few cards present.
+4. **Synthetic pre-training.** 10,000 images of two overlapping cards, built from 56 hand-cut cards on patches of the two real table surfaces, with colour jitter, rotation, perspective, blur, letterbox bars and sensor noise. Pairs rather than single cards, so the network learns to recognize a card by its corners when another one covers it.
+5. **Multi-stage fine-tuning.** The 81 labeled photos give 405 zone crops, and each training crop gets a turned, rescaled twin. First only the counting head learns from them, then the whole network, each stage with early stopping.
 
 #### What it *achieved*
 
-- **75% accuracy.** Measured on a Kaggle dataset of real table photos.
-- **Lightweight: 12M parameters.** A ResNet-18 trunk with hand-written CBAM attention, trained without pretrained weights.
-- **200 synthetic composites per card class.** Each has random rotation, perspective, lighting, noise and occlusion, to bridge the sim-to-real gap.
-- **Two learning rates, two worlds:** 1e-3 on synthetic data, then 1e-4 on real photos, starting from the synthetic weights.
+- **75% accuracy** on the course’s Kaggle leaderboard.
+- **Lightweight: 12M parameters**, trained without pretrained weights. It reads a table in about a quarter of a second on a laptop.
+- **0.737 mean F1** on 81 held-out real hand crops, over the 48 card classes present, counting every copy.
+- **It misses rather than invents.** Missed cards outnumber invented ones more than two to one, and a card buried in a fan is the typical miss.
 
 #### *Notes*
 
-This was a course competition. The table photos and labels belong to the course, so they are not shown here, and the code stays private.
+The animation at the top is the submitted model reading a test photo it never saw: it gets 5 of the 6 cards and the turn right, and misses the red 8 in the bottom hand. The photos come from the course’s dataset; since the test labels are hidden, the cards were checked by eye.
 
-**Figures** (caption · credit)
+A team of 3, as an in-class Kaggle competition. Afterwards I restructured the code into a documented package that reproduces the submission exactly; the repository has the trained weights, every step of the pipeline and the scripts behind the figures on this page.
+
+**Gallery** (caption · credit), in order:
+- `synthesis.mp4` (clip, click to play): How one synthetic training image is built: a patch of a real tablecloth, two hand-cut cards colour-jittered, rotated, tilted and blurred, pasted so they overlap, then brightness, letterbox bars and sensor noise. Pre-training used 10,000 of these.
+- `fig-zones.jpg` (photo): From photo to network input: the table is cut into five zones, each hand is turned to face its player, and every crop is padded to a square so round symbols keep their shape. Cards in the red corners are seen by two zones. *(Rendered for this site with the project’s code)*
 - `fig-pipeline.svg`: The pipeline: split the table into five zones, pre-train on synthetic composites, fine-tune on real crops, and read out the table state. *(Diagram redrawn for this site)*
+- `fig-f1.png` (photo): Per-class F1 on 81 held-out real hand crops, counting every copy: a mean of 0.737 over the 48 classes present. Blue 2, blue 6 and red 7 are never found. *(Rendered for this site with the project’s code)*
+- `fig-failures.jpg` (photo): Where it still fails: tight fans. A card mostly hidden under others is the typical miss; on the held-out crops, the model misses cards more than twice as often as it invents them. *(Rendered for this site with the project’s code)*
+- `fig-gradcam.jpg` (photo): Where the network looks (Grad-CAM on its last stage): on a green skip hidden under a +2, and on the blue 8, not the green one beside it. For a turn token cut off at the crop’s edge, it looks at the cards instead, yet still counts it. *(Rendered for this site with the project’s code)*
 
 **Sources**
-- [CV] "Image Processing for Uno Cards": lightweight (12M parameter) customized ResNet-18 with CBAM, detects and counts overlapping cards, synthetic data pipeline with occlusion and perspective augmentations, Sim2Real, multi-stage fine-tuning, 75% accuracy on a Kaggle dataset.
-- [Report] (code) five-zone split, 56 × 6 counting head, trained from scratch, 200 composites per class, 3× token oversampling, no flips, learning rates 1e-3 → 1e-4.
-- Note: the poster and pipeline diagram say "12M-parameter budget", the CV's wording (the code's exact count, ≈11.4M, is inside it). The lead is voice-neutral until the team size is known (Q-A1).
-- Team size is not confirmed, so the tile says "Team project" (Q-A1). The course photos and labels are never shown, and the repo is private (page shows "Code: on request").
+- [CV] "Image Processing for Uno Cards": lightweight (12M parameter) customized ResNet-18 with CBAM, detects and counts overlapping cards, synthetic data pipeline with occlusion and perspective augmentations, Sim2Real, multi-stage fine-tuning, 75% accuracy on a Kaggle dataset (Alexandros: the course's Kaggle leaderboard score).
+- [Report] the team's course report (local only, never published): the five-zone split, padding to square at 336 px, the 56 × 6 counting head, focal loss, synthetic two-card pre-training, head-first then full fine-tuning, the failure modes.
+- [Code] the restructured repo (github.com/AlexandrosDellios/ImageProject): 11.4M parameters, 10,000 + 2,000 synthetic images, 405 crops (324 train + their 324 turned copies, 81 val), mean F1 0.737 over 48 classes on the 81 held-out crops (32 copies missed, 14 invented), the submission reproduced 159/159.
+- [Run] the hero, the zones, F1, Grad-CAM and failure figures are runs of the submitted model rendered for this site (2026-10-24); the cards on test photos were checked by eye (hidden test labels).
+- [Alexandros] team of 3, the course, his part (most of the pipeline), the Kaggle score, course photos may be shown, the repo goes public.
 
 ### 8.5 Autonomous Thymio: localization that survives a blindfold
 

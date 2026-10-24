@@ -3,11 +3,10 @@
 Render an SVG drawn in the site fonts to a PNG (docs/MEDIA.md §2.4).
 
     python3 scripts/media/render_svg.py IN.svg OUT.png WIDTH [BG_HEX]
-    python3 scripts/media/render_svg.py src/assets/projects/uno-sim2real/poster.svg \
-        src/assets/projects/uno-sim2real/poster.png 1600 F4EFE6
+    python3 scripts/media/render_svg.py drawing.svg drawing.png 1600 F4EFE6
 
-Used for the posters that are drawings (Uno pipeline, glider airfoil): Astro
-then makes AVIF/WebP from the PNG. The published SVGs keep plain font names
+For drawings that need a raster copy (posters, social cards): Astro then makes
+AVIF/WebP from the PNG. The published SVGs keep plain font names
 ('Geist', 'Geist Mono'), so this script embeds the Fontsource files.
 
 How it works (macOS only: it uses Quick Look, `qlmanage`):

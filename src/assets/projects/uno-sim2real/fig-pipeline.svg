@@ -1,7 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 500" width="1400" height="500" role="img" aria-labelledby="t d">
   <!--
     Uno sim-to-real counting pipeline, restyled for the "Lab Poster" design system (docs/DESIGN.md).
-    Source: private/media-src/uno-cards/pipeline-diagram.svg (same geometry and wording).
+    Source: private/media-src/uno-cards/pipeline-diagram.svg (same geometry). Text updated on
+    2026-10-24 to the submitted pipeline (two-card pairs, focal loss, head-first fine-tuning).
     Palette: paper #F4EFE6, ink #151412, ink-2 #5E5850, project accent crimson #D23445 / #A61F30.
     The four player-zone colours (blue, yellow, green, red) are the original Uno colours and are kept.
     Fonts: Geist / Geist Mono when the SVG is inlined in the page; system fallbacks inside an <img>.
@@ -64,30 +65,30 @@
   <text x="410" y="112" class="mono stage">STAGE 1 · SYNTHETIC PRE-TRAINING</text>
   <rect class="shadow" x="406" y="124" width="210" height="110" rx="8"/>
   <rect class="box" x="410" y="120" width="210" height="110" rx="8"/>
-  <text x="426" y="150" class="sans ttl">Single-card cutouts</text>
+  <text x="426" y="150" class="sans ttl">Hand-cut cards</text>
   <text x="426" y="174" class="sans txt">56 classes incl. 2 turn tokens</text>
-  <text x="426" y="193" class="sans txt">200 samples per card,</text>
-  <text x="426" y="212" class="sans txt">3x oversampled tokens</text>
+  <text x="426" y="193" class="sans txt">on patches of the two</text>
+  <text x="426" y="212" class="sans txt">real table surfaces</text>
 
   <rect class="shadow" x="652" y="124" width="210" height="110" rx="8"/>
   <rect class="box" x="656" y="120" width="210" height="110" rx="8"/>
-  <text x="672" y="150" class="sans ttl">Synthetic compositor</text>
-  <text x="672" y="174" class="sans txt">real table textures, 640 px</text>
-  <text x="672" y="193" class="sans txt">±180° rotation, perspective,</text>
-  <text x="672" y="212" class="sans txt">color jitter, noise, occlusion</text>
+  <text x="672" y="150" class="sans ttl">Two-card compositor</text>
+  <text x="672" y="174" class="sans txt">10,000 overlapping pairs, 336 px</text>
+  <text x="672" y="193" class="sans txt">rotation, perspective, blur,</text>
+  <text x="672" y="212" class="sans txt">color jitter, letterbox, noise</text>
 
   <rect class="shadow" x="898" y="124" width="210" height="110" rx="8"/>
   <rect class="box" x="902" y="120" width="210" height="110" rx="8"/>
   <text x="918" y="150" class="sans ttl">Pre-train from scratch</text>
   <text x="918" y="174" class="sans txt">ResNet-18 + CBAM attention</text>
-  <text x="918" y="193" class="sans txt">AdamW, LR 1e-3</text>
-  <text x="918" y="212" class="sans txt">early stopping (patience 15)</text>
+  <text x="918" y="193" class="sans txt">AdamW, LR 1e-3, focal loss</text>
+  <text x="918" y="212" class="sans txt">early stopping (patience 20)</text>
 
   <!-- Counting head: part of the network, so drawn dashed and without a shadow -->
   <rect class="box" x="1148" y="120" width="210" height="110" rx="8" stroke-dasharray="5 4"/>
   <text x="1164" y="150" class="sans ttl">Counting head</text>
   <text x="1164" y="174" class="sans txt">FC 512 → 56 × 6 logits</text>
-  <text x="1164" y="193" class="sans txt">count 0-5 per class (CE loss)</text>
+  <text x="1164" y="193" class="sans txt">count 0-5 per class (argmax)</text>
   <text x="1164" y="212" class="sans txt">12M-parameter budget</text>
 
   <path class="lnk" d="M620 175 H650" marker-end="url(#arr)"/>
@@ -107,14 +108,14 @@
   <text x="672" y="330" class="sans ttl">Crop labels + augment</text>
   <text x="672" y="354" class="sans txt">table CSV → per-crop card lists</text>
   <text x="672" y="373" class="sans txt">active-player token injected</text>
-  <text x="672" y="392" class="sans txt">1 original + 4 augmented</text>
+  <text x="672" y="392" class="sans txt">1 original + 1 turned copy</text>
 
   <rect class="shadow" x="898" y="304" width="210" height="110" rx="8"/>
   <rect class="box" x="902" y="300" width="210" height="110" rx="8"/>
   <text x="918" y="330" class="sans ttl">Fine-tune on real crops</text>
   <text x="918" y="354" class="sans txt">init from stage-1 weights</text>
-  <text x="918" y="373" class="sans txt">LR 1e-4 (10x lower)</text>
-  <text x="918" y="392" class="sans txt">early stopping (patience 10)</text>
+  <text x="918" y="373" class="sans txt">head only (LR 4e-4), then</text>
+  <text x="918" y="392" class="sans txt">all layers (LR 6e-4)</text>
 
   <!-- Output: the only crimson (project accent) element -->
   <rect x="1144" y="304" width="210" height="110" rx="8" fill="#D23445"/>
