@@ -117,6 +117,10 @@
 - Project pages no longer show Context / Team / My part under the title (Alexandros: too much text): the meta row keeps the year and the link pills. Course and team stay on the home tiles; "my part" is in each page's text (a sentence added to Uno's Notes).
 - The glider page links the team's public repo (Alexandros's OK), after a check of all its branches and history: no report or student numbers.
 
+### 2026-11-20: site down after a visibility change
+
+- Alexandros made the site repo private, then public again: GitHub deleted the Pages site meanwhile (free plan), so alexandrosdellios.com returned 404. Recreated Pages (build from the workflow, custom domain alexandrosdellios.com, HTTPS enforced) and redeployed; the certificate and the http/www/github.io redirects came back. Recovery steps are in CLAUDE.md.
+
 ## Next
 
 1. Get Alexandros's answers to docs/QUESTIONS.md (local file): "my part" per team project (Uno and glider answered), Marco Odermatt mention, research-card illustration, spoken languages, CV PDF metadata, teammates' names in his repo READMEs, and a read-through of the new fly-navigation and role pages (drafted from the code and the CV).
